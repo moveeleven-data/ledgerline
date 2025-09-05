@@ -39,6 +39,21 @@ models:
   market_sync_dbt:
     +materialized: view
 
-    refined:    # Applies to all files under models/refined/
+    staging:    # Data storage layer - Applies to all files under models/staging/
+      +materialized: view
+      +schema: STAGING
+
+    refined:    # Refined Data layer - Applies to all files under models/refined/
       +materialized: table
       +schema: REFINED
+
+    marts:     # Data delivery layer - Applies to all files under models/marts
+      portfolio:      # One specific data mart - Applies to all files under models/marts/portfolio
+        +materialized: table
+        +schema: MART_PORTFOLIO
+
+# Configuring Snapshots
+# Full documentation: https://docs.getdbt.com/reference/snapshot-configs
+snapshots:
+  portfolio_tracking:
+    +target_schema: SNAPSHOTS
