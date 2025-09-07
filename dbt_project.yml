@@ -2,7 +2,7 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
-name: 'my_new_project'
+name: 'market_sync_dbt'
 version: '1.0.0'
 config-version: 2
 
@@ -36,7 +36,49 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
-  my_new_project:
-    # Applies to all files under models/example/
-    example:
+  market_sync_dbt:
+    +materialized: view
+
+    staging:    # Data storage layer - Applies to all files under models/staging/
+      +materialized: view
+      +schema: STAGING
+
+    refined:    # Refined Data layer - Applies to all files under models/refined/
       +materialized: table
+      +schema: REFINED
+
+    marts:     # Data delivery layer - Applies to all files under models/marts
+      portfolio:      # One specific data mart - Applies to all files under models/marts/portfolio
+        +materialized: table
+        +schema: MART_PORTFOLIO
+
+# Configuring Snapshots
+# Full documentation: https://docs.getdbt.com/reference/snapshot-configs
+snapshots:
+  market_sync_dbt:
+    +target_schema: SNAPSHOTS
+
+# Configuring Seeds
+seeds:
+  +schema: seed_data
+  market_sync_dbt:
+    ABC_Bank_SECURITY_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_COUNTRY_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_CURRENCY_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_EXCHANGE_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
