@@ -67,3 +67,18 @@ seeds:
         LOAD_TS: TIMESTAMP
       +post-hook:
         - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_COUNTRY_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_CURRENCY_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
+    ABC_Bank_EXCHANGE_INFO:
+      +column_types:
+        LOAD_TS: TIMESTAMP
+      +post-hook:
+        - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
