@@ -4,3 +4,6 @@ sources:
     schema: "{{target.schema}}_SEED_DATA"
     tables:
       - name: ABC_Bank_SECURITY_INFO
+      - name: ABC_Bank_COUNTRY_INFO
+      - name: ABC_Bank_EXCHANGE_INFO
+      - name: ABC_Bank_CURRENCY_INFO
