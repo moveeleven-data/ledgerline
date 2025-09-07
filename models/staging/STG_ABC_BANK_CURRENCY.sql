@@ -10,9 +10,9 @@ src_data AS (
         CurrencyName        AS CURRENCY_NAME,     -- text
         Locations           AS LOCATIONS,         -- text
         LOAD_TS             AS LOAD_TS_UTC,       -- TIMESTAMP_NTZ
-        'SEED.currency_ISO_4217' AS RECORD_SOURCE
+        'SEED.ABC_BANK_CURRENCY' AS RECORD_SOURCE
 
-    FROM {{ source('seeds', 'currency_ISO_4217') }}
+    FROM {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
 ),
 
 default_record AS (
@@ -45,4 +45,4 @@ hashed AS (
     FROM with_default_record
 )
 
-SELECT * FROM hashed;
+SELECT * FROM hashed

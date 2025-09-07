@@ -18,9 +18,9 @@ src_data AS (
         Close_UTC       AS CLOSE_UTC,
         Lunch_UTC       AS LUNCH_UTC,
         LOAD_TS         AS LOAD_TS_UTC,
-        'SEED.exchange' AS RECORD_SOURCE
+        'SEED.ABC_BANK_EXCHANGE' AS RECORD_SOURCE
 
-    FROM {{ source('seeds', 'exchange') }}
+    FROM {{ source('seeds', 'ABC_Bank_EXCHANGE_INFO') }}
 ),
 
 default_record AS (
@@ -59,4 +59,4 @@ hashed AS (
     FROM with_default_record
 )
 
-SELECT * FROM hashed;
+SELECT * FROM hashed

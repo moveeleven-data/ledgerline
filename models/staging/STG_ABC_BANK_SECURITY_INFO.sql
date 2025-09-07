@@ -44,4 +44,5 @@ hashed as (
         , LOAD_TS as LOAD_TS_UTC
     FROM with_default_record
 )
+
 SELECT * FROM hashed

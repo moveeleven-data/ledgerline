@@ -14,9 +14,9 @@ src_data AS (
         region_code             AS REGION_CODE,
         sub_region_code         AS SUB_REGION_CODE,
         LOAD_TS                 AS LOAD_TS_UTC,
-        'SEED.country_ISO_3166' AS RECORD_SOURCE
+        'SEED.ABC_BANK_COUNTRY' AS RECORD_SOURCE
 
-    FROM {{ source('seeds', 'country_ISO_3166') }}
+    FROM {{ source('seeds', 'ABC_Bank_COUNTRY_INFO') }}
 ),
 
 default_record AS (
@@ -50,4 +50,4 @@ hashed AS (
     FROM with_default_record
 )
 
-SELECT * FROM hashed;
+SELECT * FROM hashed
