@@ -7,5 +7,8 @@ current_from_snapshot as (
 SELECT
     *,
     POSITION_VALUE - COST_BASE as UNREALIZED_PROFIT,
-    ROUND(UNREALIZED_PROFIT / COST_BASE, 5) as UNREALIZED_PROFIT_PCT
+    ROUND(
+       (POSITION_VALUE - COST_BASE) / NULLIF(COST_BASE, 0),
+       5
+    ) as UNREALIZED_PROFIT_PCT
 FROM current_from_snapshot
