@@ -4,17 +4,17 @@ WITH
 
 src_data AS (
     SELECT
-        country_code_2_letter   AS COUNTRY_CODE2,
-        country_code_3_letter   AS COUNTRY_CODE3,
-        country_name            AS COUNTRY_NAME,
-        region                  AS REGION,
-        sub_region              AS SUB_REGION,
-        country_code_numeric    AS COUNTRY_NUM_CODE,
-        iso_3166_2              AS ISO_3166_2,
-        region_code             AS REGION_CODE,
-        sub_region_code         AS SUB_REGION_CODE,
-        LOAD_TS                 AS LOAD_TS_UTC,
-        'SEED.ABC_BANK_COUNTRY' AS RECORD_SOURCE
+        country_code_2_letter        AS COUNTRY_CODE2,
+        country_code_3_letter        AS COUNTRY_CODE3,
+        country_name                 AS COUNTRY_NAME,
+        region                       AS REGION,
+        sub_region                   AS SUB_REGION,
+        country_code_numeric         AS COUNTRY_NUM_CODE,
+        iso_3166_2                   AS ISO_3166_2,
+        region_code                  AS REGION_CODE,
+        sub_region_code              AS SUB_REGION_CODE,
+        LOAD_TS                      AS LOAD_TS,
+        'SEED.ABC_BANK_COUNTRY_INFO' AS RECORD_SOURCE
 
     FROM {{ source('seeds', 'ABC_Bank_COUNTRY_INFO') }}
 ),
@@ -46,7 +46,9 @@ hashed AS (
         CONCAT_WS('|', COUNTRY_CODE2, COUNTRY_CODE3,
                        COUNTRY_NAME, REGION, SUB_REGION
                  ) AS COUNTRY_HDIFF,
-        *
+
+        * EXCLUDE LOAD_TS,
+        LOAD_TS AS LOAD_TS_UTC
     FROM with_default_record
 )
 

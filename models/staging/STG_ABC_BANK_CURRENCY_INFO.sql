@@ -4,13 +4,14 @@ WITH
 
 src_data AS (
     SELECT
-        AlphabeticCode      AS CURRENCY_CODE,     -- text
-        NumericCode         AS CURRENCY_NUM_CODE, -- text or number
-        DecimalDigits       AS DECIMAL_DIGITS,    -- number
-        CurrencyName        AS CURRENCY_NAME,     -- text
-        Locations           AS LOCATIONS,         -- text
-        LOAD_TS             AS LOAD_TS_UTC,       -- TIMESTAMP_NTZ
-        'SEED.ABC_BANK_CURRENCY' AS RECORD_SOURCE
+        AlphabeticCode                AS CURRENCY_CODE,     -- text
+        NumericCode                   AS CURRENCY_NUM_CODE, -- text or number
+        DecimalDigits                 AS DECIMAL_DIGITS,    -- number
+        CurrencyName                  AS CURRENCY_NAME,     -- text
+        Locations                     AS LOCATIONS,         -- text
+        LOAD_TS                       AS LOAD_TS,           -- TIMESTAMP_NTZ
+
+        'SEED.ABC_BANK_CURRENCY_INFO' AS RECORD_SOURCE
 
     FROM {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
 ),
@@ -41,7 +42,9 @@ hashed AS (
         CONCAT_WS('|', CURRENCY_CODE, CURRENCY_NAME,
                        DECIMAL_DIGITS, LOCATIONS
         ) AS CURRENCY_HDIFF,
-        *
+
+        * EXCLUDE LOAD_TS,
+        LOAD_TS AS LOAD_TS_UTC
     FROM with_default_record
 )
 

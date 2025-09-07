@@ -1,6 +1,8 @@
-WITH current_rows AS (
+WITH
+current_rows AS (
     SELECT * EXCLUDE (DBT_SCD_ID, DBT_UPDATED_AT, DBT_VALID_FROM, DBT_VALID_TO)
     FROM {{ ref('SNSH_ABC_BANK_EXCHANGE_INFO') }}
     WHERE DBT_VALID_TO IS NULL
 )
-SELECT * FROM current_rows
+SELECT *
+FROM current_rows

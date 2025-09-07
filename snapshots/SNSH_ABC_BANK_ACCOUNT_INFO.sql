@@ -1,0 +1,10 @@
+{% snapshot SNSH_ABC_BANK_ACCOUNT_INFO %}
+{{
+    config(
+        unique_key='ACCOUNT_HKEY',
+        strategy='check',
+        check_cols=['ACCOUNT_HDIFF']
+    )
+}}
+select * from {{ ref('STG_ABC_BANK_ACCOUNT_INFO') }}
+{% endsnapshot %}

@@ -3,15 +3,15 @@
 WITH
 src_data as (
     SELECT
-        SECURITY_CODE     as SECURITY_CODE    -- TEXT
-         , SECURITY_NAME     as SECURITY_NAME    -- TEXT
-         , SECTOR            as SECTOR_NAME      -- TEXT
-         , INDUSTRY          as INDUSTRY_NAME    -- TEXT
-         , COUNTRY           as COUNTRY_CODE     -- TEXT
-         , EXCHANGE          as EXCHANGE_CODE    -- TEXT
-         , LOAD_TS           as LOAD_TS          -- TIMESTAMP_NTZ
+        SECURITY_CODE     as SECURITY_CODE,   -- TEXT
+        SECURITY_NAME     as SECURITY_NAME,   -- TEXT
+        SECTOR            as SECTOR_NAME,     -- TEXT
+        INDUSTRY          as INDUSTRY_NAME,   -- TEXT
+        COUNTRY           as COUNTRY_CODE,    -- TEXT
+        EXCHANGE          as EXCHANGE_CODE,   -- TEXT
+        LOAD_TS           as LOAD_TS,         -- TIMESTAMP_NTZ
 
-         , 'SEED.ABC_Bank_SECURITY_INFO' as RECORD_SOURCE
+        'SEED.ABC_Bank_SECURITY_INFO' as RECORD_SOURCE
 
     FROM {{ source('seeds', 'ABC_Bank_SECURITY_INFO') }}
  ),
@@ -36,12 +36,13 @@ with_default_record as(
 
 hashed as (
     SELECT
-        concat_ws('|', SECURITY_CODE) as SECURITY_HKEY
-        , concat_ws('|', SECURITY_CODE, SECURITY_NAME, SECTOR_NAME,
-                         INDUSTRY_NAME, COUNTRY_CODE, EXCHANGE_CODE ) as SECURITY_HDIFF
+        concat_ws('|', SECURITY_CODE) as SECURITY_HKEY,
+        concat_ws('|', SECURITY_CODE, SECURITY_NAME, SECTOR_NAME,
+                       INDUSTRY_NAME, COUNTRY_CODE, EXCHANGE_CODE
+                  ) as SECURITY_HDIFF,
 
-        , * EXCLUDE LOAD_TS
-        , LOAD_TS as LOAD_TS_UTC
+        * EXCLUDE LOAD_TS,
+        LOAD_TS as LOAD_TS_UTC
     FROM with_default_record
 )
 
