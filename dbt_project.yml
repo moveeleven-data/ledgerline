@@ -55,5 +55,5 @@ models:
 # Configuring Snapshots
 # Full documentation: https://docs.getdbt.com/reference/snapshot-configs
 snapshots:
-  portfolio_tracking:
+  market_sync_dbt:
     +target_schema: SNAPSHOTS
