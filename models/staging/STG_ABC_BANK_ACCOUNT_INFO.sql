@@ -2,18 +2,18 @@
 
 WITH
 
--- BASE ROWS FROM THE SOURCE FACT FEED
-base AS (
+-- base rows from the source fact feed
+base as (
     SELECT
-        UPPER(ACCOUNTID)  AS ACCOUNT_CODE,
-        UPPER(CURRENCY)   AS ACCOUNT_CURRENCY_CODE,
+        UPPER(ACCOUNTID)  as ACCOUNT_CODE,
+        UPPER(CURRENCY)   as ACCOUNT_CURRENCY_CODE,
         REPORT_DATE
         
     FROM {{ source('abc_bank', 'ABC_BANK_POSITION') }}
 ),
 
--- KEEP THE LATEST CURRENCY PER ACCOUNT BY REPORT DATE
-latest AS (
+-- keep the latest currency per account by report date
+latest as (
     SELECT
         ACCOUNT_CODE,
         ACCOUNT_CURRENCY_CODE
@@ -26,39 +26,39 @@ latest AS (
             ROW_NUMBER() OVER (
                 PARTITION BY ACCOUNT_CODE
                 ORDER BY REPORT_DATE DESC, ACCOUNT_CURRENCY_CODE
-            ) AS rn
+            ) as rn
         FROM base
     )
     QUALIFY rn = 1
 ),
 
--- ADD A DEFAULT RECORD SO FACTS CAN ALWAYS JOIN
-with_default AS (
+-- add a default record so facts can always join
+with_default as (
     SELECT
         ACCOUNT_CODE,
         ACCOUNT_CURRENCY_CODE,
 
-        'SOURCE_DATA.ABC_BANK_POSITION'     AS RECORD_SOURCE,
-        '{{ run_started_at }}'::TIMESTAMP   AS LOAD_TS
+        'SOURCE_DATA.ABC_BANK_POSITION'     as RECORD_SOURCE,
+        '{{ run_started_at }}'::TIMESTAMP   as LOAD_TS
     FROM latest
 
     UNION ALL
 
     SELECT
-        '-1'                           AS ACCOUNT_CODE,
-        '-1'                           AS ACCOUNT_CURRENCY_CODE,
-        'MISSING'                      AS RECORD_SOURCE,
-        TO_TIMESTAMP_NTZ('2020-01-01') AS LOAD_TS
+        '-1'                           as ACCOUNT_CODE,
+        '-1'                           as ACCOUNT_CURRENCY_CODE,
+        'MISSING'                      as RECORD_SOURCE,
+        TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS
 ),
 
 -- KEYS AND CHANGE FINGERPRINT FOR SNAPSHOTTING
-hashed AS (
+hashed as (
     SELECT
-        ACCOUNT_CODE AS ACCOUNT_HKEY,
-        CONCAT_WS('|', ACCOUNT_CODE, ACCOUNT_CURRENCY_CODE) AS ACCOUNT_HDIFF,
+        ACCOUNT_CODE as ACCOUNT_HKEY,
+        CONCAT_WS('|', ACCOUNT_CODE, ACCOUNT_CURRENCY_CODE) as ACCOUNT_HDIFF,
 
         * EXCLUDE LOAD_TS,
-        LOAD_TS AS LOAD_TS_UTC
+        LOAD_TS as LOAD_TS_UTC
     FROM with_default
 )
 

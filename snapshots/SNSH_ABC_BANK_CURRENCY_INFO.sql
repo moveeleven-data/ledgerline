@@ -6,5 +6,5 @@
         check_cols=['CURRENCY_HDIFF']
     )
 }}
-select * from {{ ref('STG_ABC_BANK_CURRENCY_INFO') }}
+SELECT * FROM {{ ref('STG_ABC_BANK_CURRENCY_INFO') }}
 {% endsnapshot %}
