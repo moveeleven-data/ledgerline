@@ -2,19 +2,19 @@
 
 WITH
 
-src_data as (
+src_data AS (
     SELECT
-        ACCOUNTID           as ACCOUNT_CODE,   -- TEXT
-        SYMBOL            as SECURITY_CODE,    -- TEXT
-        DESCRIPTION       as SECURITY_NAME,    -- TEXT
-        EXCHANGE          as EXCHANGE_CODE,    -- TEXT
-        REPORT_DATE       as REPORT_DATE,      -- DATE
-        QUANTITY          as QUANTITY,         -- NUMBER
-        COST_BASE         as COST_BASE,        -- NUMBER
-        POSITION_VALUE    as POSITION_VALUE,   -- NUMBER
-        CURRENCY          as CURRENCY_CODE,    -- TEXT
+        UPPER(ACCOUNTID)      AS ACCOUNT_CODE,
+        UPPER(SYMBOL)         AS SECURITY_CODE,
+        DESCRIPTION           AS SECURITY_NAME,
+        UPPER(EXCHANGE)       AS EXCHANGE_CODE,
+        REPORT_DATE           AS REPORT_DATE,
+        QUANTITY              AS QUANTITY,
+        COST_BASE             AS COST_BASE,
+        POSITION_VALUE        AS POSITION_VALUE,
+        UPPER(CURRENCY)       AS CURRENCY_CODE,
 
-        'SOURCE_DATA.ABC_BANK_POSITION' as RECORD_SOURCE
+        'SOURCE_DATA.ABC_BANK_POSITION' AS RECORD_SOURCE
 
     FROM {{ source('abc_bank', 'ABC_BANK_POSITION') }}
 ),
