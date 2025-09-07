@@ -6,5 +6,5 @@
         check_cols=['EXCHANGE_HDIFF']
     )
 }}
-select * from {{ ref('STG_ABC_BANK_EXCHANGE_INFO') }}
+SELECT * FROM {{ ref('STG_ABC_BANK_EXCHANGE_INFO') }}
 {% endsnapshot %}

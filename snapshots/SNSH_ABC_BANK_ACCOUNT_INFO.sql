@@ -6,5 +6,5 @@
         check_cols=['ACCOUNT_HDIFF']
     )
 }}
-select * from {{ ref('STG_ABC_BANK_ACCOUNT_INFO') }}
+SELECT * FROM {{ ref('STG_ABC_BANK_ACCOUNT_INFO') }}
 {% endsnapshot %}

@@ -2,49 +2,49 @@
 
 WITH
 
-src_data AS (
+src_data as (
     SELECT
-        AlphabeticCode                AS CURRENCY_CODE,     -- text
-        NumericCode                   AS CURRENCY_NUM_CODE, -- text or number
-        DecimalDigits                 AS DECIMAL_DIGITS,    -- number
-        CurrencyName                  AS CURRENCY_NAME,     -- text
-        Locations                     AS LOCATIONS,         -- text
-        LOAD_TS                       AS LOAD_TS,           -- TIMESTAMP_NTZ
+        AlphabeticCode                as CURRENCY_CODE,     -- text
+        NumericCode                   as CURRENCY_NUM_CODE, -- text or number
+        DecimalDigits                 as DECIMAL_DIGITS,    -- number
+        CurrencyName                  as CURRENCY_NAME,     -- text
+        Locations                     as LOCATIONS,         -- text
+        LOAD_TS                       as LOAD_TS,           -- TIMESTAMP_NTZ
 
-        'SEED.ABC_BANK_CURRENCY_INFO' AS RECORD_SOURCE
+        'SEED.ABC_BANK_CURRENCY_INFO' as RECORD_SOURCE
 
     FROM {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
 ),
 
-default_record AS (
+default_record as (
     SELECT
-        '-1'                           AS CURRENCY_CODE,
-        NULL                           AS CURRENCY_NUM_CODE,
-        2                              AS DECIMAL_DIGITS,
-        'Missing'                      AS CURRENCY_NAME,
-        NULL                           AS LOCATIONS,
-        TO_TIMESTAMP_NTZ('2020-01-01') AS LOAD_TS_UTC,
-        'Missing'                      AS RECORD_SOURCE
+        '-1'                           as CURRENCY_CODE,
+        NULL                           as CURRENCY_NUM_CODE,
+        2                              as DECIMAL_DIGITS,
+        'Missing'                      as CURRENCY_NAME,
+        NULL                           as LOCATIONS,
+        TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS_UTC,
+        'Missing'                      as RECORD_SOURCE
 ),
 
-with_default_record AS (
+with_default_record as (
     SELECT * FROM src_data
     UNION ALL
     SELECT * FROM default_record
 ),
 
-hashed AS (
+hashed as (
     SELECT
         -- natural key for this dim is alphabetic code
-        CURRENCY_CODE AS CURRENCY_HKEY,
+        CURRENCY_CODE as CURRENCY_HKEY,
 
         -- change fingerprint across descriptive attributes
         CONCAT_WS('|', CURRENCY_CODE, CURRENCY_NAME,
                        DECIMAL_DIGITS, LOCATIONS
-        ) AS CURRENCY_HDIFF,
+        ) as CURRENCY_HDIFF,
 
         * EXCLUDE LOAD_TS,
-        LOAD_TS AS LOAD_TS_UTC
+        LOAD_TS as LOAD_TS_UTC
     FROM with_default_record
 )
 

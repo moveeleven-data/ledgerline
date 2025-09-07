@@ -10,5 +10,5 @@
         invalidate_hard_deletes=True,
     )
 }}
-select * from {{ ref('STG_ABC_BANK_POSITION') }}
+SELECT * FROM {{ ref('STG_ABC_BANK_POSITION') }}
 {% endsnapshot %}
