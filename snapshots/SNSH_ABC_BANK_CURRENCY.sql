@@ -1,4 +1,4 @@
-{% snapshot SNSH_CURRENCY %}
+{% snapshot SNSH_ABC_BANK_CURRENCY_INFO %}
 {{
     config(
         unique_key='CURRENCY_HKEY',
@@ -6,5 +6,5 @@
         check_cols=['CURRENCY_HDIFF']
     )
 }}
-select * from {{ ref('STG_ABC_BANK_CURRENCY') }}
+select * from {{ ref('STG_ABC_BANK_CURRENCY_INFO') }}
 {% endsnapshot %}

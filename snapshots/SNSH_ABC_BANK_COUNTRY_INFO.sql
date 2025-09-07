@@ -1,4 +1,4 @@
-{% snapshot SNSH_COUNTRY %}
+{% snapshot SNSH_ABC_BANK_COUNTRY_INFO %}
 {{
     config(
         unique_key='COUNTRY_HKEY',
@@ -6,5 +6,5 @@
         check_cols=['COUNTRY_HDIFF']
     )
 }}
-select * from {{ ref('STG_ABC_BANK_COUNTRY') }}
+select * from {{ ref('STG_ABC_BANK_COUNTRY_INFO') }}
 {% endsnapshot %}
