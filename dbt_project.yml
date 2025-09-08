@@ -63,6 +63,10 @@ seeds:
   +schema: seed_data
 
   market_sync_dbt:
+    ABC_Bank_POSITION:
+      +column_types:
+        REPORT_DATE: TEXT
+
     ABC_Bank_SECURITY_INFO:
       +column_types:
         LOAD_TS: TIMESTAMP
