@@ -1,9 +1,9 @@
 {{ config(materialized='ephemeral') }}
 
-WITH
+with
 
 src_data as (
-    SELECT
+    select
         country_code_2_letter        as COUNTRY_CODE2,
         country_code_3_letter        as COUNTRY_CODE3,
         country_name                 as COUNTRY_NAME,
@@ -14,13 +14,14 @@ src_data as (
         region_code                  as REGION_CODE,
         sub_region_code              as SUB_REGION_CODE,
         LOAD_TS                      as LOAD_TS,
+
         'SEED.ABC_BANK_COUNTRY_INFO' as RECORD_SOURCE
 
-    FROM {{ source('seeds', 'ABC_Bank_COUNTRY_INFO') }}
+    from {{ source('seeds', 'ABC_Bank_COUNTRY_INFO') }}
 ),
 
 default_record as (
-    SELECT
+    select
         '-1'                           as COUNTRY_CODE2,
         '-1'                           as COUNTRY_CODE3,
         'Missing'                      as COUNTRY_NAME,
@@ -35,21 +36,27 @@ default_record as (
 ),
 
 with_default_record as (
-    SELECT * FROM src_data
-    UNION ALL
-    SELECT * FROM default_record
+    select * from src_data
+    union all
+    select * from default_record
 ),
 
 hashed as (
-    SELECT
-        COUNTRY_CODE2 as COUNTRY_HKEY,
-        CONCAT_WS('|', COUNTRY_CODE2, COUNTRY_CODE3,
-                       COUNTRY_NAME, REGION, SUB_REGION
-                 )  as COUNTRY_HDIFF,
+    select
+        {{ dbt_utils.surrogate_key(['country_code2']) }} as country_hkey,
 
-        * EXCLUDE LOAD_TS,
-        LOAD_TS as LOAD_TS_UTC
-    FROM with_default_record
+        {{ dbt_utils.surrogate_key([
+            'country_code2',
+            'country_code3',
+            'country_name',
+            'region',
+            'sub_region'
+        ]) }} as country_hdiff,
+
+        * exclude load_ts,
+        load_ts as load_ts_utc
+        
+    from with_default_record
 )
 
-SELECT * FROM hashed
+select * from hashed

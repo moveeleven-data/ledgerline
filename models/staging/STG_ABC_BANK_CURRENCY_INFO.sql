@@ -1,9 +1,9 @@
 {{ config(materialized='ephemeral') }}
 
-WITH
+with
 
 src_data as (
-    SELECT
+    select
         AlphabeticCode                as CURRENCY_CODE,     -- text
         NumericCode                   as CURRENCY_NUM_CODE, -- text or number
         DecimalDigits                 as DECIMAL_DIGITS,    -- number
@@ -13,11 +13,11 @@ src_data as (
 
         'SEED.ABC_BANK_CURRENCY_INFO' as RECORD_SOURCE
 
-    FROM {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
+    from {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
 ),
 
 default_record as (
-    SELECT
+    select
         '-1'                           as CURRENCY_CODE,
         NULL                           as CURRENCY_NUM_CODE,
         2                              as DECIMAL_DIGITS,
@@ -28,24 +28,26 @@ default_record as (
 ),
 
 with_default_record as (
-    SELECT * FROM src_data
-    UNION ALL
-    SELECT * FROM default_record
+    select * from src_data
+    union all
+    select * from default_record
 ),
 
 hashed as (
-    SELECT
-        -- natural key for this dim is alphabetic code
-        CURRENCY_CODE as CURRENCY_HKEY,
+    select
+        {{ dbt_utils.surrogate_key(['currency_code']) }} as currency_hkey,
 
-        -- change fingerprint across descriptive attributes
-        CONCAT_WS('|', CURRENCY_CODE, CURRENCY_NAME,
-                       DECIMAL_DIGITS, LOCATIONS
-        ) as CURRENCY_HDIFF,
+        {{ dbt_utils.surrogate_key([
+            'currency_code',
+            'currency_name',
+            'decimal_digits',
+            'locations'
+        ]) }} as currency_hdiff,
 
-        * EXCLUDE LOAD_TS,
-        LOAD_TS as LOAD_TS_UTC
-    FROM with_default_record
+        * exclude load_ts,
+        load_ts as load_ts_utc
+        
+    from with_default_record
 )
 
-SELECT * FROM hashed
+select * from hashed

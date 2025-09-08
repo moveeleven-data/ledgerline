@@ -1,4 +1,4 @@
-{% macro normalize_report_date(col) %}
+{% macro to_21st_century_date(col) %}
 (
     try_to_date(
         case
@@ -6,7 +6,7 @@
             when substr(trim({{ col }}::varchar), 1, 2) = '00'
             then '20' || substr(trim({{ col }}::varchar), 3)
             
-            -- Otherwise, keep the value as-is
+            -- Otherwise, keep the value as is
             else trim({{ col }}::varchar)
         end,
         'YYYY-MM-DD'
