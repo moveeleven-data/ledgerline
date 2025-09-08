@@ -5,8 +5,8 @@ with
 -- base rows from the source fact feed
 base as (
     select
-        UPPER(ACCOUNTID)  as ACCOUNT_CODE,
-        UPPER(CURRENCY)   as ACCOUNT_CURRENCY_CODE,
+        upper(ACCOUNTID)  as ACCOUNT_CODE,
+        upper(CURRENCY)   as ACCOUNT_CURRENCY_CODE,
         REPORT_DATE
         
     from {{ source('abc_bank', 'ABC_BANK_POSITION') }}
@@ -51,17 +51,14 @@ with_default as (
         TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS
 ),
 
--- KEYS AND CHANGE FINGERPRINT FOR SNAPSHOTTING
 hashed as (
-    SELECT
-        ACCOUNT_CODE as ACCOUNT_HKEY,
-        CONCAT_WS('|', ACCOUNT_CODE, ACCOUNT_CURRENCY_CODE) as ACCOUNT_HDIFF,
+  select
+    {{ dbt_utils.surrogate_key(['account_code']) }} as account_hkey,
+    {{ dbt_utils.surrogate_key(['account_code', 'account_currency_code']) }} as account_hdiff,
 
-        * EXCLUDE LOAD_TS,
-        LOAD_TS as LOAD_TS_UTC
-        
-    FROM with_default
+    * exclude load_ts,
+    load_ts as load_ts_utc
+  from with_default
 )
 
-SELECT *
-FROM hashed
+select * from hashed
