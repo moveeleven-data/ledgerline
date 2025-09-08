@@ -1,1 +1,1 @@
-SELECT * FROM {{ ref('REF_ABC_BANK_COUNTRY_INFO') }}
+select * from {{ ref('REF_ABC_BANK_COUNTRY_INFO') }}
