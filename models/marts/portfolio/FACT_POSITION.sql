@@ -1,20 +1,20 @@
 {{ config(materialized='table') }}
 
-WITH
+with
 
 normalized as (
-    SELECT
+    select
         *,
-        COALESCE(account_code,  '-1') as account_code_nk,
-        COALESCE(security_code, '-1') as security_code_nk,
-        COALESCE(exchange_code, '-1') as exchange_code_nk,
-        COALESCE(currency_code, '-1') as currency_code_nk
+        coalesce(account_code,  '-1') as account_code_nk,
+        coalesce(security_code, '-1') as security_code_nk,
+        coalesce(exchange_code, '-1') as exchange_code_nk,
+        coalesce(currency_code, '-1') as currency_code_nk
 
-    FROM {{ ref('REF_POSITION_ABC_BANK') }}
+    from {{ ref('REF_POSITION_ABC_BANK') }}
 ),
 
 joined as (
-    SELECT
+    select
         n.report_date,
         n.quantity,
         n.cost_base,
@@ -29,12 +29,12 @@ joined as (
         de.exchange_hkey  as exchange_key,
         dc.currency_hkey  as currency_key
 
-    FROM normalized n
-    JOIN {{ ref('DIM_ACCOUNT')  }} da on n.account_code_nk  = da.account_code
-    JOIN {{ ref('DIM_SECURITY') }} ds on n.security_code_nk = ds.security_code
-    JOIN {{ ref('DIM_EXCHANGE') }} de on n.exchange_code_nk = de.exchange_code
-    JOIN {{ ref('DIM_CURRENCY') }} dc on n.currency_code_nk = dc.currency_code
+    from normalized n
+    join {{ ref('DIM_ACCOUNT')  }} da on n.account_code_nk  = da.account_code
+    join {{ ref('DIM_SECURITY') }} ds on n.security_code_nk = ds.security_code
+    join {{ ref('DIM_EXCHANGE') }} de on n.exchange_code_nk = de.exchange_code
+    join {{ ref('DIM_CURRENCY') }} dc on n.currency_code_nk = dc.currency_code
 )
 
-SELECT *
-FROM joined
+select *
+from joined
