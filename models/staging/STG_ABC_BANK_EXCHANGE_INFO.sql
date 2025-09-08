@@ -1,9 +1,9 @@
 {{ config(materialized='ephemeral') }}
 
-WITH
+with
 
 src_data as (
-    SELECT
+    select
         ID              as EXCHANGE_CODE,
         Name            as EXCHANGE_NAME,
         Country         as COUNTRY_NAME,
@@ -21,11 +21,11 @@ src_data as (
 
         'SEED.ABC_BANK_EXCHANGE_INFO' as RECORD_SOURCE
 
-    FROM {{ source('seeds', 'ABC_Bank_EXCHANGE_INFO') }}
+    from {{ source('seeds', 'ABC_Bank_EXCHANGE_INFO') }}
 ),
 
 default_record as (
-    SELECT
+    select
         '-1'                           as EXCHANGE_CODE,
         'Missing'                      as EXCHANGE_NAME,
         NULL                           as COUNTRY_NAME,
@@ -45,21 +45,29 @@ default_record as (
 ),
 
 with_default_record as (
-    SELECT * FROM src_data
-    UNION ALL
-    SELECT * FROM default_record
+    select * from src_data
+    union all
+    select * from default_record
 ),
 
 hashed as (
-    SELECT
-        EXCHANGE_CODE as EXCHANGE_HKEY,
-        CONCAT_WS('|', EXCHANGE_CODE, EXCHANGE_NAME, COUNTRY_NAME,
-                       CITY_NAME, TIMEZONE_NAME, OPEN_UTC, CLOSE_UTC
-        ) as EXCHANGE_HDIFF,
-        
-        * EXCLUDE LOAD_TS,
-        LOAD_TS as LOAD_TS_UTC
-    FROM with_default_record
+    select
+        {{ dbt_utils.surrogate_key(['exchange_code']) }} as exchange_hkey,
+
+        {{ dbt_utils.surrogate_key([
+            'exchange_code',
+            'exchange_name',
+            'country_name',
+            'city_name',
+            'timezone_name',
+            "coalesce(open_utc,'')",
+            "coalesce(close_utc,'')"
+        ]) }} as exchange_hdiff,
+
+        * exclude load_ts,
+        load_ts as load_ts_utc
+
+    from with_default_record
 )
 
-SELECT * FROM hashed
+select * from hashed
