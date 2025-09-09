@@ -23,17 +23,7 @@ hashed as (
     select
         {{ dbt_utils.surrogate_key(['account_code','security_code']) }} as position_hkey,
 
-        {{ dbt_utils.surrogate_key([
-            'account_code',
-            'security_code',
-            'security_name',
-            'exchange_code',
-            "to_varchar(report_date, 'YYYY-MM-DD')",
-            'quantity',
-            'cost_base',
-            'position_value',
-            'currency_code'
-        ]) }} as position_hdiff,
+        {{ dbt_utils.surrogate_key(abc_bank_position_diff_fields()) }}  as position_hdiff,
 
         *,
         '{{ run_started_at }}' as LOAD_TS_UTC
