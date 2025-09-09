@@ -8,6 +8,11 @@ sources:
         description: >
            The landing table holding the data imported
            from the CSV extracted by ABC bank.
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - ACCOUNTID
+                - SYMBOL
         columns:
           - name: ACCOUNTID
             description: The code for the account at ABC Bank.
@@ -16,7 +21,6 @@ sources:
           - name: SYMBOL
             description: The symbol of the security at ABC Bank.
             tests:
-              - unique
               - not_null
           - name: DESCRIPTION
             description: The name of the security at ABC Bank.
