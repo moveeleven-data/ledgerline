@@ -47,7 +47,7 @@ with_default as (
     select
         '-1'                           as ACCOUNT_CODE,
         '-1'                           as ACCOUNT_CURRENCY_CODE,
-        'MISSING'                      as RECORD_SOURCE,
+        'System.DefaultKey'            as RECORD_SOURCE,
         TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS
 ),
 

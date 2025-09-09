@@ -32,7 +32,7 @@ default_record as (
         NULL                           as REGION_CODE,
         NULL                           as SUB_REGION_CODE,
         TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS_UTC,
-        'Missing'                      as RECORD_SOURCE
+        'System.DefaultKey'            as RECORD_SOURCE
 ),
 
 with_default_record as (

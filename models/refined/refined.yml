@@ -2,15 +2,67 @@ version: 2
 
 models:
 
-    - name: REF_POSITION_ABC_BANK
-      description: The positions we have in the ABC Bank portfolio.
-      columns:
-        - name: UNREALIZED_PROFIT
-          description: The unrealized profit on the position.
-          tests:
-            - not_null
-        - name: UNREALIZED_PROFIT_PCT
-          description: >
-             The unrealized profit percentage on the position.
-          tests:
-            - not_null
+  - name: REF_ABC_BANK_ACCOUNT_INFO
+    description: Account attributes with hashed surrogate key.
+    columns:
+      - name: ACCOUNT_HKEY
+        description: Surrogate key for the account row.
+        tests: [not_null, unique]
+      - name: ACCOUNT_CODE
+        description: Natural account code.
+        tests: [not_null]
+      - name: ACCOUNT_CURRENCY_CODE
+        description: Account currency code.
+        tests: [not_null]
+
+  - name: REF_ABC_BANK_COUNTRY_INFO
+    description: Country reference data.
+    columns:
+      - name: COUNTRY_HKEY
+        description: Surrogate key for the country row.
+        tests: [not_null, unique]
+      - name: COUNTRY_CODE2
+        description: ISO 3166-1 alpha-2 code.
+        tests: [not_null]
+      - name: COUNTRY_NAME
+        description: Country name.
+        tests: [not_null]
+
+  - name: REF_ABC_BANK_CURRENCY_INFO
+    description: Currency reference data.
+    columns:
+      - name: CURRENCY_HKEY
+        description: Surrogate key for the currency row.
+        tests: [not_null, unique]
+      - name: CURRENCY_CODE
+        description: ISO 4217 alphabetic code.
+        tests: [not_null]
+      - name: CURRENCY_NAME
+        description: Currency name.
+        tests: [not_null]
+
+  - name: REF_ABC_BANK_EXCHANGE_INFO
+    description: Exchange reference data.
+    columns:
+      - name: EXCHANGE_HKEY
+        description: Surrogate key for the exchange row.
+        tests: [not_null, unique]
+      - name: EXCHANGE_CODE
+        description: Exchange identifier.
+        tests: [not_null]
+      - name: EXCHANGE_NAME
+        description: Exchange name.
+        tests: [not_null]
+
+  - name: REF_ABC_BANK_SECURITY_INFO
+    description: Security master attributes.
+    columns:
+      - name: SECURITY_HKEY
+        description: Surrogate key for the security row.
+        tests: [not_null, unique]
+      - name: SECURITY_CODE
+        description: Ticker.
+        tests: [not_null]
+      - name: SECURITY_NAME
+        description: Security name.
+        tests: [not_null]
