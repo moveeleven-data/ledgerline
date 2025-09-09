@@ -2,6 +2,26 @@ version: 2
 
 models:
 
+  - name: REF_POSITION_ABC_BANK
+    description: The positions we have in the ABC Bank portfolio.
+    columns:
+      - name: UNREALIZED_PROFIT
+        description: The unrealized profit on the position.
+        tests:
+          - not_null
+
+      - name: UNREALIZED_PROFIT_PCT
+        description: The unrealized profit percentaage on the position.
+        tests:
+          - not_null
+
+      - name: SECURITY_CODE
+        description: The code of the security in the position.
+        tests:
+          - relationships:
+              to: ref('REF_ABC_BANK_SECURITY_INFO')
+              field: SECURITY_CODE
+
   - name: REF_ABC_BANK_ACCOUNT_INFO
     description: Account attributes with hashed surrogate key.
     columns:
