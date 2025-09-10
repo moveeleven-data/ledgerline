@@ -4,4 +4,4 @@ seeds:
     columns:
       - name: LOAD_TS
         tests:
-          - not-null
+          - not_null
