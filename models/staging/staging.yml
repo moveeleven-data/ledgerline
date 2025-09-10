@@ -3,4 +3,4 @@ models:
   - name: STG_ABC_BANK_POSITION
     tests:
       - dbt_utils.expression_is_true:
-          expression: " YEAR(REPORT_DATE) >= 2000 "
+          expression: "YEAR(REPORT_DATE) >= 2000"

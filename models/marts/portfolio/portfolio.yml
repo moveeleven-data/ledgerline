@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: FACT_POSITION
+    description: Positions by account, security, exchange, currency, and report_date.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ACCOUNT_KEY
+            - SECURITY_KEY
+            - EXCHANGE_KEY
+            - CURRENCY_KEY
+            - REPORT_DATE
+    columns:
+      - name: ACCOUNT_KEY
+        tests:
+          - not_null
+          - relationships:
+              to: ref('DIM_ACCOUNT')
+              field: ACCOUNT_KEY
+      - name: SECURITY_KEY
+        tests:
+          - not_null
+          - relationships:
+              to: ref('DIM_SECURITY')
+              field: SECURITY_KEY
+      - name: EXCHANGE_KEY
+        tests:
+          - not_null
+          - relationships:
+              to: ref('DIM_EXCHANGE')
+              field: EXCHANGE_KEY
+      - name: CURRENCY_KEY
+        tests:
+          - not_null
+          - relationships:
+              to: ref('DIM_CURRENCY')
+              field: CURRENCY_KEY
+      - name: REPORT_DATE
+        tests:
+          - not_null
+
+  - name: DIM_SECURITY
+    columns:
+      - name: SECURITY_CODE
+        tests:
+          - not_null
+          - unique
