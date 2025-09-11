@@ -35,9 +35,9 @@ with_default_record as (
 
 hashed as (
     select
-        {{ dbt_utils.surrogate_key(['currency_code']) }} as currency_hkey,
+        {{ dbt_utils.generate_surrogate_key(['currency_code']) }} as currency_hkey,
 
-        {{ dbt_utils.surrogate_key([
+        {{ dbt_utils.generate_surrogate_key([
             'currency_code',
             'currency_name',
             'decimal_digits',

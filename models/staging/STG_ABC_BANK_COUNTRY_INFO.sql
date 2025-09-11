@@ -43,9 +43,9 @@ with_default_record as (
 
 hashed as (
     select
-        {{ dbt_utils.surrogate_key(['country_code2']) }} as country_hkey,
+        {{ dbt_utils.generate_surrogate_key(['country_code2']) }} as country_hkey,
 
-        {{ dbt_utils.surrogate_key([
+        {{ dbt_utils.generate_surrogate_key([
             'country_code2',
             'country_code3',
             'country_name',

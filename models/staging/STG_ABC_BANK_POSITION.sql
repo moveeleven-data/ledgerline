@@ -21,7 +21,7 @@ src_data as (
 
 hashed as (
     select
-        {{ dbt_utils.surrogate_key(['account_code','security_code']) }} as position_hkey,
+        {{ dbt_utils.generate_surrogate_key(['account_code','security_code']) }} as position_hkey,
 
         {{ dbt_utils.generate_surrogate_key([
           'account_code',
