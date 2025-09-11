@@ -5,10 +5,15 @@ snapshots:
       - name: POSITION_HKEY
         tests:
           - no_hash_collisions:
-              hashed_fields: ACCOUNT_CODE, SECURITY_CODE
+              name: pos_hkey_no_collision
+              arguments:
+                hashed_fields:
+                  - account_code
+                  - security_code
 
       - name: POSITION_HDIFF
         tests:
           - no_hash_collisions:
-              hashed_fields: >
-                {{ as_sql_list(abc_bank_position_diff_fields()) }}
+              name: pos_hdiff_no_collision
+              arguments:
+                hashed_fields: "{{ as_sql_list(abc_bank_position_diff_fields()) }}"
