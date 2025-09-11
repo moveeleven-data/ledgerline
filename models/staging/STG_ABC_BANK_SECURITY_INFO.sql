@@ -37,9 +37,9 @@ with_default_record as(
 
 hashed as (
     select
-        {{ dbt_utils.surrogate_key(['security_code']) }} as security_hkey,
+        {{ dbt_utils.generate_surrogate_key(['security_code']) }} as security_hkey,
 
-        {{ dbt_utils.surrogate_key([
+        {{ dbt_utils.generate_surrogate_key([
             'security_code',
             'security_name',
             'sector_name',

@@ -52,9 +52,9 @@ with_default_record as (
 
 hashed as (
     select
-        {{ dbt_utils.surrogate_key(['exchange_code']) }} as exchange_hkey,
+        {{ dbt_utils.generate_surrogate_key(['exchange_code']) }} as exchange_hkey,
 
-        {{ dbt_utils.surrogate_key([
+        {{ dbt_utils.generate_surrogate_key([
             'exchange_code',
             'exchange_name',
             'country_name',
