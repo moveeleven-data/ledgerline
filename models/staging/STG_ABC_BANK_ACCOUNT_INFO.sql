@@ -56,8 +56,9 @@ hashed as (
     {{ dbt_utils.generate_surrogate_key(['account_code']) }} as account_hkey,
     {{ dbt_utils.generate_surrogate_key(['account_code', 'account_currency_code']) }} as account_hdiff,
 
-    * exclude load_ts,
+    * exclude (load_ts),
     load_ts as load_ts_utc
+    
   from with_default
 )
 
