@@ -1,10 +1,11 @@
 version: 2
+
 snapshots:
   - name: SNSH_ABC_BANK_POSITION
     columns:
       - name: POSITION_HKEY
         tests:
-          - no_hash_collisions:
+          - hash_collision_free:
               name: pos_hkey_no_collision
               arguments:
                 hashed_fields:
@@ -13,7 +14,16 @@ snapshots:
 
       - name: POSITION_HDIFF
         tests:
-          - no_hash_collisions:
+          - hash_collision_free:
               name: pos_hdiff_no_collision
               arguments:
-                hashed_fields: "{{ as_sql_list(abc_bank_position_diff_fields()) }}"
+                hashed_fields:
+                  - account_code
+                  - security_code
+                  - security_name
+                  - exchange_code
+                  - "to_varchar(report_date, 'YYYY-MM-DD')"
+                  - quantity
+                  - cost_base
+                  - position_value
+                  - currency_code

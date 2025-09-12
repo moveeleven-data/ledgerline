@@ -64,7 +64,7 @@ hashed as (
             "coalesce(close_utc,'')"
         ]) }} as exchange_hdiff,
 
-        * exclude load_ts,
+        * exclude (load_ts),
         load_ts as load_ts_utc
 
     from with_default_record
