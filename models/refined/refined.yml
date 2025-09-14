@@ -19,7 +19,7 @@ models:
         description: The code of the security in the position.
         tests:
           - relationships:
-              to: ref('REF_ABC_BANK_SECURITY_INFO')
+              to: ref('REF_SECURITY_INFO_ABC_BANK')
               field: SECURITY_CODE
 
   - name: REF_ABC_BANK_ACCOUNT_INFO
@@ -74,7 +74,7 @@ models:
         description: Exchange name.
         tests: [not_null]
 
-  - name: REF_ABC_BANK_SECURITY_INFO
+  - name: REF_SECURITY_INFO_ABC_BANK
     description: Security master attributes.
     columns:
       - name: SECURITY_HKEY
