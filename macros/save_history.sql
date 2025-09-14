@@ -12,7 +12,7 @@
 
 {{ config(materialized='incremental') }}
 
-WITH
+with
 
 {%- if is_incremental() %}
 current_from_history as (
@@ -26,10 +26,10 @@ current_from_history as (
 ),
 
 load_from_input as (
-    SELECT i.*
-    FROM {{input_rel}} as i
-    LEFT OUTER JOIN current_from_history as h ON h.{{diff_column}} = i.{{diff_column}}
-    WHERE h.{{diff_column}} is null
+    select i.*
+    from {{input_rel}} as i
+    left outer join current_from_history as h on h.{{diff_column}} = i.{{diff_column}}
+    where h.{{diff_column}} is null
         and {{input_filter_expr}}
     {%- if high_watermark_column %}
         and {{high_watermark_column}} {{high_watermark_test}} (select max({{high_watermark_column}}) from {{ this }})
@@ -38,15 +38,15 @@ load_from_input as (
 
 {%- else %}
 load_from_input as (
-    SELECT *
-    FROM {{input_rel}}
-    WHERE {{input_filter_expr}}
+    select *
+    from {{input_rel}}
+    where {{input_filter_expr}}
 )
 {%- endif %}
 
-SELECT * FROM load_from_input
+select * from load_from_input
 {%- if order_by_expr %}
-ORDER BY {{order_by_expr}}
+order by {{order_by_expr}}
 {%- endif %}
 
 {%- endmacro %}
