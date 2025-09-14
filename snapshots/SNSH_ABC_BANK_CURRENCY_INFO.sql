@@ -1,3 +1,5 @@
+{{ config(enabled=false) }}
+
 {% snapshot SNSH_ABC_BANK_CURRENCY_INFO %}
 {{
     config(

@@ -1,6 +1,8 @@
 -- We use `check` strategy because we do not trust the REPORT_DATE
 -- column to work as a good timestamp for the timestamp strategy.
 
+{{ config(enabled=false) }}
+
 {% snapshot SNSH_ABC_BANK_POSITION %}
 {{
     config(
