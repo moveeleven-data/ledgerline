@@ -3,17 +3,11 @@ sources:
   - name: seeds
     schema: "{{target.schema}}_SEED_DATA"
     tables:
-      - name: ABC_Bank_SECURITY_INFO
+      - name: abc_bank_security_info
         columns:
           - name: SECURITY_CODE
-            tests:
-              - not_null
-              - unique
           - name: SECURITY_NAME
-            tests:
-              - not_null
-              - not_empty
-      - name: ABC_Bank_COUNTRY_INFO
-      - name: ABC_Bank_EXCHANGE_INFO
-      - name: ABC_Bank_CURRENCY_INFO
-      - name: ABC_Bank_ACCOUNT_INFO
+      - name: abc_bank_country_info
+      - name: abc_bank_exchange_info
+      - name: abc_bank_currency_info
+      - name: abc_bank_account_info

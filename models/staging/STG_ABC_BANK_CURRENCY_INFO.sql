@@ -13,7 +13,7 @@ src_data as (
 
         'SEED.ABC_BANK_CURRENCY_INFO' as RECORD_SOURCE
 
-    from {{ source('seeds', 'ABC_Bank_CURRENCY_INFO') }}
+    from {{ source('seeds', 'abc_bank_currency_info') }}
 ),
 
 default_record as (

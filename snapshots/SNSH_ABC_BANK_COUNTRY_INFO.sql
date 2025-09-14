@@ -1,3 +1,5 @@
+{{ config(enabled=false) }}
+
 {% snapshot SNSH_ABC_BANK_COUNTRY_INFO %}
 {{
     config(

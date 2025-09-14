@@ -14,19 +14,19 @@ src_data as (
 
         'SEED.ABC_Bank_SECURITY_INFO' as RECORD_SOURCE
 
-    from {{ source('seeds', 'ABC_Bank_SECURITY_INFO') }}
+    from {{ source('seeds', 'abc_bank_security_info') }}
  ),
 
 default_record as (
     select
-          '-1'                  as SECURITY_CODE
-        , 'Missing'             as SECURITY_NAME
-        , 'Missing'             as SECTOR_NAME
-        , 'Missing'             as INDUSTRY_NAME
-        , '-1'                  as COUNTRY_CODE
-        , '-1'                  as EXCHANGE_CODE
-        , '2020-01-01'          as LOAD_TS_UTC
-        , 'System.DefaultKey'   as RECORD_SOURCE
+          '-1'                           as SECURITY_CODE
+        , 'Missing'                      as SECURITY_NAME
+        , 'Missing'                      as SECTOR_NAME
+        , 'Missing'                      as INDUSTRY_NAME
+        , '-1'                           as COUNTRY_CODE
+        , '-1'                           as EXCHANGE_CODE
+        , to_timestamp_ntz('2020-01-01') as load_ts
+        , 'System.DefaultKey'            as RECORD_SOURCE
 ),
 
 with_default_record as(

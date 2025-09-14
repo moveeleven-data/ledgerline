@@ -21,7 +21,7 @@ src_data as (
 
         'SEED.ABC_BANK_EXCHANGE_INFO' as RECORD_SOURCE
 
-    from {{ source('seeds', 'ABC_Bank_EXCHANGE_INFO') }}
+    from {{ source('seeds', 'abc_bank_exchange_info') }}
 ),
 
 default_record as (

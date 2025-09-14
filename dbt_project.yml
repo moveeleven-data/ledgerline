@@ -63,35 +63,35 @@ seeds:
   +schema: seed_data
 
   market_sync_dbt:
- #   ABC_Bank_POSITION:
+ #   abc_bank_position:
  #     +column_types:
  #       REPORT_DATE: TEXT
 
-    ABC_Bank_SECURITY_INFO:
+    abc_bank_security_info:
       +column_types:
         LOAD_TS: TIMESTAMP
       +post-hook:
         - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
     
-    ABC_Bank_COUNTRY_INFO:
+    abc_bank_country_info:
       +column_types:
         LOAD_TS: TIMESTAMP
       +post-hook:
         - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
     
-    ABC_Bank_CURRENCY_INFO:
+    abc_bank_currency_info:
       +column_types:
         LOAD_TS: TIMESTAMP
       +post-hook:
         - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
     
-    ABC_Bank_EXCHANGE_INFO:
+    abc_bank_exchange_info:
       +column_types:
         LOAD_TS: TIMESTAMP
       +post-hook:
         - "UPDATE {{ this }} SET LOAD_TS = TO_TIMESTAMP('{{ run_started_at }}') WHERE LOAD_TS IS NULL"
 
-    ABC_Bank_ACCOUNT_INFO:
+    abc_bank_account_info:
       +column_types:
         LOAD_TS: TIMESTAMP_NTZ
       +post-hook:
