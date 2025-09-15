@@ -6,4 +6,4 @@ select
   industry_name as industry_name,
   country_code  as country_code,
   exchange_code as exchange_code
-from {{ ref('REF_ABC_BANK_SECURITY_INFO') }}
+from {{ ref('REF_SECURITY_INFO_ABC_BANK') }}

@@ -27,7 +27,7 @@ where rn = 1
 
 {# Otherwise, return the entire current row per key (what your book’s snippet expects) #}
 {%- else %}
-select *
+select * EXCLUDE (rn)
 from ranked
 where rn = 1
 {%- endif %}
