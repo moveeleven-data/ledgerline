@@ -13,6 +13,7 @@ models:
               - exchange_key
               - currency_key
               - report_date
+        
     columns:
       - name: ACCOUNT_KEY
         tests:

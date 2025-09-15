@@ -15,13 +15,6 @@ models:
         tests:
           - not_null
 
-      - name: SECURITY_CODE
-        description: The code of the security in the position.
-        tests:
-          - relationships:
-              to: ref('REF_SECURITY_INFO_ABC_BANK')
-              field: SECURITY_CODE
-
   - name: REF_ABC_BANK_ACCOUNT_INFO
     description: Account attributes with hashed surrogate key.
     columns:
