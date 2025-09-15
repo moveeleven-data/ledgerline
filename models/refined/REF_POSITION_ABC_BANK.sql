@@ -11,10 +11,7 @@ position as (
 )
 
 select
-    p.* exclude (SECURITY_CODE)
-    , coalesce(s.SECURITY_CODE, '-1') as SECURITY_CODE
+    p.*
     , POSITION_VALUE - COST_BASE as UNREALIZED_PROFIT
     , ROUND(DIV0(UNREALIZED_PROFIT, COST_BASE), 5)*100 as UNREALIZED_PROFIT_PCT
 from position as p
-left outer join security as s
-    on(s.SECURITY_CODE = p.SECURITY_CODE)

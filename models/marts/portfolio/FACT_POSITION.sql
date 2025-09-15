@@ -19,7 +19,7 @@ normalized as (
 joined as (
   select
     da.account_key,
-    ds.security_key,
+    ds.security_code as security_key,
     de.exchange_key,
     dc.currency_key,
     n.report_date::date as report_date,

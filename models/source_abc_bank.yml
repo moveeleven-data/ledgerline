@@ -13,6 +13,7 @@ sources:
               combination_of_columns:
                 - ACCOUNTID
                 - SYMBOL
+                - REPORT_DATE
         columns:
           - name: ACCOUNTID
             description: The code for the account at ABC Bank.
