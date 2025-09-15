@@ -5,3 +5,5 @@ dbt_packages/
 logs/
 .kaggle
 seeds/stocktwits_messages.csv
+.idea/
+*.iml
