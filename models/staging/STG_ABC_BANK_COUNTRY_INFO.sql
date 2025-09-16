@@ -1,7 +1,5 @@
 {{ config(materialized='ephemeral') }}
 
-with
-
 with src_data as (
     select
         country_code_2_letter    as country_code2,

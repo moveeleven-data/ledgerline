@@ -2,8 +2,7 @@ name: 'market_sync_dbt'
 version: '1.0.0'
 config-version: 2
 
-# dbt Cloud ignores this value for jobs/IDE.
-profile: 'market_sync'
+profile: 'market_sync'  # dbt Cloud ignores this value for jobs/IDE
 
 model-paths: ['models']
 analysis-paths: ['analyses']
@@ -20,26 +19,30 @@ clean-targets:
 models:
   market_sync_dbt:
     +persist_docs: {relation: true, columns: true}
-    +enabled: "{{ var('enable_snapshots', false) }}"
 
+    # Views so we can see them in Snowflake
     staging:
-      +schema: 'staging'
+      +schema: staging
       +materialized: "{{ var('stg_materialization', 'view') }}"
 
+    history:
+      +schema: history
+      +materialized: incremental
+      +incremental_strategy: append
+      +on_schema_change: append_new_columns
+
     refined:
-      +schema: 'refined'
+      +schema: refined
       +materialized: table
 
     marts:
       +materialized: table
       portfolio:
-        +schema: 'marts_portfolio'
-      market:
-        +schema: 'marts_market'
+        +schema: marts_portfolio
 
 
 seeds:
-  +schema: 'seeds'
+  +schema: seeds
   market_sync_dbt:
     +quote_columns: false
 

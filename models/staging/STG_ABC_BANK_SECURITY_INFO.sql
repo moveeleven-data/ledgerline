@@ -1,7 +1,5 @@
 {{ config(materialized='ephemeral') }}
 
-with 
-
 with src_data as (
     select
         security_code   as security_code,

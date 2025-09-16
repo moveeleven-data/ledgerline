@@ -37,7 +37,7 @@ with_name as (
         s.position_value,
         s.currency_code,
         s.record_source
-    from src s
+    from src_data s
     left join sec
       on s.security_code = sec.security_code
 ),
