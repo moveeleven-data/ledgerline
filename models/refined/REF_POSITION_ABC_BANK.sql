@@ -2,8 +2,9 @@ with
 
 position as (
     {{ current_from_history(
-        history_rel = ref('HIST_ABC_BANK_POSITION_WITH_CLOSING'), 
+        history_rel = ref('HIST_ABC_BANK_POSITION'), 
         key_column = 'POSITION_HKEY',
+        history_filter_expr = 'not IS_SYNTHETIC_CLOSE'
     ) }}
 )
 , security as (
