@@ -11,6 +11,7 @@ with dim_security as (
 )
 
 select
+    security_code   as security_key,
     security_code   as security_code,
     security_name   as security_name,
     sector_name     as sector_name,

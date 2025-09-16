@@ -1,7 +1,5 @@
 {{ config(materialized='ephemeral') }}
 
-with
-
 with src_data as (
     select
         AlphabeticCode  as currency_code,
