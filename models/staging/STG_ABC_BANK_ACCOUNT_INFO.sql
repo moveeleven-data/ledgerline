@@ -2,9 +2,9 @@
 
 with src as (
   select
-    upper(account_code)               as account_code,
-    upper(account_currency_code)      as account_currency_code,
-    '{{ run_started_at }}'::timestamp as load_ts
+    upper(account_code)                       as account_code,
+    upper(account_currency_code)              as account_currency_code,
+    to_timestamp_ntz('{{ run_started_at }}')  as load_ts
   from {{ ref('abc_bank_account_info') }}
 ),
 

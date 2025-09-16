@@ -4,7 +4,8 @@ models:
   - name: STG_ABC_BANK_POSITION
     tests:
       - dbt_utils.expression_is_true:
-          expression: "year(report_date) >= 2000"
+          arguments:
+            expression: "extract(year from report_date) >= 2000"
 
   - name: HIST_ABC_BANK_POSITION
     tests:
