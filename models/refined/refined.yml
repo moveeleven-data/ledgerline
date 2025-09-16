@@ -15,7 +15,7 @@ models:
         tests:
           - not_null
 
-  - name: REF_ABC_BANK_ACCOUNT_INFO
+  - name: REF_ACCOUNT_ABC_BANK
     description: Account attributes with hashed surrogate key.
     columns:
       - name: ACCOUNT_HKEY
@@ -28,7 +28,7 @@ models:
         description: Account currency code.
         tests: [not_null]
 
-  - name: REF_ABC_BANK_COUNTRY_INFO
+  - name: REF_COUNTRY_ABC_BANK
     description: Country reference data.
     columns:
       - name: COUNTRY_HKEY
@@ -41,7 +41,7 @@ models:
         description: Country name.
         tests: [not_null]
 
-  - name: REF_ABC_BANK_CURRENCY_INFO
+  - name: REF_CURRENCY_ABC_BANK
     description: Currency reference data.
     columns:
       - name: CURRENCY_HKEY
@@ -54,7 +54,7 @@ models:
         description: Currency name.
         tests: [not_null]
 
-  - name: REF_ABC_BANK_EXCHANGE_INFO
+  - name: REF_EXCHANGE_ABC_BANK
     description: Exchange reference data.
     columns:
       - name: EXCHANGE_HKEY
@@ -67,7 +67,7 @@ models:
         description: Exchange name.
         tests: [not_null]
 
-  - name: REF_SECURITY_INFO_ABC_BANK
+  - name: REF_SECURITY_ABC_BANK
     description: Security master attributes.
     columns:
       - name: SECURITY_HKEY

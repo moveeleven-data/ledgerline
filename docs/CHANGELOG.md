@@ -1,5 +1,9 @@
 ## market-sync-dbt Changelog
 
+### 2025-09-16
+
+Moved hist models in `history/` folder. Verified portfolio flow end to end. Refactored every layer.
+
 ### 2025-09-15 (Phase 1 Complete)
 
 - Restructured the repo: moved sources into `models/sources/`, created `marts/portfolio/`.
