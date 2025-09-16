@@ -28,7 +28,7 @@
 
 ---
 
-## Quickstart (Sketch)
+## Quickstart
 
 **Prereqs:**  
 - Snowflake account  

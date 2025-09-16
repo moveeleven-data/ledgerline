@@ -34,7 +34,6 @@ stg_input as (
     from stg_input as stg
     left join current_from_history curr
         on stg.position_hdiff = curr.position_hdiff
-       and curr.position_row_type = 'OPEN'
     where curr.position_hdiff is null
 )
 

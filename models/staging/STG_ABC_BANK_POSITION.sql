@@ -25,19 +25,19 @@ src_positions as (
 
 , enriched_positions as (
     select
-        s.account_code,
-        s.security_code,
-        coalesce(sec.security_name, 'Missing') as security_name,
-        s.exchange_code,
-        s.report_date,
-        s.quantity,
-        s.cost_base,
-        s.position_value,
-        s.currency_code,
-        s.record_source
-    from src_positions p
-    left join security_lookup l
-        on p.security_code = l.security_code
+        pos.account_code
+      , pos.security_code
+      , coalesce(sec.security_name, 'Missing') as security_name
+      , pos.exchange_code
+      , pos.report_date
+      , pos.quantity
+      , pos.cost_base
+      , pos.position_value
+      , pos.currency_code
+      , pos.record_source
+    from src_positions as pos
+    left join security_lookup as sec
+      on pos.security_code = sec.security_code
 )
 
 , hashed_positions as (
