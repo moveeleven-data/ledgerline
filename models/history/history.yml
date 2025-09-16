@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: HIST_ABC_BANK_POSITION
+    description: >
+      SCD positions history. 'OPEN' rows come from the source for each report_date;
+      'CLOSE_SYNTHETIC' rows are zero-outs created when a previously OPEN position
+      is absent on the latest report_date.
+    columns:
+      - name: POSITION_ROW_TYPE
+        description: Row classification for the position history record.
+        tests:
+          - not_null
+          - dbt_utils.accepted_values:
+              values: ['OPEN', 'CLOSE_SYNTHETIC']
+
+      - name: POSITION_HKEY
+        tests:
+          - not_null
+
+      - name: REPORT_DATE
+        tests:
+          - not_null
+
+    tests:
+      # At most one row per (key, date)—either OPEN or a synthetic close
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['POSITION_HKEY','REPORT_DATE']

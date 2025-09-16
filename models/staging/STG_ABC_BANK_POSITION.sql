@@ -2,30 +2,28 @@
 
 with
 
-src_data as (
-    SELECT
-        UPPER(ACCOUNTID)                           as ACCOUNT_CODE,
-        UPPER(SYMBOL)                              as SECURITY_CODE,
-        UPPER(EXCHANGE)                            as EXCHANGE_CODE,
-        {{ to_21st_century_date('REPORT_DATE') }}  as report_date,
-        QUANTITY                                   as QUANTITY,
-        COST_BASE                                  as COST_BASE,
-        POSITION_VALUE                             as POSITION_VALUE,
-        UPPER(CURRENCY)                            as CURRENCY_CODE,
-
-        'SOURCE_DATA.ABC_BANK_POSITION' as RECORD_SOURCE
-
-    from {{ source('abc_bank', 'abc_bank_position') }}
-),
-
-sec as (
+src_positions as (
     select
-        upper(security_code) as security_code,
-        security_name
-    from {{ ref('abc_bank_security_info') }}
-),
+        upper(accountid)                            as account_code
+        , upper(symbol)                             as security_code
+        , upper(exchange)                           as exchange_code
+        , {{ to_21st_century_date('report_date') }} as report_date
+        , quantity                                  as quantity
+        , cost_base                                 as cost_base
+        , position_value                            as position_value
+        , upper(currency)                           as currency_code
+        , 'SOURCE_DATA.abc_bank_position'           as record_source
+    from {{ source('abc_bank', 'abc_bank_position') }}
+)
 
-with_name as (
+, security_lookup as (
+    select
+        upper(security_code) as security_code
+        , security_name
+    from {{ ref('abc_bank_security_info') }}
+)
+
+, enriched_positions as (
     select
         s.account_code,
         s.security_code,
@@ -37,12 +35,12 @@ with_name as (
         s.position_value,
         s.currency_code,
         s.record_source
-    from src_data s
-    left join sec
-      on s.security_code = sec.security_code
-),
+    from src_positions p
+    left join security_lookup l
+        on p.security_code = l.security_code
+)
 
-hashed as (
+, hashed_positions as (
     select
         {{ dbt_utils.generate_surrogate_key(['account_code','security_code']) }} as position_hkey,
         {{ dbt_utils.generate_surrogate_key([
@@ -55,12 +53,11 @@ hashed as (
             'cost_base',
             'position_value',
             'currency_code'
-        ]) }} as position_hdiff,
+        ]) }} as position_hdiff
 
-        *,
-        
-        to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from with_name
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+    from enriched_positions
 )
 
-select * from hashed
+select * from hashed_positions
