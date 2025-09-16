@@ -34,6 +34,6 @@ models:
 
 
     tests:
-      # Exactly one row per (key, date) — either an OPEN or a CLOSE_SYNTHETIC, not both
+      # Exactly one row per (key, date)
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: ['POSITION_HKEY','REPORT_DATE']
