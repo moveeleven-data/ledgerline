@@ -2,29 +2,28 @@
 
 with
 
-src_data as (
+with src_data as (
     select
-        AlphabeticCode                as CURRENCY_CODE,     -- text
-        NumericCode                   as CURRENCY_NUM_CODE, -- text or number
-        DecimalDigits                 as DECIMAL_DIGITS,    -- number
-        CurrencyName                  as CURRENCY_NAME,     -- text
-        Locations                     as LOCATIONS,         -- text
-        LOAD_TS                       as LOAD_TS,           -- TIMESTAMP_NTZ
+        AlphabeticCode  as currency_code,
+        NumericCode     as currency_num_code,
+        DecimalDigits   as decimal_digits,
+        CurrencyName    as currency_name,
+        Locations       as locations,
+        load_ts         as load_ts,
 
-        'SEED.ABC_BANK_CURRENCY_INFO' as RECORD_SOURCE
-
-    from {{ source('seeds', 'abc_bank_currency_info') }}
+        'SEED.abc_bank_currency_info' as record_source
+    from {{ ref('abc_bank_currency_info') }}
 ),
 
 default_record as (
     select
-        '-1'                           as CURRENCY_CODE,
-        NULL                           as CURRENCY_NUM_CODE,
-        2                              as DECIMAL_DIGITS,
-        'Missing'                      as CURRENCY_NAME,
-        NULL                           as LOCATIONS,
-        TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS_UTC,
-        'System.DefaultKey'            as RECORD_SOURCE
+        '-1'                            as currency_code,
+        null                            as currency_num_code,
+        2                               as decimal_digits,
+        'Missing'                       as currency_name,
+        null                            as locations,
+        to_timestamp_ntz('2020-01-01')  as load_ts,
+        'System.DefaultKey'             as record_source
 ),
 
 with_default_record as (
@@ -36,17 +35,16 @@ with_default_record as (
 hashed as (
     select
         {{ dbt_utils.generate_surrogate_key(['currency_code']) }} as currency_hkey,
-
         {{ dbt_utils.generate_surrogate_key([
             'currency_code',
             'currency_name',
             'decimal_digits',
-            'locations'
-        ]) }} as currency_hdiff,
+            'locations']
+        ) }} as currency_hdiff,
 
         * exclude (load_ts),
-        load_ts as load_ts_utc
         
+        load_ts as load_ts_utc
     from with_default_record
 )
 

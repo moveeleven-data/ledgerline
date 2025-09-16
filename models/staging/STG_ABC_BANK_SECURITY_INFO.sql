@@ -2,31 +2,30 @@
 
 with 
 
-src_data as (
+with src_data as (
     select
-        SECURITY_CODE     as SECURITY_CODE,   -- TEXT
-        SECURITY_NAME     as SECURITY_NAME,   -- TEXT
-        SECTOR            as SECTOR_NAME,     -- TEXT
-        INDUSTRY          as INDUSTRY_NAME,   -- TEXT
-        COUNTRY           as COUNTRY_CODE,    -- TEXT
-        EXCHANGE          as EXCHANGE_CODE,   -- TEXT
-        LOAD_TS           as LOAD_TS,         -- TIMESTAMP_NTZ
+        security_code   as security_code,
+        security_name   as security_name,
+        sector          as sector_name,
+        industry        as industry_name,
+        country         as country_code,
+        exchange        as exchange_code,
+        load_ts         as load_ts,
 
-        'SEED.ABC_Bank_SECURITY_INFO' as RECORD_SOURCE
-
-    from {{ source('seeds', 'abc_bank_security_info') }}
- ),
+        'SEED.abc_bank_security_info' as record_source
+    from {{ ref('abc_bank_security_info') }}
+),
 
 default_record as (
     select
-          '-1'                           as SECURITY_CODE
-        , 'Missing'                      as SECURITY_NAME
-        , 'Missing'                      as SECTOR_NAME
-        , 'Missing'                      as INDUSTRY_NAME
-        , '-1'                           as COUNTRY_CODE
-        , '-1'                           as EXCHANGE_CODE
-        , to_timestamp_ntz('2020-01-01') as load_ts
-        , 'System.DefaultKey'            as RECORD_SOURCE
+        '-1'                            as security_code,
+        'Missing'                       as security_name,
+        'Missing'                       as sector_name,
+        'Missing'                       as industry_name,
+        '-1'                            as country_code,
+        '-1'                            as exchange_code,
+        to_timestamp_ntz('2020-01-01')  as load_ts,
+        'System.DefaultKey'             as record_source
 ),
 
 with_default_record as(
@@ -38,7 +37,6 @@ with_default_record as(
 hashed as (
     select
         {{ dbt_utils.generate_surrogate_key(['security_code']) }} as security_hkey,
-
         {{ dbt_utils.generate_surrogate_key([
             'security_code',
             'security_name',
@@ -49,8 +47,8 @@ hashed as (
         ]) }} as security_hdiff,
 
         * exclude (load_ts),
+        
         load_ts as load_ts_utc
-
     from with_default_record
 )
 

@@ -2,46 +2,45 @@
 
 with
 
-src_data as (
+with src_data as (
     select
-        ID              as EXCHANGE_CODE,
-        Name            as EXCHANGE_NAME,
-        Country         as COUNTRY_NAME,
-        City            as CITY_NAME,
-        Zone            as TIMEZONE_NAME,
-        Delta           as TZ_DELTA_HOURS,
-        DST_period      as DST_PERIOD_DESC,
-        Open            as OPEN_LOCAL,
-        Close           as CLOSE_LOCAL,
-        Lunch           as LUNCH_LOCAL,
-        Open_UTC        as OPEN_UTC,
-        Close_UTC       as CLOSE_UTC,
-        Lunch_UTC       as LUNCH_UTC,
-        LOAD_TS         as LOAD_TS,
+        id                as exchange_code,
+        name              as exchange_name,
+        country           as country_name,
+        city              as city_name,
+        zone              as timezone_name,
+        delta             as tz_delta_hours,
+        dst_period        as dst_period_desc,
+        open              as open_local,
+        close             as close_local,
+        lunch             as lunch_local,
+        open_utc          as open_utc,
+        close_utc         as close_utc,
+        lunch_utc         as lunch_utc,
+        load_ts           as load_ts,
 
-        'SEED.ABC_BANK_EXCHANGE_INFO' as RECORD_SOURCE
-
-    from {{ source('seeds', 'abc_bank_exchange_info') }}
+        'SEED.abc_bank_exchange_info' as record_source
+    from {{ ref('abc_bank_exchange_info') }}
 ),
+
 
 default_record as (
     select
-        '-1'                           as EXCHANGE_CODE,
-        'Missing'                      as EXCHANGE_NAME,
-        NULL                           as COUNTRY_NAME,
-        NULL                           as CITY_NAME,
-        NULL                           as TIMEZONE_NAME,
-        NULL                           as TZ_DELTA_HOURS,
-        NULL                           as DST_PERIOD_DESC,
-        NULL                           as OPEN_LOCAL,
-        NULL                           as CLOSE_LOCAL,
-        NULL                           as LUNCH_LOCAL,
-        NULL                           as OPEN_UTC,
-        NULL                           as CLOSE_UTC,
-        NULL                           as LUNCH_UTC,
-
-        TO_TIMESTAMP_NTZ('2020-01-01') as LOAD_TS_UTC,
-        'System.DefaultKey'            as RECORD_SOURCE
+        '-1'                            as exchange_code,
+        'Missing'                       as exchange_name,
+        null                            as country_name,
+        null                            as city_name,
+        null                            as timezone_name,
+        null                            as tz_delta_hours,
+        null                            as dst_period_desc,
+        null                            as open_local,
+        null                            as close_local,
+        null                            as lunch_local,
+        null                            as open_utc,
+        null                            as close_utc,
+        null                            as lunch_utc,
+        to_timestamp_ntz('2020-01-01')  as load_ts,
+        'System.DefaultKey'             as record_source
 ),
 
 with_default_record as (
@@ -53,7 +52,6 @@ with_default_record as (
 hashed as (
     select
         {{ dbt_utils.generate_surrogate_key(['exchange_code']) }} as exchange_hkey,
-
         {{ dbt_utils.generate_surrogate_key([
             'exchange_code',
             'exchange_name',
@@ -65,8 +63,8 @@ hashed as (
         ]) }} as exchange_hdiff,
 
         * exclude (load_ts),
+        
         load_ts as load_ts_utc
-
     from with_default_record
 )
 
