@@ -11,7 +11,7 @@ src_securities as (
         , country                     as country_code
         , exchange                    as exchange_code
         , load_ts                     as load_ts
-        'SEED.abc_bank_security_info' as record_source
+        , 'SEED.abc_bank_security_info' as record_source
     from {{ ref('abc_bank_security_info') }}
 )
 
