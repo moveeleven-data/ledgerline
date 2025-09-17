@@ -27,13 +27,31 @@ models:
       - name: POSITION_ROW_TYPE
         description: Row classification ('OPEN' from source; 'CLOSE_SYNTHETIC' generated on disappearance).
         tests:
-          - not_null
           - accepted_values:
               arguments:
                 values: ['OPEN', 'CLOSE_SYNTHETIC']
 
-
     tests:
-      # Exactly one row per (key, date)
+      # Exactly one row per (key, date, row_type)
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['POSITION_HKEY','REPORT_DATE']
+          arguments:
+            combination_of_columns: ['POSITION_HKEY','REPORT_DATE','POSITION_ROW_TYPE']
+
+      # Hashes should not collide for either HKEY or HDIFF
+      - hash_collision_free:
+          column_name: POSITION_HKEY
+          hashed_fields:
+            - account_code
+            - security_code
+      - hash_collision_free:
+          column_name: POSITION_HDIFF
+          hashed_fields:
+            - account_code
+            - security_code
+            - security_name
+            - exchange_code
+            - "to_varchar(report_date, 'YYYY-MM-DD')"
+            - quantity
+            - cost_base
+            - position_value
+            - currency_code

@@ -1,22 +1,25 @@
 version: 2
 
 models:
-
   - name: REF_POSITION_ABC_BANK
     description: The positions we have in the ABC Bank portfolio.
     columns:
       - name: UNREALIZED_PROFIT
         description: The unrealized profit on the position.
-        tests:
-          - not_null
-
+        tests: [not_null]
       - name: UNREALIZED_PROFIT_PCT
-        description: The unrealized profit percentaage on the position.
-        tests:
-          - not_null
+        description: The unrealized profit percentage on the position.
+        tests: [not_null]
 
   - name: REF_ACCOUNT_ABC_BANK
     description: Account attributes with hashed surrogate key.
+    tests:
+      - has_default_key:
+          column_name: ACCOUNT_HKEY
+      - warn_on_multiple_default_key:
+          column_name: ACCOUNT_HKEY
+      - no_default_clash:
+          code_col: ACCOUNT_CODE
     columns:
       - name: ACCOUNT_HKEY
         description: Surrogate key for the account row.
@@ -30,6 +33,13 @@ models:
 
   - name: REF_COUNTRY_ABC_BANK
     description: Country reference data.
+    tests:
+      - has_default_key:
+          column_name: COUNTRY_HKEY
+      - warn_on_multiple_default_key:
+          column_name: COUNTRY_HKEY
+      - no_default_clash:
+          code_col: COUNTRY_CODE2
     columns:
       - name: COUNTRY_HKEY
         description: Surrogate key for the country row.
@@ -43,6 +53,13 @@ models:
 
   - name: REF_CURRENCY_ABC_BANK
     description: Currency reference data.
+    tests:
+      - has_default_key:
+          column_name: CURRENCY_HKEY
+      - warn_on_multiple_default_key:
+          column_name: CURRENCY_HKEY
+      - no_default_clash:
+          code_col: CURRENCY_CODE
     columns:
       - name: CURRENCY_HKEY
         description: Surrogate key for the currency row.
@@ -56,6 +73,13 @@ models:
 
   - name: REF_EXCHANGE_ABC_BANK
     description: Exchange reference data.
+    tests:
+      - has_default_key:
+          column_name: EXCHANGE_HKEY
+      - warn_on_multiple_default_key:
+          column_name: EXCHANGE_HKEY
+      - no_default_clash:
+          code_col: EXCHANGE_CODE
     columns:
       - name: EXCHANGE_HKEY
         description: Surrogate key for the exchange row.
@@ -69,6 +93,13 @@ models:
 
   - name: REF_SECURITY_ABC_BANK
     description: Security master attributes.
+    tests:
+      - has_default_key:
+          column_name: SECURITY_HKEY
+      - warn_on_multiple_default_key:
+          column_name: SECURITY_HKEY
+      - no_default_clash:
+          code_col: SECURITY_CODE
     columns:
       - name: SECURITY_HKEY
         description: Surrogate key for the security row.
