@@ -6,3 +6,4 @@ select
   , sub_region    as sub_region
   , iso_3166_2    as iso_code
 from {{ ref('REF_COUNTRY_ABC_BANK') }}
+where country_code2 <> '-1'
