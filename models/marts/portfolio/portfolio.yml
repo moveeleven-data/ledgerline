@@ -21,7 +21,7 @@ models:
           - relationships:
               name: fk_fact_position_account
               arguments:
-                to: ref('dim_account')
+                to: ref('DIM_ACCOUNT')
                 field: account_key
 
       - name: SECURITY_KEY
@@ -30,7 +30,7 @@ models:
           - relationships:
               name: fk_fact_position_security
               arguments:
-                to: ref('dim_security')
+                to: ref('DIM_SECURITY')
                 field: security_key
 
       - name: EXCHANGE_KEY
@@ -39,7 +39,7 @@ models:
           - relationships:
               name: fk_fact_position_exchange
               arguments:
-                to: ref('dim_exchange')
+                to: ref('DIM_EXCHANGE')
                 field: exchange_key
 
       - name: CURRENCY_KEY
@@ -48,7 +48,7 @@ models:
           - relationships:
               name: fk_fact_position_currency
               arguments:
-                to: ref('dim_currency')
+                to: ref('DIM_CURRENCY')
                 field: currency_key
                 
       - name: REPORT_DATE

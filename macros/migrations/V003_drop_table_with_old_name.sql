@@ -1,6 +1,6 @@
 {% macro V003_drop_table(
-    database = target.database,
-    schema_prefix = target.schema
+    database = target.database
+  , schema_prefix = target.schema
 ) -%}
 
 DROP TABLE IF EXISTS {{database}}.{{schema_prefix

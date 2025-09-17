@@ -1,5 +1,5 @@
 {% test no_default_clash(
-    model
+      model
     , code_col
     , record_source_col='RECORD_SOURCE'
     , default_code='-1'

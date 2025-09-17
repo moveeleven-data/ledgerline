@@ -15,11 +15,14 @@ models:
     description: Account attributes with hashed surrogate key.
     tests:
       - has_default_key:
-          column_name: ACCOUNT_HKEY
+          arguments:
+            column_name: ACCOUNT_CODE
       - warn_on_multiple_default_key:
-          column_name: ACCOUNT_HKEY
+          arguments:
+            column_name: ACCOUNT_CODE
       - no_default_clash:
-          code_col: ACCOUNT_CODE
+          arguments:
+            code_col: ACCOUNT_CODE
     columns:
       - name: ACCOUNT_HKEY
         description: Surrogate key for the account row.
@@ -35,11 +38,14 @@ models:
     description: Country reference data.
     tests:
       - has_default_key:
-          column_name: COUNTRY_HKEY
+          arguments:
+            column_name: COUNTRY_CODE2
       - warn_on_multiple_default_key:
-          column_name: COUNTRY_HKEY
+          arguments:
+            column_name: COUNTRY_CODE2
       - no_default_clash:
-          code_col: COUNTRY_CODE2
+          arguments:
+            code_col: COUNTRY_CODE2
     columns:
       - name: COUNTRY_HKEY
         description: Surrogate key for the country row.
@@ -55,11 +61,14 @@ models:
     description: Currency reference data.
     tests:
       - has_default_key:
-          column_name: CURRENCY_HKEY
+          arguments:
+            column_name: CURRENCY_CODE
       - warn_on_multiple_default_key:
-          column_name: CURRENCY_HKEY
+          arguments:
+            column_name: CURRENCY_CODE
       - no_default_clash:
-          code_col: CURRENCY_CODE
+          arguments:
+            code_col: CURRENCY_CODE
     columns:
       - name: CURRENCY_HKEY
         description: Surrogate key for the currency row.
@@ -75,11 +84,14 @@ models:
     description: Exchange reference data.
     tests:
       - has_default_key:
-          column_name: EXCHANGE_HKEY
+          arguments:
+            column_name: EXCHANGE_CODE
       - warn_on_multiple_default_key:
-          column_name: EXCHANGE_HKEY
+          arguments:
+            column_name: EXCHANGE_CODE
       - no_default_clash:
-          code_col: EXCHANGE_CODE
+          arguments:
+            code_col: EXCHANGE_CODE
     columns:
       - name: EXCHANGE_HKEY
         description: Surrogate key for the exchange row.
@@ -95,11 +107,14 @@ models:
     description: Security master attributes.
     tests:
       - has_default_key:
-          column_name: SECURITY_HKEY
+          arguments:
+            column_name: SECURITY_CODE
       - warn_on_multiple_default_key:
-          column_name: SECURITY_HKEY
+          arguments:
+            column_name: SECURITY_CODE
       - no_default_clash:
-          code_col: SECURITY_CODE
+          arguments:
+            code_col: SECURITY_CODE
     columns:
       - name: SECURITY_HKEY
         description: Surrogate key for the security row.

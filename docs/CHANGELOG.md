@@ -1,13 +1,17 @@
 ## market-sync-dbt Changelog
 
+### 2025-09-17
+
+- Reorganized macros into folders.
+- Refactored SQL across all layers.
+- Defined a singular test to check Positions in STG are unique per day.
+- Improve hashing strategy for abc_bank_position_diff_fields macro.
+
 ### 2025-09-16
 
-Reorganized the history layer by moving all HIST_ models into a dedicated folder. Built the full flow from staging through history into refined, verifying incremental logic, surrogate keys, and synthetic close handling.
-
-Cleaned dimension models by removing duplicates, dropping placeholders, and fixing the dim_security reference. Standardized naming, added row_type, and aligned seeds with account and position codes.
-
-Validated refined against history with solid alignment and no mismatches. Confirmed mart dimensions pass uniqueness and not-null tests.
-
+- Reorganized the history layer by moving all HIST_ models into a dedicated folder. Built the full flow from staging through history into refined, verifying incremental logic, surrogate keys, and synthetic close handling.
+- Cleaned dimension models by removing duplicates, dropping placeholders, and fixing the dim_security reference. Standardized naming, added row_type, and aligned seeds with account and position codes.
+- Validated refined against history with solid alignment and no mismatches. Confirmed mart dimensions pass uniqueness and not-null tests.
 
 ### 2025-09-15 (Phase 1 Complete)
 

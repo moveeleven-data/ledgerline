@@ -1,5 +1,5 @@
 select
-  currency_hkey       as currency_key
+    currency_hkey     as currency_key
   , currency_code     as currency_code
   , currency_num_code as currency_num_code
   , decimal_digits    as decimal_digits

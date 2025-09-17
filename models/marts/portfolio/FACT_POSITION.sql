@@ -2,7 +2,7 @@ with
 
 position_normalized as (
     select
-        report_date
+          report_date
         , quantity
         , cost_base
         , position_value
@@ -17,7 +17,7 @@ position_normalized as (
 
 , position_enriched as (
   select
-      dim_account.account_key
+        dim_account.account_key
       , dim_security.security_key   as security_key
       , dim_exchange.exchange_key
       , dim_currency.currency_key
@@ -27,7 +27,9 @@ position_normalized as (
       , pos_norm.position_value
       , pos_norm.unrealized_profit
       , pos_norm.unrealized_profit_pct
+
   from position_normalized pos_norm
+
   -- left joins so defaulted '-1' facts do not drop when dims hide default rows
   left join {{ ref('DIM_ACCOUNT')  }}  dim_account
     on pos_norm.account_code_nk  = dim_account.account_code
@@ -40,7 +42,7 @@ position_normalized as (
 )
 
 select
-    account_key
+      account_key
     , security_key
     , exchange_key
     , currency_key
