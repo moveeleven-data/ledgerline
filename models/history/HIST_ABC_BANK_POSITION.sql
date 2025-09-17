@@ -4,17 +4,13 @@
   , unique_key = ['POSITION_HKEY','REPORT_DATE','POSITION_ROW_TYPE']
 ) }}
 
-{% set position_diff_fields_close = [
-  'curr.account_code'
-  , 'curr.security_code'
-  , 'curr.security_name'
-  , 'curr.exchange_code'
-  , "to_varchar((select max(report_date) from stg_input), 'YYYY-MM-DD')"
-  , '0'
-  , '0'
-  , '0'
-  , 'curr.currency_code'
-] %}
+{% set position_diff_fields_close = abc_bank_position_diff_fields(
+    prefix='curr.'
+    , report_date_expr="to_varchar((select max(report_date) from stg_input), 'YYYY-MM-DD')"
+    , quantity_expression='0'
+    , cost_base_expression='0'
+    , position_value_expression='0'
+) %}
 
 with
 
