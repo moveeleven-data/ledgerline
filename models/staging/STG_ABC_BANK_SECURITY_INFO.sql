@@ -4,13 +4,13 @@ with
 
 src_securities as (
     select
-        security_code                 as security_code
-        , security_name               as security_name
-        , sector                      as sector_name
-        , industry                    as industry_name
-        , country                     as country_code
-        , exchange                    as exchange_code
-        , load_ts                     as load_ts
+        security_code                   as security_code
+        , security_name                 as security_name
+        , sector                        as sector_name
+        , industry                      as industry_name
+        , country                       as country_code
+        , exchange                      as exchange_code
+        , load_ts                       as load_ts
         , 'SEED.abc_bank_security_info' as record_source
     from {{ ref('abc_bank_security_info') }}
 )
