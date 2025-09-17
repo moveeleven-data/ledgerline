@@ -12,13 +12,14 @@ models:
         tests: [not_null]
 
   - name: REF_ACCOUNT_ABC_BANK
+    description: Account attributes with hashed surrogate key.
     tests:
       - has_default_key:
           arguments:
-            column_name: ACCOUNT_HKEY
+            column_name: ACCOUNT_CODE
       - warn_on_multiple_default_key:
           arguments:
-            column_name: ACCOUNT_HKEY
+            column_name: ACCOUNT_CODE
       - no_default_clash:
           arguments:
             code_col: ACCOUNT_CODE
@@ -38,10 +39,10 @@ models:
     tests:
       - has_default_key:
           arguments:
-            column_name: COUNTRY_HKEY
+            column_name: COUNTRY_CODE2
       - warn_on_multiple_default_key:
           arguments:
-            column_name: COUNTRY_HKEY
+            column_name: COUNTRY_CODE2
       - no_default_clash:
           arguments:
             code_col: COUNTRY_CODE2
@@ -61,10 +62,10 @@ models:
     tests:
       - has_default_key:
           arguments:
-            column_name: CURRENCY_HKEY
+            column_name: CURRENCY_CODE
       - warn_on_multiple_default_key:
           arguments:
-            column_name: CURRENCY_HKEY
+            column_name: CURRENCY_CODE
       - no_default_clash:
           arguments:
             code_col: CURRENCY_CODE
@@ -84,10 +85,10 @@ models:
     tests:
       - has_default_key:
           arguments:
-            column_name: EXCHANGE_HKEY
+            column_name: EXCHANGE_CODE
       - warn_on_multiple_default_key:
           arguments:
-            column_name: EXCHANGE_HKEY
+            column_name: EXCHANGE_CODE
       - no_default_clash:
           arguments:
             code_col: EXCHANGE_CODE
@@ -107,10 +108,10 @@ models:
     tests:
       - has_default_key:
           arguments:
-            column_name: SECURITY_HKEY
+            column_name: SECURITY_CODE
       - warn_on_multiple_default_key:
           arguments:
-            column_name: SECURITY_HKEY
+            column_name: SECURITY_CODE
       - no_default_clash:
           arguments:
             code_col: SECURITY_CODE

@@ -3,17 +3,17 @@
 with
 
 all_tuples as (
-  select distinct
-    {{ column_name }} as hash,
-    {{ hashed_fields | join(', ') }}
-  from {{ model }}
+    select distinct
+        {{ column_name }} as hash
+      , {{ hashed_fields | join(', ') }}
+    from {{ model }}
 ),
 
 validation_errors as (
-  select hash, count(*) as cnt
-  from all_tuples
-  group by hash
-  having cnt > 1
+    select hash, count(*) as cnt
+    from all_tuples
+    group by hash
+    having cnt > 1
 )
 
 select * from validation_errors

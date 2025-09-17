@@ -4,16 +4,19 @@
   , unique_key = ['POSITION_HKEY','REPORT_DATE','POSITION_ROW_TYPE']
 ) }}
 
+-- Build a field set for synthetic "CLOSE" rows with zeros
 {% set position_diff_fields_close = abc_bank_position_diff_fields(
       prefix='curr.'
-    , report_date_expr="to_varchar((select max(report_date) from stg_input), 'YYYY-MM-DD')"
+    , report_date_expr="to_varchar(d.max_report_date, 'YYYY-MM-DD')"
     , quantity_expression='0'
     , cost_base_expression='0'
     , position_value_expression='0'
 ) %}
 
+
 with
 
+-- Base staging input with explicit column overrides
 stg_input as (
     select 
           stg.* exclude (report_date, quantity, cost_base, position_value, load_ts_utc)
@@ -26,8 +29,16 @@ stg_input as (
     from {{ ref('STG_ABC_BANK_POSITION') }} as stg
 )
 
+-- Capture max report_date for later use in synthetic closes
+, max_stg_date as (
+  select max(report_date) as max_report_date
+  from stg_input
+)
+
+
 {% if is_incremental() %}
 
+-- Current rows from target history table (limited to OPEN)
 , current_from_history as (
     {{ current_from_history(
           history_rel = this
@@ -36,6 +47,7 @@ stg_input as (
     ) }}
 )
 
+-- Detect new rows (not already in history by diff hash)
 , new_rows as (
     select stg.* 
     from stg_input as stg
@@ -44,31 +56,75 @@ stg_input as (
     where curr.position_hdiff is null
 )
 
+-- Detect positions missing from current batch and create synthetic CLOSE records
 , closed_positions as (
-    select
-          curr.* replace (
-          report_date        := (select max(report_date) from stg_input)
-        , quantity           := 0
-        , cost_base          := 0
-        , position_value     := 0
-        , load_ts_utc        := '{{ run_started_at }}'::timestamp_ntz
-        , position_row_type  := 'CLOSE_SYNTHETIC'
-        , position_hdiff     := {{ dbt_utils.generate_surrogate_key(position_diff_fields_close) }}
-    )
-    from current_from_history curr
-    left join stg_input stg
-      on stg.position_hkey = curr.position_hkey
-    where stg.position_hkey is null
+  select
+      curr.position_hkey
+    , {{ dbt_utils.generate_surrogate_key(position_diff_fields_close) }} as position_hdiff
+    , curr.account_code
+    , curr.security_code
+    , curr.exchange_code
+    , d.max_report_date                              as report_date
+    , 0                                              as quantity
+    , 0                                              as cost_base
+    , 0                                              as position_value
+    , curr.currency_code
+    , cast(null as timestamp_ntz)                    as source_loaded_at_utc
+    , curr.record_source
+    , curr.security_name
+    , '{{ run_started_at }}'::timestamp_ntz          as load_ts_utc
+    , 'CLOSE_SYNTHETIC'                              as position_row_type
+  from current_from_history curr
+  left join stg_input stg
+    on stg.position_hkey = curr.position_hkey
+  cross join max_stg_date d
+  where stg.position_hkey is null
 )
 
+-- Union new rows and synthetic closes
 , changes_to_store as (
-  select * from new_rows
+  select
+      position_hkey
+    , position_hdiff
+    , account_code
+    , security_code
+    , exchange_code
+    , report_date
+    , quantity
+    , cost_base
+    , position_value
+    , currency_code
+    , source_loaded_at_utc
+    , record_source
+    , security_name
+    , load_ts_utc
+    , position_row_type
+  from new_rows
+
   union all
-  select * from closed_positions
+
+  select
+      position_hkey
+    , position_hdiff
+    , account_code
+    , security_code
+    , exchange_code
+    , report_date
+    , quantity
+    , cost_base
+    , position_value
+    , currency_code
+    , source_loaded_at_utc
+    , record_source
+    , security_name
+    , load_ts_utc
+    , position_row_type
+  from closed_positions
 )
 
 {%- else %} -- full refresh or target table doesn't exist
 
+-- On full refresh just take all staging rows
 , changes_to_store as (
     select * 
     from stg_input
@@ -76,6 +132,7 @@ stg_input as (
 
 {%- endif %}
 
+-- Deduplicate by keeping the latest load_ts_utc per key/date/type combo
 , changes_dedup as (
   select *
   from changes_to_store

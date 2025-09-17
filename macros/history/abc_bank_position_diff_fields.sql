@@ -19,6 +19,7 @@
     This guarantees hash collisions are avoided in various edge cases.
   #}
 
+
   {# 
     Decide which expressions to use for each field.
     Use the override if one is provided,
@@ -40,16 +41,20 @@
      else prefix ~ 'position_value'
   -%}
 
-  [
-    '{{ prefix }}account_code'
-  , '{{ prefix }}security_code'
-  , '{{ prefix }}security_name'
-  , '{{ prefix }}exchange_code'
-  , "{{ report_date_expr }}"
-  , '{{ quantity_field }}'
-  , '{{ cost_base_field }}'
-  , '{{ position_value_field }}'
-  , '{{ prefix }}currency_code'
-  ]
+  {# build the list of SQL expressions (as strings), then return it #}
+
+  {% set fields = [
+        prefix ~ 'account_code'
+      , prefix ~ 'security_code'
+      , prefix ~ 'security_name'
+      , prefix ~ 'exchange_code'
+      , report_date_expr
+      , quantity_field
+      , cost_base_field
+      , position_value_field
+      , prefix ~ 'currency_code'
+  ] %}
+
+  {{ return(fields) }}
 
 {% endmacro %}

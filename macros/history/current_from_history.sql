@@ -1,17 +1,17 @@
 {% macro current_from_history(
-    history_rel,
-    key_column,
-    selection_expr = none,
-    load_ts_column = 'LOAD_TS_UTC',
-    history_filter_expr = 'true'
+      history_rel
+    , key_column
+    , selection_expr = none
+    , load_ts_column = 'LOAD_TS_UTC'
+    , history_filter_expr = 'true'
 ) -%}
 
 with
 
 ranked as (
     select
-        *,
-        row_number() over (
+        *
+      , row_number() over (
             partition by {{ key_column }}
             order by {{ load_ts_column }} desc
         ) as rn

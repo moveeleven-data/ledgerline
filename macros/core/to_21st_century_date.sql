@@ -8,8 +8,9 @@
             
             -- Otherwise, keep the value as is
             else trim({{ col }}::varchar)
-        end,
-        'YYYY-MM-DD'
+        end
+        
+     , 'YYYY-MM-DD'
     )
 )
 {% endmacro %}
