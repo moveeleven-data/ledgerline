@@ -12,6 +12,7 @@ src_positions as (
         , cost_base                                 as cost_base
         , position_value                            as position_value
         , upper(currency)                           as currency_code
+        , ingested_at                               as source_loaded_at_utc
         , 'SOURCE_DATA.abc_bank_position'           as record_source
     from {{ source('abc_bank', 'abc_bank_position') }}
 )
@@ -34,10 +35,26 @@ src_positions as (
       , pos.cost_base
       , pos.position_value
       , pos.currency_code
+      , pos.source_loaded_at_utc
       , pos.record_source
     from src_positions as pos
     left join security_lookup as sec
       on pos.security_code = sec.security_code
+)
+
+, deduped_positions as (
+  select *
+  from enriched_positions
+  qualify row_number() over (
+           -- one open position per (account, security, normalized date)
+           partition by
+               account_code,
+               security_code,
+               report_date
+           order by
+               source_loaded_at_utc desc,
+               position_value desc
+         ) = 1
 )
 
 , hashed_positions as (
@@ -57,7 +74,7 @@ src_positions as (
 
         , *
         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from enriched_positions
+    from deduped_positions
 )
 
 select * from hashed_positions

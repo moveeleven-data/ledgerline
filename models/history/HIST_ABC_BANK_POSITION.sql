@@ -107,4 +107,19 @@ stg_input as (
 
 {%- endif %}
 
-select * from changes_to_store
+, changes_dedup as (
+  select *
+  from changes_to_store
+  qualify row_number() over (
+           partition by
+               position_hkey,
+               report_date,
+               position_row_type
+           order by
+               load_ts_utc desc,
+               position_hdiff desc
+         ) = 1
+)
+
+
+select * from changes_dedup
