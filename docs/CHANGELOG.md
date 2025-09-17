@@ -2,7 +2,12 @@
 
 ### 2025-09-16
 
-Moved hist models in `history/` folder. Verified portfolio flow end to end. Refactored every layer.
+Reorganized the history layer by moving all HIST_ models into a dedicated folder. Built the full flow from staging through history into refined, verifying incremental logic, surrogate keys, and synthetic close handling.
+
+Cleaned dimension models by removing duplicates, dropping placeholders, and fixing the dim_security reference. Standardized naming, added row_type, and aligned seeds with account and position codes.
+
+Validated refined against history with solid alignment and no mismatches. Confirmed mart dimensions pass uniqueness and not-null tests.
+
 
 ### 2025-09-15 (Phase 1 Complete)
 
