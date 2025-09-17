@@ -49,57 +49,57 @@ stg_input as (
 )
 
 , closed_positions as (
-  select 
-      curr.* exclude (report_date, quantity, cost_base, position_value, load_ts_utc, position_row_type, position_hdiff)
-    , (select max(report_date) from stg_input) as report_date
-    , 0 as quantity
-    , 0 as cost_base
-    , 0 as position_value
-    , '{{ run_started_at }}'::timestamp_ntz as load_ts_utc
-    , 'CLOSE_SYNTHETIC' as position_row_type
-    , {{ dbt_utils.generate_surrogate_key(position_diff_fields_close) }} as position_hdiff
-  from current_from_history curr
-  left join stg_input stg
-    on stg.position_hkey = curr.position_hkey
-  where stg.position_hkey is null
+    select 
+        curr.* exclude (report_date, quantity, cost_base, position_value, load_ts_utc, position_row_type, position_hdiff)
+        , (select max(report_date) from stg_input) as report_date
+        , 0 as quantity
+        , 0 as cost_base
+        , 0 as position_value
+        , '{{ run_started_at }}'::timestamp_ntz as load_ts_utc
+        , 'CLOSE_SYNTHETIC' as position_row_type
+        , {{ dbt_utils.generate_surrogate_key(position_diff_fields_close) }} as position_hdiff
+    from current_from_history curr
+    left join stg_input stg
+        on stg.position_hkey = curr.position_hkey
+    where stg.position_hkey is null
 )
 
 , changes_to_store as (
-  select
-      position_hkey,
-      position_hdiff,
-      account_code,
-      security_code,
-      security_name,
-      exchange_code,
-      currency_code,
-      record_source,
-      report_date,
-      quantity,
-      cost_base,
-      position_value,
-      load_ts_utc,
-      position_row_type
-  from new_rows
+    select
+        position_hkey
+        , position_hdiff
+        , account_code
+        , security_code
+        , security_name
+        , exchange_code
+        , currency_code
+        , record_source
+        , report_date
+        , quantity
+        , cost_base
+        , position_value
+        , load_ts_utc
+        , position_row_type
+    from new_rows
 
-  union all
+    union all
 
-  select
-      position_hkey,
-      position_hdiff,
-      account_code,
-      security_code,
-      security_name,
-      exchange_code,
-      currency_code,
-      record_source,
-      report_date,
-      quantity,
-      cost_base,
-      position_value,
-      load_ts_utc,
-      position_row_type
-  from closed_positions
+    select
+        position_hkey
+        , position_hdiff
+        , account_code
+        , security_code
+        , security_name
+        , exchange_code
+        , currency_code
+        , record_source
+        , report_date
+        , quantity
+        , cost_base
+        , position_value
+        , load_ts_utc
+        , position_row_type
+    from closed_positions
 )
 
 {%- else %} -- full refresh or target table doesn't exist

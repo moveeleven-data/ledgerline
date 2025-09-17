@@ -5,7 +5,7 @@ with
 validation_errors as (
     select {{ column_name }}
     from {{ model }}
-    where len({{ column_name }}) = 0
+    where length(trim({{ column_name }})) = 0
 )
 
 select *
