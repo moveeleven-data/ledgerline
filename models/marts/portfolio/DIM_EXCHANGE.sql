@@ -1,5 +1,5 @@
 select
-  exchange_hkey     as exchange_key
+    exchange_hkey   as exchange_key
   , exchange_code   as exchange_code
   , exchange_name   as exchange_name
   , country_name    as country_name
