@@ -1,5 +1,10 @@
 ## market-sync-dbt Changelog
 
+### 2025-09-18
+
+TO-DO: complete get latest position report date + position hist update
+so that open rows are closed which are not present in current batch (by report date)
+
 ### 2025-09-17
 
 - Reorganized macros into folders.
