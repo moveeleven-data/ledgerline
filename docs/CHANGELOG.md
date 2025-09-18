@@ -2,8 +2,7 @@
 
 ### 2025-09-18
 
-TO-DO: complete get latest position report date + position hist update
-so that open rows are closed which are not present in current batch (by report date)
+- Fixed HIST position model to close rows that are not present in current batch.
 
 ### 2025-09-17
 
