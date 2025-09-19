@@ -1,0 +1,12 @@
+selectors:
+  - name: qa_analyses
+    description: "All QA analyses"
+    definition: "tag:qa resource_type:analysis"
+
+  - name: qa_tests
+    description: "All QA-tagged tests (singular + any generics you tagged)"
+    definition: "tag:qa resource_type:test"
+
+  - name: qa_all
+    description: "Everything tagged qa (any resource type)"
+    definition: "tag:qa"

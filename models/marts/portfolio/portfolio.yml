@@ -48,8 +48,8 @@ models:
       - name: security_name
         description: Security display name.
         data_type: string
-
         tests: [not_null]
+
       - name: sector_name
         description: GICS or provider sector name, when available.
         data_type: string
@@ -237,8 +237,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('DIM_ACCOUNT')
-              field: account_key
+              arguments:
+                to: ref('DIM_ACCOUNT')
+                field: account_key
 
       - name: security_key
         description: Foreign key to DIM_SECURITY.
@@ -246,8 +247,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('DIM_SECURITY')
-              field: security_key
+              arguments:
+                to: ref('DIM_SECURITY')
+                field: security_key
 
       - name: exchange_key
         description: Foreign key to DIM_EXCHANGE.
@@ -255,8 +257,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('DIM_EXCHANGE')
-              field: exchange_key
+              arguments:
+                to: ref('DIM_EXCHANGE')
+                field: exchange_key
 
       - name: currency_key
         description: Foreign key to DIM_CURRENCY.
@@ -264,8 +267,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('DIM_CURRENCY')
-              field: currency_key
+              arguments:
+                to: ref('DIM_CURRENCY')
+                field: currency_key
 
       - name: report_date
         description: As-of business date of the position snapshot.

@@ -5,11 +5,22 @@ models:
     description: The positions we have in the ABC Bank portfolio.
     columns:
       - name: UNREALIZED_PROFIT
-        description: The unrealized profit on the position.
         tests: [not_null]
+
       - name: UNREALIZED_PROFIT_PCT
-        description: The unrealized profit percentage on the position.
-        tests: [not_null]
+        tests:
+          - not_null
+          - numeric_bounds:
+              arguments:
+                min_value: -100
+                max_value: 100
+
+      - name: COST_BASE
+        tests:
+          - numeric_bounds:
+              arguments:
+                min_value: 0.01
+                max_value: 1000000000
 
   - name: REF_ACCOUNT_ABC_BANK
     description: Account attributes with hashed surrogate key.

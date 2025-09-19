@@ -40,16 +40,16 @@ position_normalized as (
   from position_normalized pos_norm
 
   join {{ ref('DIM_ACCOUNT')  }}  dim_account
-       on upper(trim(dim_account.account_code))   = upper(trim(pos_norm.account_code_nk))
+    on dim_account.account_code = pos_norm.account_code_nk
 
   join {{ ref('DIM_SECURITY') }}  dim_security
-       on upper(trim(dim_security.security_code)) = upper(trim(pos_norm.security_code_nk))
+    on dim_security.security_code = pos_norm.security_code_nk
 
   join {{ ref('DIM_EXCHANGE') }}  dim_exchange
-       on upper(trim(dim_exchange.exchange_code)) = upper(trim(pos_norm.exchange_code_nk))
+    on dim_exchange.exchange_code = pos_norm.exchange_code_nk
 
   join {{ ref('DIM_CURRENCY') }}  dim_currency
-       on upper(trim(dim_currency.currency_code)) = upper(trim(pos_norm.currency_code_nk))
+    on dim_currency.currency_code = pos_norm.currency_code_nk
 )
 
 select
