@@ -6,4 +6,3 @@ select
   , currency_name                            as currency_name
   , locations                                as locations
 from {{ ref('REF_CURRENCY_ABC_BANK') }}
-where currency_code <> '-1'

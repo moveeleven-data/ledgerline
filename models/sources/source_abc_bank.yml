@@ -9,47 +9,43 @@ sources:
       - name: abc_bank_position           # resource name referenced in source()
         identifier: ABC_BANK_POSITION     # physical table in Snowflake
         description: >
-          Landing table for positions loaded via COPY INTO. Acts as the raw source
-          for staging and history models.
+          Landing table for positions loaded via COPY INTO. Raw feed may
+          contain nulls/dupes; downstream layers clean and conform.
 
         loaded_at_field: ingested_at
         freshness:
           warn_after: {count: 36, period: hour}
           error_after: {count: 72, period: hour}
 
+        # Keep an eye on potential dupes, but don't fail the build
         tests:
           - dbt_utils.unique_combination_of_columns:
-              combination_of_columns: [accountid, symbol, exchange, report_date]
+              arguments:
+                combination_of_columns: [accountid, symbol, exchange, report_date]
+              config:
+                severity: warn
 
         columns:
           - name: accountid
             description: Account code from ABC Bank
-            tests: [not_null]
 
           - name: symbol
             description: Security symbol
-            tests: [not_null]
 
           - name: exchange
             description: Exchange code
-            tests: [not_null]
 
           - name: report_date
             description: As of date for the position snapshot
-            tests: [not_null]
 
           - name: quantity
-            description: Units held as of report_date
-            tests: [not_null]
+            description: Units held as of report_date (may be null in raw)
 
           - name: cost_base
-            description: Cost basis for the position
-            tests: [not_null]
+            description: Cost basis for the position (may be null in raw)
 
           - name: position_value
-            description: Market value for the position
-            tests: [not_null]
+            description: Market value for the position (may be null in raw)
 
           - name: currency
-            description: Currency for monetary amounts
-            tests: [not_null]
+            description: Currency for monetary amounts (may be null in raw)

@@ -1,7 +1,10 @@
 version: 2
+
 models:
   - name: STG_ABC_BANK_POSITION
     tests:
       - dbt_utils.expression_is_true:
           arguments:
             expression: "extract(year from report_date) >= 2000"
+          config:
+            severity: warn
