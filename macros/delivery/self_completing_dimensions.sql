@@ -25,13 +25,17 @@ dim_base as (
     {% if fact_defs|length > 0 %}   -- If a FACT reference is passed, then check for orphans and add them in the dimension
 
         {%- for fact_model_key in fact_defs %}
-        select distinct {{fact_model_key['key']}} as FOREIGN_KEY
-        from {{ ref(fact_model_key['model']) }}
-        where {{fact_model_key['key']}} is not null
-            {% if not loop.last %} union {% endif %}
+            select distinct {{fact_model_key['key']}} as FOREIGN_KEY
+            from {{ ref(fact_model_key['model']) }}
+            where {{fact_model_key['key']}} is not null
+
+            {% if not loop.last %}
+            union
+            {% endif %}
+
         {%- endfor -%}
 
-    {%- else %}     -- If NO FACT reference is passed, the list of fact keys is just empty.
+    {%- else %}   -- If NO FACT reference is passed, the list of fact keys is just empty.
     select null as FOREIGN_KEY where false
     {%- endif%}
 )
