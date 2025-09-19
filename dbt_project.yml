@@ -39,6 +39,8 @@ models:
       +materialized: table
       portfolio:
         +schema: marts_portfolio
+        +materialized: table
+        +contract: {enforced: true}
 
 
 seeds:
