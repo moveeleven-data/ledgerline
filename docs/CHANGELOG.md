@@ -2,7 +2,7 @@
 
 ### 2025-09-18
 
-- Fixed HIST position model to close rows that are not present in current batch.
+- Fixed HIST position model to close positions that are not present in current batch.
 
 ### 2025-09-17
 
