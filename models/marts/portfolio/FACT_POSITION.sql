@@ -15,6 +15,8 @@ position_normalized as (
                  , 5
              ) as number(38,5)
         ) as unrealized_profit_pct
+        
+        -- Normalize natural keys; late/missing values go to the Unknown member
         , coalesce(account_code,  '-1') as account_code_nk
         , coalesce(security_code, '-1') as security_code_nk
         , coalesce(exchange_code, '-1') as exchange_code_nk
@@ -37,15 +39,17 @@ position_normalized as (
 
   from position_normalized pos_norm
 
-  -- left joins so defaulted '-1' facts do not drop when dims hide default rows
-  left join {{ ref('DIM_ACCOUNT')  }}  dim_account
-    on pos_norm.account_code_nk  = dim_account.account_code
-  left join {{ ref('DIM_SECURITY') }}  dim_security
-    on pos_norm.security_code_nk = dim_security.security_code
-  left join {{ ref('DIM_EXCHANGE') }}  dim_exchange
-    on pos_norm.exchange_code_nk = dim_exchange.exchange_code
-  left join {{ ref('DIM_CURRENCY') }}  dim_currency
-    on pos_norm.currency_code_nk = dim_currency.currency_code
+  join {{ ref('DIM_ACCOUNT')  }}  dim_account
+       on upper(trim(dim_account.account_code))   = upper(trim(pos_norm.account_code_nk))
+
+  join {{ ref('DIM_SECURITY') }}  dim_security
+       on upper(trim(dim_security.security_code)) = upper(trim(pos_norm.security_code_nk))
+
+  join {{ ref('DIM_EXCHANGE') }}  dim_exchange
+       on upper(trim(dim_exchange.exchange_code)) = upper(trim(pos_norm.exchange_code_nk))
+
+  join {{ ref('DIM_CURRENCY') }}  dim_currency
+       on upper(trim(dim_currency.currency_code)) = upper(trim(pos_norm.currency_code_nk))
 )
 
 select

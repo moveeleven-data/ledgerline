@@ -14,7 +14,7 @@ models:
           - not_null
 
       - name: POSITION_HDIFF
-        description: Version hash over identifying + numeric fields (includes REPORT_DATE).
+        description: Version hash over identifying and numeric fields (includes REPORT_DATE).
         tests:
           - not_null
           - unique  # each daily version is a distinct diff
@@ -39,19 +39,22 @@ models:
 
       # Hashes should not collide for either HKEY or HDIFF
       - hash_collision_free:
-          column_name: POSITION_HKEY
-          hashed_fields:
-            - account_code
-            - security_code
+          arguments:
+            column_name: POSITION_HKEY
+            hashed_fields:
+              - account_code
+              - security_code
+
       - hash_collision_free:
-          column_name: POSITION_HDIFF
-          hashed_fields:
-            - account_code
-            - security_code
-            - security_name
-            - exchange_code
-            - "to_varchar(report_date, 'YYYY-MM-DD')"
-            - quantity
-            - cost_base
-            - position_value
-            - currency_code
+          arguments:
+            column_name: POSITION_HDIFF
+            hashed_fields:
+              - account_code
+              - security_code
+              - security_name
+              - exchange_code
+              - "to_varchar(report_date, 'YYYY-MM-DD')"
+              - quantity
+              - cost_base
+              - position_value
+              - currency_code

@@ -14,4 +14,3 @@ select
   , close_utc                             as close_utc
   , lunch_utc                             as lunch_utc
 from {{ ref('REF_EXCHANGE_ABC_BANK') }}
-where exchange_code <> '-1'
