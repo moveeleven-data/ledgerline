@@ -12,11 +12,10 @@
 | Capability | What you get |
 |------------|--------------|
 | **Layered modeling** | Staging → history → refined → marts, with clear separation of concerns |
-| **Slowly changing dimensions** | History tables via custom `save_history` macro (no snapshots required) |
+| **Slowly changing dimensions** | History tables via custom `save_history` macro |
 | **Default key strategy** | Self-completing dimensions guarantee referential integrity |
 | **Business metrics** | Current positions enriched with Unrealized P&L and percentage |
 | **Data quality** | Custom tests for hash collisions, default key rules, and valid dates |
-| **Extensibility** | Seeds for reference data, ready for external market prices in Phase 1 |
 
 ---
 
