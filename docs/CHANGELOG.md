@@ -1,5 +1,13 @@
 ## market-sync-dbt Changelog
 
+### 2025-09-19
+
+- Ref models now only keep the latest *open* positions, cleaning up confusing edge cases.  
+- Dimensions standardized with default rows to keep fact joins consistent.
+- Added lightweight QA checks (row counts, missing keys, metric sanity).
+- Tagged and organized analyses for easier daily diagnostics.  
+- Introduced helper macros for dev fixtures and guardrail tests.
+
 ### 2025-09-18
 
 - Fixed HIST position model to close positions that are not present in current batch.
