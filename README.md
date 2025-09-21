@@ -1,4 +1,4 @@
-<h1 align="center">MarketSync: Portfolio Analytics on dbt/Snowflake</h1>
+<h1 align="center">Marketsync: Portfolio Analytics on dbt/Snowflake</h1>
 
 <p align="center">
   Transform ABC Bank’s portfolio positions into a clean star schema with history tables, macros, and tests.
