@@ -26,7 +26,7 @@
 
 ### Schema
   
-**fact_position** records daily holdings (account × security × exchange × currency × date, with country as an FK) and joins to five dimensions.  
+**fact_position** records daily holdings and joins to five dimensions.  
   
 **fact_stock_prices** records daily closes by security.
 
