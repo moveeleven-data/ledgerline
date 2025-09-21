@@ -1,11 +1,11 @@
-<h1 align="center">MarketSync: Portfolio Analytics & Modeling</h1>
+<h1 align="center">MarginSync: Subscription Usage, Billing & Margin Analytics</h1>
 
 <p align="center">
-  Accurate, auditable portfolio insights delivered from raw positions using dbt and Snowflake.
+  Accurate, auditable SaaS insights delivered from daily subscription usage with dbt and Snowflake.
   <br/><br/>
 </p>
 
-<p align="center">Adapted from Roberto Zagni’s <em>Data Engineering with dbt</em>, extended and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
+<p align="center">Designed and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
 
 ---
 
@@ -16,8 +16,8 @@
 | **Layered modeling** | Staging → history → refined → marts, with clear separation of concerns |
 | **Slowly changing dimensions** | History tables via custom `save_history` macro |
 | **Default key strategy** | Self-completing dimensions guarantee referential integrity |
-| **Business metrics** | Current positions with unrealized profit and percentage |
-| **Data quality** | 	Tests for hash collisions, default key rules, valid dates and bounds |
+| **Business metrics** | Daily usage, billed amounts, overage, and margin percentage |
+| **Data quality** | Tests for hash collisions, default key rules, valid dates and bounds |
 
 ---
 
@@ -25,15 +25,15 @@
 
 ### Data Flow
 
-Positions and reference data land in staging, history retains changes, refined computes current views and P&L, marts publish the dimensional star schema.
+Usage and reference data land in staging, history retains changes, refined computes current views and billing logic, marts publish the dimensional star schema.
 
 ### Schema
   
-**fact_position** records daily holdings and joins to five dimensions.  
+**fact_usage** records daily subscription activity and joins to five dimensions.  
   
-**fact_stock_prices** records daily closes by security.
+**fact_rate_card_daily** records daily effective unit prices by product and plan.
 
-![MarketSync Architecture](docs/assets/erd_physical_model.png)
+![MarginSync Architecture](docs/assets/erd_physical_model.png)
 
 ---
 
@@ -48,15 +48,15 @@ Positions and reference data land in staging, history retains changes, refined c
 Run the setup script (or inline SQL) to create dev/prod databases, schemas, and a `dbt_executor_role` with least-privilege grants. Example:
 
 ```sql
-create database if not exists market_sync_dev;
+create database if not exists margin_sync_dev;
 
-create schema if not exists market_sync_dev.source_data;
-create schema if not exists market_sync_dev.staging;
-create schema if not exists market_sync_dev.history;
-create schema if not exists market_sync_dev.refined;
-create schema if not exists market_sync_dev.marts;
+create schema if not exists margin_sync_dev.source_data;
+create schema if not exists margin_sync_dev.staging;
+create schema if not exists margin_sync_dev.history;
+create schema if not exists margin_sync_dev.refined;
+create schema if not exists margin_sync_dev.marts;
 
-create warehouse if not exists market_sync_wh
+create warehouse if not exists marginsync_wh
   with warehouse_size = xsmall auto_suspend = 60 auto_resume = true;
 
 create role if not exists dbt_executor_role;
@@ -64,15 +64,16 @@ create role if not exists dbt_executor_role;
 
 ### 2. Load Sample Data
 
-Stage a CSV of positions and load it into the landing table:
+Stage a CSV of usage and load it into the landing table:
 
 ```sql
-copy into source_data.abc_bank_position
-from @positions_stage/positions_sample.csv
+copy into source_data.subscription_usage_daily
+from @usage_stage/usage_sample.csv
 file_format = (type = csv, skip_header = 1);
+
 ```
 
-Your source YAML enforces freshness and a unique natural key on (accountid, symbol, exchange, report_date). 
+The source YAML enforces freshness and a unique natural key on (customer, product, plan, report_date).
 
 ### Run dbt
 
@@ -92,22 +93,28 @@ Open dbt docs to browse models, lineage, and freshness:
 dbt docs generate && dbt docs serve
 ```
 
----
+## Project Layout
 
-### Project Layout
+**models/staging/**  
+- Standardize sources and seeds, generate surrogate keys, add defaults.
 
-- **[models/staging/](models/staging/)** - Standardize sources and seeds, generate surrogate keys, add defaults.
+**models/history/**  
+- Incremental history via `save_history`, including synthetic closes for churned subscriptions.
 
-- **[models/history/](models/history/)** - Incremental history via `save_history`, including synthetic closes for positions.
+**models/refined/**  
+- Current views, billing and margin metrics, and an invalid rows view for QA.
 
-- **[models/refined/](models/refined/)** - Current views, unrealized metrics, and an invalid rows view for QA.
+**models/marts/usage/**  
+- Star schema dimensions and `fact_usage`, with uniqueness and relationships tests.
 
-- **[models/marts/portfolio/](models/marts/portfolio/)** - Star schema dimensions and `fact_position`, with uniqueness and relationships tests.
+**macros/**  
+- Core, history, and test macros including self-completing dimensions and hash-collision checks.
 
-- **[macros/](macros/)** - Core, history, and test macros including self-completing dimensions and hash-collision checks.
+**seeds/**  
+- Reference CSVs for customers, products, plans, currencies, and rate cards.
 
-- **[seeds/](seeds/)** - Reference CSVs for accounts, countries, currencies, exchanges, securities.
+**snapshots/**  
+- Optional SCD2 snapshots (kept off by default).
 
-- **[snapshots/](snapshots/)** - Optional SCD2 snapshots (kept off by default).
-
-- **[docs/](docs/)** - Images, ERDs, and future BI screenshots.
+**docs/**  
+- Images, ERDs, and future BI screenshots.

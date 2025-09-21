@@ -1,10 +1,14 @@
-## market-sync-dbt changelog
+## MarginSync Changelog
 
-### 2025-09-21
+### 2025-09-21 (Port to MarginSync)
 
 - Rebuilt the pipeline so that STG and HIST now use exchange and currency in the business key
-
 - Tightened HIST_ABC_BANK_POSITION so that only valid open positions are written, leaving HISTORY clean.
+- Forked MarketSync scaffold into new repo `marginsync`.
+- Renamed project in `dbt_project.yml`, README, and YAML configs.
+- Reset seeds to new SaaS domain (customers, products, plans, usage, rate_card).
+- Rewired sources to point at new SaaS raw tables.
+- Confirmed project compiles with `dbt parse`.
 
 ### 2025-09-19
 
