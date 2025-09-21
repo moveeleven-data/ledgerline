@@ -33,25 +33,30 @@ with
 
   -- Today's OPENs (already de-duped in STG)
   -- Only consider rows for the trading day we are processing 
-  stg_today as (
-    select
-        stg.position_hkey
-      , stg.position_hdiff
-      , stg.account_code
-      , stg.security_code
-      , stg.security_name
-      , stg.exchange_code
-      , stg.currency_code
-      , stg.record_source
-      , stg.report_date
-      , stg.quantity
-      , stg.cost_base
-      , stg.position_value
-      , stg.load_ts_utc
-      , 'OPEN'::string as position_row_type
-    from {{ ref('STG_ABC_BANK_POSITION') }} as stg
-    where stg.report_date = {{ as_of_date_literal }}
-  )
+stg_today as (
+  select
+      stg.position_hkey
+    , stg.position_hdiff
+    , stg.account_code
+    , stg.security_code
+    , stg.security_name
+    , stg.exchange_code
+    , stg.currency_code
+    , stg.record_source
+    , stg.report_date
+    , stg.quantity
+    , stg.cost_base
+    , stg.position_value
+    , stg.load_ts_utc
+    , 'OPEN'::string as position_row_type
+  from {{ ref('STG_ABC_BANK_POSITION') }} as stg
+  where stg.report_date = {{ as_of_date_literal }}
+    and stg.quantity is not null
+    and stg.cost_base is not null
+    and stg.position_value is not null
+    and nullif(trim(stg.currency_code), '') is not null
+    and stg.cost_base <> 0
+)
 
 {% if is_incremental() %}
 
