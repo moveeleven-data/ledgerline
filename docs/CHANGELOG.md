@@ -1,5 +1,11 @@
 ## market-sync-dbt changelog
 
+### 2025-09-21
+
+- Rebuilt the pipeline so that STG and HIST now use exchange and currency in the business key
+
+- Tightened HIST_ABC_BANK_POSITION so that only valid open positions are written, leaving HISTORY clean.
+
 ### 2025-09-19
 
 - Ref models now only keep the latest *open* positions, cleaning up confusing edge cases.  
