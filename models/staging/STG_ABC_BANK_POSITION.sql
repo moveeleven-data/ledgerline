@@ -30,37 +30,45 @@ src_positions as (
       , coalesce(sec.security_name, 'Missing') as security_name
     from src_positions as pos
     left join security_lookup as sec
-        on pos.security_code = sec.security_code
+      on pos.security_code = sec.security_code
 )
 
 , deduped_positions as (
-  select *
-  from enriched_positions
-  qualify row_number() over (
-           -- one open position per (account, security, normalized date)
-           partition by
-               account_code
-             , security_code
-             , report_date
-           order by
-               source_loaded_at_utc desc
-             , position_value desc
-         ) = 1
+    select *
+    from enriched_positions
+    qualify row_number() over (
+        -- one open position per (account, security, exchange, currency, normalized date)
+        partition by
+            account_code
+          , security_code
+          , exchange_code
+          , currency_code
+          , report_date
+        order by
+            source_loaded_at_utc desc
+          , position_value desc
+    ) = 1
 )
 
 , hashed_positions as (
     select
-        {{ dbt_utils.generate_surrogate_key(['account_code','security_code']) }} as position_hkey,
         {{ dbt_utils.generate_surrogate_key([
-              'account_code'
-            , 'security_code'
-            , 'security_name'
-            , 'exchange_code'
-            , "to_varchar(report_date, 'YYYY-MM-DD')"
-            , 'quantity'
-            , 'cost_base'
-            , 'position_value'
-            , 'currency_code'
+            'account_code'
+          , 'security_code'
+          , 'exchange_code'
+          , 'currency_code'
+        ]) }} as position_hkey,
+
+        {{ dbt_utils.generate_surrogate_key([
+            'account_code'
+          , 'security_code'
+          , 'security_name'
+          , 'exchange_code'
+          , "to_varchar(report_date, 'YYYY-MM-DD')"
+          , 'quantity'
+          , 'cost_base'
+          , 'position_value'
+          , 'currency_code'
         ]) }} as position_hdiff
 
       , *

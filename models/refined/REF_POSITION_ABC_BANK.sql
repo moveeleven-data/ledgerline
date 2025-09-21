@@ -37,10 +37,10 @@ select
 
   , cast(position_value - cost_base as number(38,2)) as unrealized_profit
   , cast(
-    round(
-         (position_value - cost_base) / nullif(cost_base, 0) * 10
-        , 5
-        ) as number(38, 5)
+        round(
+            (position_value - cost_base) / nullif(cost_base, 0) * 100
+           , 5
+        ) as number(38,5)
     ) as unrealized_profit_pct
 
 from latest_open
