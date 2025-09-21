@@ -1,5 +1,4 @@
 version: 2
-
 models:
   - name: HIST_ABC_BANK_POSITION
     description: >
@@ -9,9 +8,8 @@ models:
 
     columns:
       - name: POSITION_HKEY
-        description: Surrogate key for (account_code, security_code).
-        tests:
-          - not_null
+        description: Surrogate key for (account_code, security_code, exchange_code, currency_code).
+        tests: [not_null]
 
       - name: POSITION_HDIFF
         description: Version hash over identifying and numeric fields (includes REPORT_DATE).
@@ -20,12 +18,9 @@ models:
           - unique  # each daily version is a distinct diff
 
       - name: REPORT_DATE
-        description: Business date of the position snapshot.
-        tests:
-          - not_null
+        tests: [not_null]
 
       - name: POSITION_ROW_TYPE
-        description: Row classification ('OPEN' from source; 'CLOSE_SYNTHETIC' generated on disappearance).
         tests:
           - accepted_values:
               arguments:
@@ -44,6 +39,8 @@ models:
             hashed_fields:
               - account_code
               - security_code
+              - exchange_code
+              - currency_code
 
       - hash_collision_free:
           arguments:
