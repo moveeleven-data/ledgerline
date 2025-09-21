@@ -1,4 +1,4 @@
-<h1 align="center">MarketSync: dbt + Snowflake Portfolio Analytics</h1>
+<h1 align="center">MarketSync: Portfolio Analytics on dbt/Snowflake</h1>
 
 <p align="center">
   Transform ABC Bank’s portfolio positions into a clean star schema with history tables, macros, and tests.
@@ -14,16 +14,23 @@
 | **Layered modeling** | Staging → history → refined → marts, with clear separation of concerns |
 | **Slowly changing dimensions** | History tables via custom `save_history` macro |
 | **Default key strategy** | Self-completing dimensions guarantee referential integrity |
-| **Business metrics** | Current positions enriched with Unrealized P&L and percentage |
-| **Data quality** | Custom tests for hash collisions, default key rules, and valid dates |
+| **Business metrics** | Current positions with unrealized profit and percentage |
+| **Data quality** | 	Tests for hash collisions, default key rules, valid dates and bounds |
 
 ---
 
 ## Architecture
 
-![MarketSync Architecture](docs/assets/erd_physical_model.png)
+### Data Flow
+<sup>Positions and reference data land in staging, history retains changes, refined computes current views and P&L, marts publish the dimensional star schema.</sup>
 
-<sup>Positions and reference data land in **staging** ➜ **history** retains changes over time ➜ **refined** computes current views and P&L ➜ **marts** join into a dimensional star schema for analytics.</sup>
+### Schema
+  
+**fact_position** records daily holdings (account × security × exchange × currency × date, with country as an FK) and joins to five dimensions.  
+  
+**fact_stock_prices** records daily closes by security.
+
+![MarketSync Architecture](docs/assets/erd_physical_model.png)
 
 ---
 
@@ -39,21 +46,30 @@ Run the setup script (or inline SQL) to create dev/prod databases, schemas, and 
 
 ```sql
 create database if not exists market_sync_dev;
+
 create schema if not exists market_sync_dev.source_data;
 create schema if not exists market_sync_dev.staging;
-create warehouse if not exists market_sync_wh with warehouse_size = xsmall auto_suspend = 60 auto_resume = true;
+create schema if not exists market_sync_dev.history;
+create schema if not exists market_sync_dev.refined;
+create schema if not exists market_sync_dev.marts;
+
+create warehouse if not exists market_sync_wh
+  with warehouse_size = xsmall auto_suspend = 60 auto_resume = true;
+
 create role if not exists dbt_executor_role;
 ```
 
 ### 2. Load Sample Data
 
-Upload a CSV of positions into a Snowflake stage and run:
+Stage a CSV of positions and load it into the landing table:
 
 ```sql
 copy into source_data.abc_bank_position
 from @positions_stage/positions_sample.csv
 file_format = (type = csv, skip_header = 1);
 ```
+
+Your source YAML enforces freshness and a unique natural key on (accountid, symbol, exchange, report_date). 
 
 ### Run dbt
 
@@ -77,31 +93,22 @@ dbt docs generate && dbt docs serve
 
 ### Project Layout
 
-## Project Layout
+- **[models/staging/](models/staging/)** - Standardize sources and seeds, generate surrogate keys, add defaults.
 
-**models/staging/**  
-— Standardize seeds and sources, generate surrogate keys, add defaults  
+- **[models/history/](models/history/)** - Incremental history via `save_history`, including synthetic closes for positions.
 
-**models/history/**  
-— Incremental history via `save_history`, including closing logic for positions  
+- **[models/refined/](models/refined/)** - Current views, unrealized metrics, and an invalid rows view for QA.
 
-**models/refined/**  
-— Current views with Unrealized P&L  
+- **[models/marts/portfolio/](models/marts/portfolio/)** - Star schema dimensions and `fact_position`, with uniqueness and relationships tests.
 
-**models/marts/portfolio/**  
-— Dimensional models and fact table for star schema  
+- **[macros/](macros/)** - Core, history, and test macros including self-completing dimensions and hash-collision checks.
 
-**macros/**  
-— Custom macros for history, defaults, migrations, and quality tests  
+- **[seeds/](seeds/)** - Reference CSVs for accounts, countries, currencies, exchanges, securities.
 
-**seeds/**  
-— Reference CSVs (accounts, countries, currencies, exchanges, securities)  
+- **[snapshots/](snapshots/)** - Optional SCD2 snapshots (kept off by default).
 
-**snapshots/**  
-— Optional SCD2 snapshots (disabled by default)  
-
-**docs/**  
-— Images, ERDs, and future BI screenshots  
+- **[docs/](docs/)** - Images, ERDs, and future BI screenshots.
 
 
-<p align="center">Built by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
+<sub><p align="center">Built by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p></sub>
+
