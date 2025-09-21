@@ -108,7 +108,3 @@ dbt docs generate && dbt docs serve
 - **[snapshots/](snapshots/)** - Optional SCD2 snapshots (kept off by default).
 
 - **[docs/](docs/)** - Images, ERDs, and future BI screenshots.
-
-
-<sub><p align="center">Built by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p></sub>
-
