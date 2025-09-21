@@ -5,6 +5,8 @@
   <br/><br/>
 </p>
 
+<p align="center">Adapted from Roberto Zagni’s <em>Data Engineering on dbt</em>, extended and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
+
 ---
 
 ## Key Features
