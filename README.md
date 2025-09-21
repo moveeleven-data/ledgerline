@@ -21,7 +21,7 @@
 
 ## Architecture
 
-![MarketSync Architecture](docs/images/marketsync_architecture.png)
+![MarketSync Architecture](docs/assets/erd_physical_model.png)
 
 <sup>Positions and reference data land in **staging** ➜ **history** retains changes over time ➜ **refined** computes current views and P&L ➜ **marts** join into a dimensional star schema for analytics.</sup>
 
