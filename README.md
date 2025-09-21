@@ -24,7 +24,8 @@
 ## Architecture
 
 ### Data Flow
-<sup>Positions and reference data land in staging, history retains changes, refined computes current views and P&L, marts publish the dimensional star schema.</sup>
+
+Positions and reference data land in staging, history retains changes, refined computes current views and P&L, marts publish the dimensional star schema.
 
 ### Schema
   
