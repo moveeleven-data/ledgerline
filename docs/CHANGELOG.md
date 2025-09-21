@@ -1,5 +1,17 @@
 ## market-sync-dbt Changelog
 
+### 2025-09-19
+
+- Ref models now only keep the latest *open* positions, cleaning up confusing edge cases.  
+- Dimensions standardized with default rows to keep fact joins consistent.
+- Added lightweight QA checks (row counts, missing keys, metric sanity).
+- Tagged and organized analyses for easier daily diagnostics.  
+- Introduced helper macros for dev fixtures and guardrail tests.
+
+The trickiest challenge was defining “latest” correctly. First approach was to take the latest OPEN row from the history table. But that let CLOSED events sneak in. Imagine a position that’s OPEN on Sept 1, then CLOSED on Sept 5. If you “pick the latest OPEN,” you’ll grab Sept 1 even though the true latest event is the Sept 5 CLOSE. That made our ref model claim the position was still open, produced “invalid” leaks.
+
+We fixed it by flipping the logic: first compute latest_any per position key (order by report_date desc, load_ts_utc desc), then keep it only if it’s OPEN. In other words, “what’s the single newest event?” and only if that event is OPEN does it appear in the ref. We also added a separate __invalid view for null/zero edge cases plus a singular test that fails if any such rows leak into the ref.
+
 ### 2025-09-18
 
 - Fixed HIST position model to close positions that are not present in current batch.
