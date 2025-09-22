@@ -1,3 +1,6 @@
 currency_code,currency_name,decimal_digits,load_ts
-USD,US Dollar,2,2025-09-20 12:00:00
-GBP,Pound Sterling,2,2025-09-20 12:00:00
+USD,US Dollar,2,2025-09-21 12:00:00
+CAD,Canadian Dollar,2,2025-09-21 12:00:00
+GBP,Pound Sterling,2,2025-09-21 12:00:00
+EUR,Euro,2,2025-09-21 12:00:00
+JPY,Japanese Yen,0,2025-09-21 12:00:00

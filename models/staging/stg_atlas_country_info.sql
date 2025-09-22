@@ -25,7 +25,7 @@ src as (
     select * from src
     union all
     select * from default_row
-),
+)
 
 , hashed as (
     select

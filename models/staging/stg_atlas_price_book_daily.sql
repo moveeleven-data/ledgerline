@@ -9,7 +9,7 @@ src as (
         , {{ to_21st_century_date('price_date') }}  as price_date
         , coalesce(unit_price, 0)                   as unit_price
         , to_timestamp_ntz(load_ts)                 as load_ts
-        , 'SEED.atlas_price_book_daily'      as record_source
+        , 'SEED.atlas_price_book_daily'             as record_source
     from {{ ref('price_book_daily') }}
 )
 

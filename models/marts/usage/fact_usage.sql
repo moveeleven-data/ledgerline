@@ -64,9 +64,9 @@ with usage_norm as (
     on dim_customer.customer_code = up.customer_code_nk
 
   join {{ ref('dim_product') }} as dim_product
-    on dim_product.product_code  = up.product_code_nk
+    on dim_product.product_code = up.product_code_nk
 
-  join {{ ref('dim_plan') }} asdim_plan
+  join {{ ref('dim_plan') }} as asdim_plan
     on dim_plan.plan_code = up.plan_code_nk
 )
 

@@ -1,4 +1,11 @@
 country_code,country_name,load_ts
-US,United States,2025-09-20 12:00:00
-CA,Canada,2025-09-20 12:00:00
-GB,United Kingdom,2025-09-20 12:00:00
+US,United States,2025-09-21 12:00:00
+CA,Canada,2025-09-21 12:00:00
+GB,United Kingdom,2025-09-21 12:00:00
+DE,Germany,2025-09-21 12:00:00
+FR,France,2025-09-21 12:00:00
+IN,India,2025-09-21 12:00:00
+AU,Australia,2025-09-21 12:00:00
+BR,Brazil,2025-09-21 12:00:00
+JP,Japan,2025-09-21 12:00:00
+ZA,South Africa,2025-09-21 12:00:00

@@ -1,43 +1,42 @@
- {{ config(materialized='ephemeral') }}
+-- stg_atlas_crm_customer_info (corrected source)
+{{ config(materialized='ephemeral') }}
 
-with
+with src as (
+  select
+      upper(customer_code)             as customer_code
+    , customer_name
+    , upper(country_code)              as country_code
+    , to_timestamp_ntz(load_ts)        as load_ts
+    , 'SEED.atlas_crm_customer_info'   as record_source
+  from {{ ref('customers') }}
+),
 
-src_accounts as (
-    select
-        upper(account_code)                       as account_code
-      , upper(account_currency_code)              as account_currency_code
-      , to_timestamp_ntz('{{ run_started_at }}')  as load_ts
-    from {{ ref('abc_bank_account_info') }}
+default_row as (
+  select '-1'
+        ,'Missing'
+        ,'-1'
+        ,to_timestamp_ntz('2020-01-01')
+        ,'System.DefaultKey'
+),
+
+unioned as (
+  select * from src
+  union all
+  select * from default_row
+),
+
+hashed as (
+  select
+      {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
+    , {{ dbt_utils.generate_surrogate_key([
+           'customer_code'
+          ,'customer_name'
+          ,'country_code'
+      ]) }} as customer_hdiff
+
+    , * exclude (load_ts)
+    , load_ts as load_ts_utc
+  from unioned
 )
 
-, accounts_with_default as (
-    select
-        account_code
-      , account_currency_code
-      , 'SEED.abc_bank_account_info' as record_source
-      , load_ts
-    from src_accounts
-
-    union all
-
-    select
-        '-1'
-      , '-1'
-      , 'System.DefaultKey'
-      , to_timestamp_ntz('2020-01-01')
-)
-
-, hashed_accounts as (
-   select
-        {{ dbt_utils.generate_surrogate_key(['account_code']) }} as account_hkey
-      , {{ dbt_utils.generate_surrogate_key([
-              'account_code'
-             ,'account_currency_code'
-        ]) }} as account_hdiff
-
-      , * exclude (load_ts)
-      , load_ts as load_ts_utc
-    from accounts_with_default
-)
-
-select * from hashed_accounts
+select * from hashed
