@@ -1,8 +1,8 @@
-name: 'market_sync_dbt'
+name: 'marginsync'
 version: '1.0.0'
 config-version: 2
 
-profile: 'market_sync'  # dbt Cloud ignores this value for jobs/IDE
+profile: 'marginsync'  # dbt Cloud ignores this value for jobs/IDE
 
 model-paths: ['models']
 analysis-paths: ['analyses']
