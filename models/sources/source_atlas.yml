@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: atlas_meter
+    database: "{{ target.database }}"
+    schema: seeds
+    tables:
+      - name: usage_daily
+        identifier: ATLAS_METER_USAGE_DAILY
+        description: >
+          Daily metered usage feed at grain customer x product x plan x day.
+          For the bootstrap build this points at the seeded table. Swap schema back
+          to source_data when you wire the real landing table.
+        loaded_at_field: load_ts
+
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
+        tests:
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns: [customer_code, product_code, plan_code, report_date]
+              config:
+                severity: warn
+
+        columns:
+          - name: customer_code
+            description: Customer code from CRM
+
+          - name: product_code
+            description: Product or feature code
+
+          - name: plan_code
+            description: Subscription plan code
+
+          - name: report_date
+            description: Usage as-of date

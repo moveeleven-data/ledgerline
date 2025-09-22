@@ -1,0 +1,32 @@
+with
+
+dim_product_base as (
+    /* Self-complete products using the default member in case facts reference unseen codes. */
+    {{ self_completing_dimension(
+         dim_rel                 = ref('REF_PRODUCT_ATLAS')
+       , dim_key_column          = 'PRODUCT_CODE'
+       , dim_default_key_value   = '-1'
+       , rel_columns_to_exclude  = ['PRODUCT_HKEY','PRODUCT_HDIFF']
+       , fact_defs               = [ {'model': 'REF_USAGE_ATLAS', 'key': 'PRODUCT_CODE'} ]
+    ) }}
+)
+
+, dim_product_enriched as (
+  select
+      coalesce(ref.product_hkey
+        , {{ dbt_utils.generate_surrogate_key(['base.product_code']) }}) as product_key
+    , base.product_code
+    , coalesce(ref.product_name, base.product_name)                       as product_name
+    , coalesce(ref.category,     base.category)                           as category
+  from dim_product_base base
+  left join {{ ref('REF_PRODUCT_ATLAS') }} ref
+    on ref.product_code = base.product_code
+  where base.product_code is not null
+)
+
+select
+    product_key
+  , product_code
+  , product_name
+  , category
+from dim_product_enriched

@@ -1,63 +1,61 @@
-{% macro dev_insert_position(
-    accountid
-  , symbol
-  , exchange
-  , quantity
-  , cost_base
-  , position_value
-  , currency
-  , report_date=None
+{% macro dev_insert_usage(
+      customer_code
+    , product_code
+    , plan_code
+    , units_used
+    , included_units
+    , report_date = none
 ) %}
 
   {# Pick a date. Use provided value, otherwise use run start. #}
   {% set report_date_str = report_date if report_date else run_started_at.strftime('%Y-%m-%d') %}
 
   {%- set sql -%}
-    insert into {{ source('abc_bank','abc_bank_position') }}
+    insert into {{ ref('usage_daily') }}
     (
-        accountid
-      , symbol
-      , exchange
-      , report_date
-      , quantity
-      , cost_base
-      , position_value
-      , currency
-      , ingested_at
+          customer_code
+        , product_code
+        , plan_code
+        , report_date
+        , units_used
+        , included_units
+        , load_ts
     )
     values
     (
-        '{{ accountid }}'
-      , '{{ symbol }}'
-      , '{{ exchange }}'
-      , to_date('{{ report_date_str }}')
-      , {{ quantity }}
-      , {{ cost_base }}
-      , {{ position_value }}
-      , '{{ currency }}'
-      , current_timestamp()
+          '{{ customer_code | upper }}'
+        , '{{ product_code  | upper }}'
+        , '{{ plan_code     | upper }}'
+        , to_date('{{ report_date_str }}')
+        , {{ units_used }}
+        , {{ included_units }}
+        , current_timestamp()
     )
   {%- endset -%}
 
-  {{ log('Executing: ' ~ sql, info=True) }}
+  {{ log('Executing: ' ~ sql, info = true) }}
   {{ run_query(sql) }}
-
 {% endmacro %}
 
-{% macro dev_delete_position(
-    symbol
-  , report_date=None
+{% macro dev_delete_usage(
+      customer_code
+    , product_code
+    , plan_code
+    , report_date = none
 ) %}
 
   {% set report_date_str = report_date if report_date else run_started_at.strftime('%Y-%m-%d') %}
 
   {%- set sql -%}
-    delete from {{ source('abc_bank','abc_bank_position') }}
-    where symbol = '{{ symbol }}'
-      and report_date = to_date('{{ report_date_str }}')
+    delete from {{ ref('usage_daily') }}
+    where customer_code = '{{ customer_code | upper }}'
+      and product_code  = '{{ product_code  | upper }}'
+      and plan_code     = '{{ plan_code     | upper }}'
+      and report_date   = to_date('{{ report_date_str }}')
   {%- endset -%}
 
-  {{ log('Executing: ' ~ sql, info=True) }}
+  {{ log('Executing: ' ~ sql, info = true) }}
   {{ run_query(sql) }}
 
 {% endmacro %}
+

@@ -1,4 +1,4 @@
-<h1 align="center">MarginSync: Subscription Usage, Billing & Margin Analytics</h1>
+<h1 align="center">LedgerLine: Subscription Usage, Billing & Margin Analytics</h1>
 
 <p align="center">
   Accurate, auditable SaaS insights delivered from daily subscription usage with dbt and Snowflake.
@@ -31,9 +31,9 @@ Usage and reference data land in staging, history retains changes, refined compu
   
 **fact_usage** records daily subscription activity and joins to five dimensions.  
   
-**fact_rate_card_daily** records daily effective unit prices by product and plan.
+**fact_price_book_daily** records daily effective unit prices by product and plan.
 
-![MarginSync Architecture](docs/assets/erd_physical_model.png)
+![LedgerLine Architecture](docs/assets/erd_phys_model.png)
 
 ---
 
@@ -48,15 +48,16 @@ Usage and reference data land in staging, history retains changes, refined compu
 Run the setup script (or inline SQL) to create dev/prod databases, schemas, and a `dbt_executor_role` with least-privilege grants. Example:
 
 ```sql
-create database if not exists margin_sync_dev;
+create database if not exists ledgerline_dev;
+create database if not exists ledgerline_prod;
 
-create schema if not exists margin_sync_dev.source_data;
-create schema if not exists margin_sync_dev.staging;
-create schema if not exists margin_sync_dev.history;
-create schema if not exists margin_sync_dev.refined;
-create schema if not exists margin_sync_dev.marts;
+create schema if not exists ledgerline_dev.source_data;
+create schema if not exists ledgerline_dev.staging;
+create schema if not exists ledgerline_dev.history;
+create schema if not exists ledgerline_dev.refined;
+create schema if not exists ledgerline_dev.marts;
 
-create warehouse if not exists marginsync_wh
+create warehouse if not exists ledgerline_wh
   with warehouse_size = xsmall auto_suspend = 60 auto_resume = true;
 
 create role if not exists dbt_executor_role;
@@ -64,18 +65,16 @@ create role if not exists dbt_executor_role;
 
 ### 2. Load Sample Data
 
-Stage a CSV of usage and load it into the landing table:
+Put CSVs in the repo under ./seeds: customers.csv, products.csv, plans.csv, currencies.csv, countries.csv, 
+price_book_daily.csv, usage_daily.csv
 
 ```sql
-copy into source_data.subscription_usage_daily
-from @usage_stage/usage_sample.csv
-file_format = (type = csv, skip_header = 1);
-
+dbt seed
 ```
 
 The source YAML enforces freshness and a unique natural key on (customer, product, plan, report_date).
 
-### Run dbt
+### 3. Run dbt
 
 Install dependencies and run a build:
 
@@ -111,10 +110,7 @@ dbt docs generate && dbt docs serve
 - Core, history, and test macros including self-completing dimensions and hash-collision checks.
 
 **seeds/**  
-- Reference CSVs for customers, products, plans, currencies, and rate cards.
-
-**snapshots/**  
-- Optional SCD2 snapshots (kept off by default).
+- Reference CSVs for customers, products, plans, currencies, and price books.
 
 **docs/**  
 - Images, ERDs, and future BI screenshots.

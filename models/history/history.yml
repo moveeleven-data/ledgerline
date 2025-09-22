@@ -1,57 +1,46 @@
 version: 2
+
 models:
-  - name: HIST_ABC_BANK_POSITION
+  - name: HIST_ATLAS_METER_USAGE_DAILY
     description: >
-      SCD positions history. 'OPEN' rows come from the source for each report_date;
-      'CLOSE_SYNTHETIC' rows are zero-outs created when a previously OPEN position
-      is absent on the latest report_date (one close per key/date).
+      SCD usage history. 'OPEN' rows come from the source for each report_date;
+      'CLOSE_SYNTHETIC' rows are zero-outs created when a previously OPEN usage
+      combo is absent on the latest report_date (one close per key and date).
 
     columns:
-      - name: POSITION_HKEY
-        description: Surrogate key for (account_code, security_code, exchange_code, currency_code).
+      - name: USAGE_HKEY
+        description: Surrogate key for (customer_code, product_code, plan_code, report_date bucket).
         tests: [not_null]
 
-      - name: POSITION_HDIFF
-        description: Version hash over identifying and numeric fields (includes REPORT_DATE).
+      - name: USAGE_HDIFF
+        description: Version hash over identifying fields and units (includes REPORT_DATE).
         tests:
           - not_null
-          - unique  # each daily version is a distinct diff
+          - unique
 
       - name: REPORT_DATE
         tests: [not_null]
 
-      - name: POSITION_ROW_TYPE
+      - name: USAGE_ROW_TYPE
         tests:
           - accepted_values:
-              arguments:
-                values: ['OPEN', 'CLOSE_SYNTHETIC']
+              values: ['OPEN', 'CLOSE_SYNTHETIC']
 
     tests:
-      # Exactly one row per (key, date, row_type)
       - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns: ['POSITION_HKEY','REPORT_DATE','POSITION_ROW_TYPE']
-
-      # Hashes should not collide for either HKEY or HDIFF
-      - hash_collision_free:
-          arguments:
-            column_name: POSITION_HKEY
-            hashed_fields:
-              - account_code
-              - security_code
-              - exchange_code
-              - currency_code
+          combination_of_columns: ['USAGE_HKEY','REPORT_DATE','USAGE_ROW_TYPE']
 
       - hash_collision_free:
-          arguments:
-            column_name: POSITION_HDIFF
-            hashed_fields:
-              - account_code
-              - security_code
-              - security_name
-              - exchange_code
-              - "to_varchar(report_date, 'YYYY-MM-DD')"
-              - quantity
-              - cost_base
-              - position_value
-              - currency_code
+          column_name: USAGE_HKEY
+          hashed_fields:
+            - customer_code
+            - product_code
+            - plan_code
+            - "to_varchar(report_date, 'YYYY-MM-DD')"
+
+      - hash_collision_free:
+          column_name: USAGE_HDIFF
+          hashed_fields:
+            - customer_code
+            - product_code
+            - plan_code

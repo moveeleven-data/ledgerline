@@ -1,0 +1,5 @@
+customer_code,customer_name,country_code,load_ts
+CUST-001,Acme Analytics,US,2025-09-20 12:00:00
+CUST-002,Blue Rocket,US,2025-09-20 12:00:00
+CUST-003,Crescent Health,CA,2025-09-20 12:00:00
+CUST-004,Delta Manufacturing,GB,2025-09-20 12:00:00

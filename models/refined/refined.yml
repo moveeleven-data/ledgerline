@@ -1,197 +1,168 @@
 version: 2
 
 models:
-  - name: REF_POSITION_ABC_BANK
-    description: The positions we have in the ABC Bank portfolio.
+  - name: REF_USAGE_ATLAS
+    description: Latest valid OPEN usage rows per key and day.
+
     columns:
-      - name: POSITION_HKEY
+      - name: USAGE_HKEY
         tests: [not_null, unique]
 
       - name: REPORT_DATE
         tests: [not_null]
 
-      - name: ACCOUNT_CODE
+      - name: CUSTOMER_CODE
         tests: [not_null]
 
-      - name: SECURITY_CODE
+      - name: PRODUCT_CODE
         tests: [not_null]
 
-      - name: EXCHANGE_CODE
+      - name: PLAN_CODE
         tests: [not_null]
 
-      - name: CURRENCY_CODE
-        tests: [not_null]
-
-      - name: COST_BASE
-        tests:
-          - numeric_bounds:
-              arguments:
-                min_value: 0.01
-                max_value: 1000000000
-
-      - name: POSITION_VALUE
-        tests: [not_null]
-
-      - name: QUANTITY
-        tests: [not_null]  # allow negatives for shorts, but must be present
-
-      - name: UNREALIZED_PROFIT
-        tests: [not_null]
-
-      - name: UNREALIZED_PROFIT_PCT
+      - name: UNITS_USED
         tests:
           - not_null
-          - numeric_bounds:
-              arguments:
-                min_value: -100
-              config:
-                severity: warn
+          - dbt_utils.expression_is_true:
+              expression: "units_used >= 0"
+
+      - name: INCLUDED_UNITS
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "included_units >= 0"
+
+      - name: OVERAGE_UNITS
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "overage_units >= 0"
 
 
 
-  - name: REF_ACCOUNT_ABC_BANK
-    description: Account attributes with hashed surrogate key.
+  - name: REF_CUSTOMER_ATLAS
+    description: Customer attributes with hashed surrogate key.
+
     tests:
       - has_default_key:
-          arguments:
-            column_name: ACCOUNT_CODE
+          column_name: CUSTOMER_CODE
 
       - warn_on_multiple_default_key:
-          arguments:
-            column_name: ACCOUNT_CODE
+          column_name: CUSTOMER_CODE
 
       - no_default_clash:
-          arguments:
-            code_col: ACCOUNT_CODE
-    columns:
-      - name: ACCOUNT_HKEY
-        description: Surrogate key for the account row.
-        tests: [not_null, unique]
-
-      - name: ACCOUNT_CODE
-        description: Natural account code.
-        tests: [not_null]
-
-      - name: ACCOUNT_CURRENCY_CODE
-        description: Account currency code.
-        tests: [not_null]
-
-
-
-  - name: REF_COUNTRY_ABC_BANK
-    description: Country reference data.
-    tests:
-      - has_default_key:
-          arguments:
-            column_name: COUNTRY_CODE2
-
-      - warn_on_multiple_default_key:
-          arguments:
-            column_name: COUNTRY_CODE2
-
-      - no_default_clash:
-          arguments:
-            code_col: COUNTRY_CODE2
+          code_col: CUSTOMER_CODE
 
     columns:
-      - name: COUNTRY_HKEY
-        description: Surrogate key for the country row.
+      - name: CUSTOMER_HKEY
         tests: [not_null, unique]
+
+      - name: CUSTOMER_CODE
+        tests: [not_null]
 
       - name: COUNTRY_CODE2
-        description: ISO 3166-1 alpha-2 code.
-        tests: [not_null]
-
-      - name: COUNTRY_NAME
-        description: Country name.
         tests: [not_null]
 
 
 
-  - name: REF_CURRENCY_ABC_BANK
-    description: Currency reference data.
+  - name: REF_PRODUCT_ATLAS
+    description: Product master attributes.
+
     tests:
       - has_default_key:
-          arguments:
-            column_name: CURRENCY_CODE
+          column_name: PRODUCT_CODE
 
       - warn_on_multiple_default_key:
-          arguments:
-            column_name: CURRENCY_CODE
+          column_name: PRODUCT_CODE
 
       - no_default_clash:
-          arguments:
-            code_col: CURRENCY_CODE
+          code_col: PRODUCT_CODE
+
+    columns:
+      - name: PRODUCT_HKEY
+        tests: [not_null, unique]
+
+      - name: PRODUCT_CODE
+        tests: [not_null]
+
+      - name: PRODUCT_NAME
+        tests: [not_null]
+
+
+
+  - name: REF_PLAN_ATLAS
+    description: Subscription plan attributes.
+
+    tests:
+      - has_default_key:
+          column_name: PLAN_CODE
+
+      - warn_on_multiple_default_key:
+          column_name: PLAN_CODE
+
+      - no_default_clash:
+          code_col: PLAN_CODE
+
+    columns:
+      - name: PLAN_HKEY
+        tests: [not_null, unique]
+
+      - name: PLAN_CODE
+        tests: [not_null]
+
+      - name: PRODUCT_CODE
+        tests: [not_null]
+
+
+
+  - name: REF_CURRENCY_ATLAS
+    description: Currency reference data.
+
+    tests:
+      - has_default_key:
+          column_name: CURRENCY_CODE
+
+      - warn_on_multiple_default_key:
+          column_name: CURRENCY_CODE
+
+      - no_default_clash:
+          code_col: CURRENCY_CODE
 
     columns:
       - name: CURRENCY_HKEY
-        description: Surrogate key for the currency row.
         tests: [not_null, unique]
 
       - name: CURRENCY_CODE
-        description: ISO 4217 alphabetic code.
         tests: [not_null]
 
       - name: CURRENCY_NAME
-        description: Currency name.
         tests: [not_null]
 
 
 
-  - name: REF_EXCHANGE_ABC_BANK
-    description: Exchange reference data.
+  - name: REF_COUNTRY_ATLAS
+    description: Country reference data.
+
     tests:
       - has_default_key:
-          arguments:
-            column_name: EXCHANGE_CODE
+          column_name: COUNTRY_CODE2
 
       - warn_on_multiple_default_key:
-          arguments:
-            column_name: EXCHANGE_CODE
+          column_name: COUNTRY_CODE2
 
       - no_default_clash:
-          arguments:
-            code_col: EXCHANGE_CODE
+          code_col: COUNTRY_CODE2
 
     columns:
-      - name: EXCHANGE_HKEY
-        description: Surrogate key for the exchange row.
+      - name: COUNTRY_HKEY
         tests: [not_null, unique]
 
-      - name: EXCHANGE_CODE
-        description: Exchange identifier.
+      - name: COUNTRY_CODE2
         tests: [not_null]
 
-      - name: EXCHANGE_NAME
-        description: Exchange name.
+      - name: COUNTRY_NAME
         tests: [not_null]
 
 
 
-  - name: REF_SECURITY_ABC_BANK
-    description: Security master attributes.
-    tests:
-      - has_default_key:
-          arguments:
-            column_name: SECURITY_CODE
-
-      - warn_on_multiple_default_key:
-          arguments:
-            column_name: SECURITY_CODE
-
-      - no_default_clash:
-          arguments:
-            code_col: SECURITY_CODE
-
-    columns:
-      - name: SECURITY_HKEY
-        description: Surrogate key for the security row.
-        tests: [not_null, unique]
-
-      - name: SECURITY_CODE
-        description: Ticker.
-        tests: [not_null]
-
-      - name: SECURITY_NAME
-        description: Security name.
-        tests: [not_null]
+  - name: REF_USAGE_ATLAS__invalid
+    description: Rows that violate basic validity rules and should be empty after a clean load.

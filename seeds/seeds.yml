@@ -1,16 +1,158 @@
 version: 2
-seeds:
-  - name: abc_bank_security_info
-    columns:
-      - name: security_code
-        tests:
-          - not_null
-          - unique
 
-      - name: security_name
-        tests:
-          - not_null
-          
+seeds:
+  # CSVs live in seeds/*.csv
+  - name: customers
+    config:
+      alias: atlas_crm_customer_info
+
+    columns:
+      - name: customer_code
+        tests: [not_null, unique]
+
+      - name: customer_name
+        tests: [not_null]
+
+      - name: country_code
+        tests: [not_null]
+
       - name: load_ts
-        tests:
-          - not_null
+        tests: [not_null]
+
+
+
+  - name: products
+    config:
+      alias: atlas_catalog_product_info
+
+    columns:
+      - name: product_code
+        tests: [not_null, unique]
+
+      - name: product_name
+        tests: [not_null]
+
+      - name: category
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]
+
+
+
+  - name: plans
+    config:
+      alias: atlas_catalog_plan_info
+
+    columns:
+      - name: plan_name
+        tests: [ not_null ]
+
+      - name: plan_code
+        tests: [not_null, unique]
+
+      - name: product_code
+        tests: [not_null]
+
+      - name: billing_period
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]
+
+
+
+  - name: currencies
+    config:
+      alias: atlas_ref_currency_info
+
+    columns:
+      - name: currency_code
+        tests: [not_null, unique]
+
+      - name: currency_name
+        tests: [not_null]
+
+      - name: decimal_digits
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]
+
+
+
+  - name: countries
+    config:
+      alias: atlas_ref_country_info
+
+    columns:
+      - name: country_code
+        tests: [not_null, unique]
+
+      - name: country_name
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]
+
+
+
+  - name: price_book_daily
+    config:
+      alias: atlas_price_book_daily.csv
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ product_code, plan_code, price_date ]
+          config:
+            severity: warn
+
+    columns:
+      - name: product_code
+        tests: [not_null]
+
+      - name: plan_code
+        tests: [not_null]
+
+      - name: price_date
+        tests: [not_null]
+
+      - name: unit_price
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]
+
+
+
+  - name: usage_daily
+    config:
+      alias: atlas_meter_usage_daily
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [customer_code, product_code, plan_code, report_date]
+          config:
+            severity: warn
+
+    columns:
+      - name: customer_code
+        tests: [not_null]
+
+      - name: product_code
+        tests: [not_null]
+
+      - name: plan_code
+        tests: [not_null]
+
+      - name: report_date
+        tests: [not_null]
+
+      - name: units_used
+        tests: [not_null]
+
+      - name: included_units
+        tests: [not_null]
+
+      - name: load_ts
+        tests: [not_null]

@@ -60,76 +60,69 @@ seeds:
   ledgerline:
     +quote_columns: false
 
-    # place any legacy MarketSync CSVs under seeds/legacy to disable them
-    legacy:
-      +enabled: false
+    customers:
+      +column_types:
+        customer_code: varchar
+        customer_name: varchar
+        country_code: varchar
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    # LedgerLine SaaS seeds go under seeds/saas/*.csv with these names
-    saas:
+    products:
+      +column_types:
+        product_code: varchar
+        product_name: varchar
+        category: varchar
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      customers:
-        +column_types:
-          customer_code: varchar
-          customer_name: varchar
-          country_code: varchar
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+    plans:
+      +column_types:
+        plan_code: varchar
+        plan_name: varchar
+        product_code: varchar
+        billing_period: varchar
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      products:
-        +column_types:
-          product_code: varchar
-          product_name: varchar
-          category: varchar
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+    currencies:
+      +column_types:
+        currency_code: varchar
+        currency_name: varchar
+        decimal_digits: number
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      plans:
-        +column_types:
-          plan_code: varchar
-          plan_name: varchar
-          product_code: varchar
-          billing_period: varchar
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+    countries:
+      +column_types:
+        country_code: varchar
+        country_name: varchar
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      currencies:
-        +column_types:
-          currency_code: varchar
-          currency_name: varchar
-          decimal_digits: number
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+    price_book_daily:
+      +column_types:
+        product_code: varchar
+        plan_code: varchar
+        price_date: date
+        unit_price: number
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      countries:
-        +column_types:
-          country_code: varchar
-          country_name: varchar
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
-
-      rate_card_daily:
-        +column_types:
-          product_code: varchar
-          plan_code: varchar
-          price_date: date
-          unit_price: number
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
-
-      usage_daily:
-        +column_types:
-          customer_code: varchar
-          product_code: varchar
-          plan_code: varchar
-          report_date: date
-          units_used: number
-          included_units: number
-          load_ts: timestamp_ntz
-        +post-hook:
-          - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+    usage_daily:
+      +column_types:
+        customer_code: varchar
+        product_code: varchar
+        plan_code: varchar
+        report_date: date
+        units_used: number
+        included_units: number
+        load_ts: timestamp_ntz
+      +post-hook:
+        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"

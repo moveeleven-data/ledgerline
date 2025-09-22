@@ -1,0 +1,4 @@
+plan_code,plan_name,product_code,billing_period,load_ts
+PLAN-BASIC,Basic,PROD-API,monthly,2025-09-20 12:00:00
+PLAN-PRO,Pro,PROD-API,monthly,2025-09-20 12:00:00
+PLAN-ETL-100K,ETL 100k rows,PROD-ETL,monthly,2025-09-20 12:00:00

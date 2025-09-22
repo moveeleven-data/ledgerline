@@ -1,4 +1,4 @@
-## MarginSync Changelog
+## LedgerLine Changelog
 
 ### 2025-09-21 (Port to MarginSync)
 
@@ -6,7 +6,7 @@
 - Tightened HIST_ABC_BANK_POSITION so that only valid open positions are written, leaving HISTORY clean.
 - Forked MarketSync scaffold into new repo `marginsync`.
 - Renamed project in `dbt_project.yml`, README, and YAML configs.
-- Reset seeds to new SaaS domain (customers, products, plans, usage, rate_card).
+- Reset seeds to new SaaS domain (customers, products, plans, usage, price_book).
 - Rewired sources to point at new SaaS raw tables.
 - Confirmed project compiles with `dbt parse`.
 
