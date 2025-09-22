@@ -157,8 +157,3 @@ models:
 
       - name: country_name
         tests: [not_null]
-
-
-
-  - name: ref_usage_atlas__invalid
-    description: Rows that violate basic validity rules and should be empty after a clean load.

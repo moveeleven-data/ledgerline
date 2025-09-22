@@ -8,8 +8,8 @@ src as (
         , upper(product_code)                        as product_code
         , upper(plan_code)                           as plan_code
         , {{ to_21st_century_date('report_date') }}  as report_date
-        , coalesce(units_used, 0)                    as units_used
-        , coalesce(included_units, 0)                as included_units
+        , units_used                                 as units_used
+        , included_units                             as included_units
         , to_timestamp_ntz(load_ts)                  as load_ts
         , 'SEED.atlas_meter_usage_daily'             as record_source
     from {{ ref('atlas_meter_usage_daily') }}
@@ -20,13 +20,13 @@ src as (
     from src
     qualify row_number() over (
         partition by
-            customer_code
-          , product_code
-          , plan_code
-          , report_date
+              customer_code
+            , product_code
+            , plan_code
+            , report_date
         order by
-            load_ts desc
-          , units_used desc
+              load_ts desc
+            , units_used desc
     ) = 1
 )
 
@@ -50,19 +50,20 @@ src as (
 
 , hashed as (
     select
-        {{ dbt_utils.generate_surrogate_key([
-              'customer_code'
-              ,'product_code'
-              ,'plan_code'
-              ,'report_date'
-        ]) }} as usage_hkey
+          {{ dbt_utils.generate_surrogate_key([
+                'customer_code'
+              , 'product_code'
+              , 'plan_code'
+              , 'report_date'
+          ]) }} as usage_hkey
 
         , {{ dbt_utils.generate_surrogate_key([
-              'customer_code'
-            , 'product_code'
-            , 'plan_code'
-            , "to_varchar(report_date,'YYYY-MM-DD')"
-            , 'units_used','included_units'
+                'customer_code'
+              , 'product_code'
+              , 'plan_code'
+              , "to_varchar(report_date,'YYYY-MM-DD')"
+              , 'units_used'
+              , 'included_units'
           ]) }} as usage_hdiff
 
         , * exclude (load_ts)
@@ -70,4 +71,5 @@ src as (
     from unioned
 )
 
-select * from hashed
+select *
+from hashed

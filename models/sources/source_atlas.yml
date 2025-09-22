@@ -3,7 +3,11 @@ version: 2
 sources:
   - name: atlas_meter
     database: "{{ target.database }}"
-    schema: "{{ target.schema }}_seeds"
+    # Environment variable selects the schema.
+    # - Dev/local: ATLAS_METER_SCHEMA = seeds
+    # - Prod:      ATLAS_METER_SCHEMA = source_data
+    schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA') }}"
+
     tables:
       - name: atlas_meter_usage_daily
         identifier: atlas_meter_usage_daily
