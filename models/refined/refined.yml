@@ -1,168 +1,194 @@
 version: 2
 
 models:
-  - name: REF_USAGE_ATLAS
-    description: Latest valid OPEN usage rows per key and day.
+  - name: dim_customer
+    description: Customer attributes for the usage mart. One row per natural customer_code.
+    config:
+      contract:
+        enforced: true
 
     columns:
-      - name: USAGE_HKEY
+      - name: customer_key
+        data_type: string
         tests: [not_null, unique]
 
-      - name: REPORT_DATE
+      - name: customer_code
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: customer_name
+        data_type: string
         tests: [not_null]
 
-      - name: CUSTOMER_CODE
+      - name: country_code
+        data_type: string
+
+
+
+  - name: dim_product
+    description: Product master used by the usage mart. Self completes missing codes from facts using the default member.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: product_key
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: product_code
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: product_name
+        data_type: string
         tests: [not_null]
 
-      - name: PRODUCT_CODE
+      - name: category
+        data_type: string
+
+
+
+  - name: dim_plan
+    description: Subscription plan catalog for the usage mart.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: plan_key
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: plan_code
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: plan_name
+        data_type: string
         tests: [not_null]
 
-      - name: PLAN_CODE
+      - name: product_code
+        data_type: string
         tests: [not_null]
 
-      - name: UNITS_USED
+      - name: billing_period
+        data_type: string
+
+
+
+  - name: dim_currency
+    description: Currency reference data joined to facts when pricing is currency specific.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: currency_key
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: currency_code
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: decimal_digits
+        data_type: number(38,0)
+
+      - name: currency_name
+        data_type: string
+        tests: [not_null]
+
+
+
+  - name: dim_country
+    description: Country reference data for enrichment and rollups.
+    config:
+      contract:
+        enforced: true
+
+    columns:
+      - name: country_key
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: country_code
+        data_type: string
+        tests: [not_null, unique]
+
+      - name: country_name
+        data_type: string
+        tests: [not_null]
+
+
+
+  - name: fact_usage
+    description: Daily usage by customer, product, plan, per report_date. One row per (customer_key, product_key, plan_key, report_date).
+    config:
+      contract:
+        enforced: true
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: fact_usage_unique_combo
+          combination_of_columns:
+            - customer_key
+            - product_key
+            - plan_key
+            - report_date
+            -
+    columns:
+      - name: customer_key
+        data_type: string
+
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "units_used >= 0"
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
 
-      - name: INCLUDED_UNITS
+      - name: product_key
+        data_type: string
+
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "included_units >= 0"
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
 
-      - name: OVERAGE_UNITS
+      - name: plan_key
+        data_type: string
+
         tests:
-          - dbt_utils.expression_is_true:
-              expression: "overage_units >= 0"
+          - not_null
+          - relationships:
+              to: ref('dim_plan')
+              field: plan_key
 
-
-
-  - name: REF_CUSTOMER_ATLAS
-    description: Customer attributes with hashed surrogate key.
-
-    tests:
-      - has_default_key:
-          column_name: CUSTOMER_CODE
-
-      - warn_on_multiple_default_key:
-          column_name: CUSTOMER_CODE
-
-      - no_default_clash:
-          code_col: CUSTOMER_CODE
-
-    columns:
-      - name: CUSTOMER_HKEY
-        tests: [not_null, unique]
-
-      - name: CUSTOMER_CODE
+      - name: report_date
+        data_type: date
         tests: [not_null]
 
-      - name: COUNTRY_CODE2
-        tests: [not_null]
+      - name: units_used
+        data_type: number(38,0)
 
+      - name: included_units
+        data_type: number(38,0)
 
+      - name: overage_units
+        data_type: number(38,0)
 
-  - name: REF_PRODUCT_ATLAS
-    description: Product master attributes.
+      - name: unit_price
+        data_type: number(38,6)
 
-    tests:
-      - has_default_key:
-          column_name: PRODUCT_CODE
+      - name: billed_value
+        data_type: number(38,6)
 
-      - warn_on_multiple_default_key:
-          column_name: PRODUCT_CODE
+      - name: included_value
+        data_type: number(38,6)
 
-      - no_default_clash:
-          code_col: PRODUCT_CODE
+      - name: margin_value
+        data_type: number(38,6)
 
-    columns:
-      - name: PRODUCT_HKEY
-        tests: [not_null, unique]
-
-      - name: PRODUCT_CODE
-        tests: [not_null]
-
-      - name: PRODUCT_NAME
-        tests: [not_null]
-
-
-
-  - name: REF_PLAN_ATLAS
-    description: Subscription plan attributes.
-
-    tests:
-      - has_default_key:
-          column_name: PLAN_CODE
-
-      - warn_on_multiple_default_key:
-          column_name: PLAN_CODE
-
-      - no_default_clash:
-          code_col: PLAN_CODE
-
-    columns:
-      - name: PLAN_HKEY
-        tests: [not_null, unique]
-
-      - name: PLAN_CODE
-        tests: [not_null]
-
-      - name: PRODUCT_CODE
-        tests: [not_null]
-
-
-
-  - name: REF_CURRENCY_ATLAS
-    description: Currency reference data.
-
-    tests:
-      - has_default_key:
-          column_name: CURRENCY_CODE
-
-      - warn_on_multiple_default_key:
-          column_name: CURRENCY_CODE
-
-      - no_default_clash:
-          code_col: CURRENCY_CODE
-
-    columns:
-      - name: CURRENCY_HKEY
-        tests: [not_null, unique]
-
-      - name: CURRENCY_CODE
-        tests: [not_null]
-
-      - name: CURRENCY_NAME
-        tests: [not_null]
-
-
-
-  - name: REF_COUNTRY_ATLAS
-    description: Country reference data.
-
-    tests:
-      - has_default_key:
-          column_name: COUNTRY_CODE2
-
-      - warn_on_multiple_default_key:
-          column_name: COUNTRY_CODE2
-
-      - no_default_clash:
-          code_col: COUNTRY_CODE2
-
-    columns:
-      - name: COUNTRY_HKEY
-        tests: [not_null, unique]
-
-      - name: COUNTRY_CODE2
-        tests: [not_null]
-
-      - name: COUNTRY_NAME
-        tests: [not_null]
-
-
-
-  - name: REF_USAGE_ATLAS__invalid
-    description: Rows that violate basic validity rules and should be empty after a clean load.
+      - name: margin_pct
+        data_type: number(38,6)

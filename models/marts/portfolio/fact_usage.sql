@@ -4,21 +4,19 @@ with usage_norm as (
       , cast(units_used as number(38,0))                 as units_used
       , cast(included_units as number(38,0))             as included_units
       , greatest(units_used - included_units, 0)         as overage_units
-
-      -- normalize natural keys to handle late/missing values
       , coalesce(customer_code, '-1')                    as customer_code_nk
       , coalesce(product_code,  '-1')                    as product_code_nk
       , coalesce(plan_code,     '-1')                    as plan_code_nk
   from {{ ref('ref_usage_atlas') }}
 )
 
-, price_book as (
+, rate_card as (
   select
         product_code
       , plan_code
       , price_date
       , unit_price
-  from {{ ref('stg_atlas_price_book_daily') }}
+  from {{ ref('stg_atlas_pricing_rate_card_daily') }}
 )
 
 , usage_priced as (
@@ -27,15 +25,15 @@ with usage_norm as (
       , u.units_used
       , u.included_units
       , u.overage_units
-      , pb.unit_price
+      , rc.unit_price
       , u.customer_code_nk
       , u.product_code_nk
       , u.plan_code_nk
   from usage_norm u
-  left join pricebook pb
-    on  pb.product_code = u.product_code_nk
-    and pb.plan_code = u.plan_code_nk
-    and pb.price_date = u.report_date
+  left join rate_card rc
+    on  rc.product_code = u.product_code_nk
+    and rc.plan_code    = u.plan_code_nk
+    and rc.price_date   = u.report_date
 )
 
 , usage_enriched as (
@@ -48,25 +46,24 @@ with usage_norm as (
       , up.included_units                 as included_units
       , up.overage_units                  as overage_units
       , coalesce(up.unit_price, 0)        as unit_price
-      , (up.units_used * coalesce(up.unit_price, 0)) as billed_value
-      , (up.included_units * coalesce(up.unit_price, 0)) as included_value
+      , (up.units_used * coalesce(up.unit_price, 0))                       as billed_value
+      , (up.included_units * coalesce(up.unit_price, 0))                   as included_value
       , ((up.units_used - up.included_units) * coalesce(up.unit_price, 0)) as margin_value
+
       , case
             when (up.units_used * coalesce(up.unit_price, 0)) > 0
               then ((up.units_used - up.included_units) * coalesce(up.unit_price, 0))
                    / (up.units_used * coalesce(up.unit_price, 0))
             else 0
         end as margin_pct
+
   from usage_priced up
-
-  join {{ ref('dim_customer') }} as dim_customer
+  join {{ ref('dim_customer') }} dim_customer
     on dim_customer.customer_code = up.customer_code_nk
-
-  join {{ ref('dim_product') }} as dim_product
+  join {{ ref('dim_product') }}  dim_product
     on dim_product.product_code  = up.product_code_nk
-
-  join {{ ref('dim_plan') }} as dim_plan
-    on dim_plan.plan_code = up.plan_code_nk
+  join {{ ref('dim_plan') }}     dim_plan
+    on dim_plan.plan_code       = up.plan_code_nk
 )
 
 select
