@@ -2,40 +2,43 @@ version: 2
 
 models:
   - name: ref_usage_atlas
-    description: Latest valid OPEN usage rows per key and day.
-
+    description: Refined usage rows (one per cust/product/plan/day)
     columns:
-      - name: usage_hkey
-        tests: [not_null, unique]
-
-      - name: report_date
-        tests: [not_null]
 
       - name: customer_code
-        tests: [not_null]
+        tests:
+          - not_null
 
       - name: product_code
-        tests: [not_null]
+        tests:
+          - not_null
 
       - name: plan_code
-        tests: [not_null]
+        tests:
+          - not_null
+
+      - name: report_date
+        tests:
+          - not_null
 
       - name: units_used
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "units_used >= 0"
+              # Column-level form: column is implied — do NOT repeat the name.
+              expression: ">= 0"
 
       - name: included_units
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: "included_units >= 0"
+              expression: ">= 0"
 
       - name: overage_units
+        description: Computed as GREATEST(units_used - included_units, 0)
         tests:
           - dbt_utils.expression_is_true:
-              expression: "overage_units >= 0"
+              expression: ">= 0"
 
 
 

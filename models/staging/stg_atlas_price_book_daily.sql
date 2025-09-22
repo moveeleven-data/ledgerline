@@ -45,7 +45,7 @@ src as (
           ]) }} as price_book_hdiff
 
         , * exclude (load_ts)
-        , to_timestamp_tz('{{ run_started_at }}') as load_ts_utc
+        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
     from unioned
 )
 
