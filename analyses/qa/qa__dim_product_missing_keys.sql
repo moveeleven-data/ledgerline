@@ -6,20 +6,20 @@
 with fact_codes as (
   select distinct
       product_code
-  from {{ ref('REF_USAGE_ATLAS') }}
+  from {{ ref('ref_usage_atlas') }}
   where product_code is not null
 )
 
 , base_codes as (
   select
       product_code
-  from {{ ref('REF_PRODUCT_ATLAS') }}
+  from {{ ref('ref_product_atlas') }}
 )
 
 , dim_codes as (
   select
       product_code
-  from {{ ref('DIM_PRODUCT') }}
+  from {{ ref('dim_product') }}
 )
 
 select

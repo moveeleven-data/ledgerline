@@ -12,7 +12,7 @@ models:
 
 
 
-  - name: stg_atlas_pricing_price_book_daily
+  - name: stg_atlas_price_book_daily
     tests:
       - dbt_utils.expression_is_true:
           expression: "extract(year from price_date) >= 2000"
@@ -50,7 +50,7 @@ models:
 
 
 
-  - name: stg_atlas_ref_currency_info
+  - name: stg_atlas_currency_info
     tests:
       - unique:
           column_name: currency_code
@@ -59,7 +59,7 @@ models:
 
 
 
-  - name: stg_atlas_ref_country_info
+  - name: stg_atlas_country_info
     tests:
       - unique:
           column_name: country_code2

@@ -5,12 +5,12 @@
 
 with invalid as (
   select usage_hkey
-  from {{ ref('REF_USAGE_ATLAS__invalid') }}
+  from {{ ref('ref_usage_atlas__invalid') }}
 )
 
 , ref as (
   select  *
-  from {{ ref('REF_USAGE_ATLAS') }}
+  from {{ ref('ref_usage_atlas') }}
 )
 
 select

@@ -7,7 +7,7 @@ with src as (
         , upper(country_code)            as country_code2
         , to_timestamp_ntz(load_ts)      as load_ts
         , 'SEED.atlas_crm_customer_info' as record_source
-    from {{ ref('customers') }}
+    from {{ ref('atlas_crm_customer_info') }}
 )
 
 , default_row as (

@@ -10,7 +10,7 @@ src as (
         , coalesce(unit_price, 0)                   as unit_price
         , to_timestamp_ntz(load_ts)                 as load_ts
         , 'SEED.atlas_price_book_daily'             as record_source
-    from {{ ref('price_book_daily') }}
+    from {{ ref('atlas_price_book_daily') }}
 )
 
 , default_row as (

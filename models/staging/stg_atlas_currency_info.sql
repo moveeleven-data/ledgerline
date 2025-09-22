@@ -9,7 +9,7 @@ src as (
         , decimal_digits
         , to_timestamp_ntz(load_ts)         as load_ts
         , 'SEED.atlas_ref_currency_info'    as record_source
-    from {{ ref('currencies') }}
+    from {{ ref('atlas_currency_info') }}
 )
 
 , default_row as (

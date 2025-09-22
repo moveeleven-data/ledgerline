@@ -12,10 +12,10 @@ select
   , count_if(p.product_key  is null)                                 as missing_product_dim
   , count_if(pl.plan_key    is null)                                 as missing_plan_dim
   , count_if(p.product_key  is not null and p.product_code = '-1')   as hits_product_default
-from {{ ref('FACT_USAGE') }} f
-left join {{ ref('DIM_CUSTOMER') }} c on c.customer_key = f.customer_key
-left join {{ ref('DIM_PRODUCT')  }} p on p.product_key  = f.product_key
-left join {{ ref('DIM_PLAN')     }} pl on pl.plan_key   = f.plan_key
+from {{ ref('fact_usage') }} f
+left join {{ ref('dim_customer') }} c on c.customer_key = f.customer_key
+left join {{ ref('dim_product')  }} p on p.product_key  = f.product_key
+left join {{ ref('dim_plan')     }} pl on pl.plan_key   = f.plan_key
 where f.report_date = to_date('{{ as_of_date }}')
 group by
     f.report_date;

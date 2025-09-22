@@ -10,7 +10,7 @@ with keys as (
   select
       usage_hkey
     , count_if(usage_row_type = 'CLOSE_SYNTHETIC') as close_events
-  from {{ ref('HIST_ATLAS_METER_USAGE_DAILY') }}
+  from {{ ref('hist_atlas_meter_usage_daily') }}
   group by
       usage_hkey
   having close_events > 0
@@ -23,7 +23,7 @@ select
   , hist.usage_row_type
   , hist.units_used
   , hist.included_units
-from {{ ref('HIST_ATLAS_METER_USAGE_DAILY') }} hist
+from {{ ref('hist_atlas_meter_usage_daily') }} hist
 join keys
   on keys.usage_hkey = hist.usage_hkey
 order by

@@ -10,7 +10,7 @@ src as (
         , billing_period
         , to_timestamp_ntz(load_ts)         as load_ts
         , 'SEED.atlas_catalog_plan_info'    as record_source
-    from {{ ref('plans') }}
+    from {{ ref('atlas_catalog_plan_info') }}
 )
 
 , default_row as (

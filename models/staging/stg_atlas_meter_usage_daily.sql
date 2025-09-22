@@ -12,7 +12,7 @@ src as (
         , coalesce(included_units, 0)                as included_units
         , to_timestamp_ntz(load_ts)                  as load_ts
         , 'SEED.atlas_meter_usage_daily'             as record_source
-    from {{ ref('usage_daily') }}
+    from {{ ref('atlas_meter_usage_daily') }}
 )
 
 , dedup as (

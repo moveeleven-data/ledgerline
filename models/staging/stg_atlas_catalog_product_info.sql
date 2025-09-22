@@ -9,7 +9,7 @@ src as (
         , category
         , to_timestamp_ntz(load_ts)         as load_ts
         , 'SEED.atlas_catalog_product_info' as record_source
-    from {{ ref('products') }}
+    from {{ ref('atlas_catalog_product_info') }}
 )
 
 , default_row as (

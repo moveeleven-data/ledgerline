@@ -7,7 +7,7 @@ daily_open_candidate_counts as (
         , plan_code
         , report_date
         , count(*) as daily_row_count
-    from {{ ref('STG_ATLAS_METER_USAGE_DAILY') }}
+    from {{ ref('stg_atlas_meter_usage_daily') }}
     group by
           customer_code
         , product_code

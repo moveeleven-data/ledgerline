@@ -8,27 +8,27 @@
 with stg as (
   select
       count(*) as cnt
-  from {{ ref('STG_ATLAS_METER_USAGE_DAILY') }}
+  from {{ ref('stg_atlas_meter_usage_daily') }}
   where report_date = to_date('{{ as_of_date }}')
 )
 
 , hist as (
   select
       count(*) as cnt
-  from {{ ref('HIST_ATLAS_METER_USAGE_DAILY') }}
+  from {{ ref('hist_atlas_meter_usage_daily') }}
   where report_date = to_date('{{ as_of_date }}')
 )
 
 , ref as (
   select
       count(*) as cnt
-  from {{ ref('REF_USAGE_ATLAS') }}
+  from {{ ref('ref_usage_atlas') }}
 )
 
 , fact as (
   select
       count(*) as cnt
-  from {{ ref('FACT_USAGE') }}
+  from {{ ref('fact_usage') }}
   where report_date = to_date('{{ as_of_date }}')
 )
 

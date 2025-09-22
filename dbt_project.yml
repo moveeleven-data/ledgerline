@@ -55,7 +55,7 @@ seeds:
   ledgerline:
     +quote_columns: false
 
-    customers:
+    atlas_crm_customer_info:
       +column_types:
         customer_code: varchar
         customer_name: varchar
@@ -64,7 +64,7 @@ seeds:
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    products:
+    atlas_catalog_product_info:
       +column_types:
         product_code: varchar
         product_name: varchar
@@ -73,7 +73,7 @@ seeds:
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    plans:
+    atlas_catalog_plan_info:
       +column_types:
         plan_code: varchar
         plan_name: varchar
@@ -83,7 +83,7 @@ seeds:
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    currencies:
+    atlas_currency_info:
       +column_types:
         currency_code: varchar
         currency_name: varchar
@@ -92,7 +92,7 @@ seeds:
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    countries:
+    atlas_country_info:
       +column_types:
         country_code: varchar
         country_name: varchar
@@ -100,17 +100,17 @@ seeds:
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    price_book_daily:
+    atlas_price_book_daily:
       +column_types:
         product_code: varchar
         plan_code: varchar
         price_date: date
-        unit_price: number
+        unit_price: number(18,6)
         load_ts: timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-    usage_daily:
+    atlas_meter_usage_daily:
       +column_types:
         customer_code: varchar
         product_code: varchar
