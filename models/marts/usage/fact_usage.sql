@@ -10,13 +10,13 @@ with usage_norm as (
   from {{ ref('ref_usage_atlas') }}
 )
 
-, rate_card as (
+, price_book as (
   select
         product_code
       , plan_code
       , price_date
       , unit_price
-  from {{ ref('stg_atlas_pricing_rate_card_daily') }}
+  from {{ ref('stg_atlas_pricing_price_book_daily') }}
 )
 
 , usage_priced as (
@@ -30,7 +30,7 @@ with usage_norm as (
       , u.product_code_nk
       , u.plan_code_nk
   from usage_norm u
-  left join rate_card rc
+  left join price_book rc
     on  rc.product_code = u.product_code_nk
     and rc.plan_code    = u.plan_code_nk
     and rc.price_date   = u.report_date
@@ -66,7 +66,7 @@ with usage_norm as (
   join {{ ref('dim_product') }} as dim_product
     on dim_product.product_code = up.product_code_nk
 
-  join {{ ref('dim_plan') }} as asdim_plan
+  join {{ ref('dim_plan') }} as dim_plan
     on dim_plan.plan_code = up.plan_code_nk
 )
 

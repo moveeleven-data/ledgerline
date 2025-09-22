@@ -65,7 +65,7 @@ src as (
             , 'units_used','included_units'
           ]) }} as usage_hdiff
 
-        , *
+        , * exclude (load_ts)
         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
     from unioned
 )

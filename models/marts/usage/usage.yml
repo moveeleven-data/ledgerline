@@ -136,7 +136,7 @@ models:
             - product_key
             - plan_key
             - report_date
-            -
+
     columns:
       - name: customer_key
         data_type: string

@@ -12,7 +12,7 @@ models:
 
 
 
-  - name: stg_atlas_pricing_rate_card_daily
+  - name: stg_atlas_pricing_price_book_daily
     tests:
       - dbt_utils.expression_is_true:
           expression: "extract(year from price_date) >= 2000"
