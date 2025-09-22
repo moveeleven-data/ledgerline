@@ -7,7 +7,7 @@ src as (
           upper(product_code)                       as product_code
         , upper(plan_code)                          as plan_code
         , {{ to_21st_century_date('price_date') }}  as price_date
-        , coalesce(unit_price, 0)                   as unit_price
+        , unit_price                                as unit_price
         , to_timestamp_ntz(load_ts)                 as load_ts
         , 'SEED.atlas_price_book_daily'             as record_source
     from {{ ref('atlas_price_book_daily') }}
@@ -33,20 +33,21 @@ src as (
     select
           {{ dbt_utils.generate_surrogate_key([
                 'product_code'
-               ,'plan_code'
-               ,'price_date'
+              , 'plan_code'
+              , 'price_date'
           ]) }} as price_book_hkey
 
         , {{ dbt_utils.generate_surrogate_key([
                 'product_code'
-               ,'plan_code'
-               ,'price_date'
-               ,'unit_price'
+              , 'plan_code'
+              , 'price_date'
+              , 'unit_price'
           ]) }} as price_book_hdiff
 
         , * exclude (load_ts)
-        , load_ts as load_ts_utc
+        , to_timestamp_tz('{{ run_started_at }}') as load_ts_utc
     from unioned
 )
 
-select * from hashed
+select *
+from hashed

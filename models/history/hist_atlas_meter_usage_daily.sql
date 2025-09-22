@@ -62,7 +62,9 @@ stg_today as (
   -- Keys present today
 , today_keys as (
   select distinct
-      usage_hkey
+        customer_code
+      , product_code
+      , plan_code
   from stg_today
 )
 

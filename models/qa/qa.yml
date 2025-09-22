@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: ref_usage_atlas__invalid
+    description: Rows that violate basic validity rules and should be empty after a clean load.
+    config:
+      schema: "{{ target.schema }}_qa"
+      tags: ['qa']

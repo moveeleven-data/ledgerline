@@ -187,8 +187,8 @@ models:
       - name: included_value
         data_type: number(38,6)
 
-      - name: margin_value
+      - name: overage_value
         data_type: number(38,6)
 
-      - name: margin_pct
+      - name: overage_share
         data_type: number(38,6)

@@ -48,6 +48,11 @@ models:
       usage:
         +schema: marts_usage
         +contract: {enforced: true}
+    
+    qa:
+      +schema: "{{ target.schema }}_qa" 
+      +tags: ['qa']
+
 
 seeds:
   +schema: seeds
