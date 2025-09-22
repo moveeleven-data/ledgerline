@@ -45,7 +45,8 @@ with usage_norm as (
       , up.units_used                     as units_used
       , up.included_units                 as included_units
       , up.overage_units                  as overage_units
-      , coalesce(up.unit_price, 0)        as unit_price
+
+      , coalesce(up.unit_price, 0)                                         as unit_price
       , (up.units_used * coalesce(up.unit_price, 0))                       as billed_value
       , (up.included_units * coalesce(up.unit_price, 0))                   as included_value
       , ((up.units_used - up.included_units) * coalesce(up.unit_price, 0)) as margin_value
@@ -58,12 +59,15 @@ with usage_norm as (
         end as margin_pct
 
   from usage_priced up
-  join {{ ref('dim_customer') }} dim_customer
+
+  join {{ ref('dim_customer') }} as dim_customer
     on dim_customer.customer_code = up.customer_code_nk
-  join {{ ref('dim_product') }}  dim_product
+
+  join {{ ref('dim_product') }} as dim_product
     on dim_product.product_code  = up.product_code_nk
-  join {{ ref('dim_plan') }}     dim_plan
-    on dim_plan.plan_code       = up.plan_code_nk
+
+  join {{ ref('dim_plan') }} asdim_plan
+    on dim_plan.plan_code = up.plan_code_nk
 )
 
 select

@@ -1,41 +1,67 @@
-{{ config(materialized='ephemeral') }}
+version: 2
 
-with src as (
-    select
-          upper(customer_code)              as customer_code
-        , customer_name
-        , upper(country_code)               as country_code2
-        , to_timestamp_ntz(load_ts)         as load_ts
-        , 'SEED.atlas_crm_customer_info'    as record_source
-    from {{ ref('customers') }}
-)
-  
-, default_row as (
-    select
-          '-1'                              as customer_code
-        , 'Missing'                         as customer_name
-        , '-1'                              as country_code2
-        , to_timestamp_ntz('2020-01-01')    as load_ts
-        , 'System.DefaultKey'               as record_source
-),
-  
-, unioned as (
-    select * from src
-    union all
-    select * from default_row
-)
-  
-, hashed as (
-    select
-        {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
-        , {{ dbt_utils.generate_surrogate_key([
-              'customer_code'
-             ,'customer_name'
-             ,'country_code2'
-          ]) }} as customer_hdiff
-        
-        , * exclude (load_ts)
-        , load_ts as load_ts_utc
-    from unioned
-)
-select * from hashed
+models:
+  - name: stg_atlas_meter_usage_daily
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "extract(year from report_date) >= 2000"
+          config: {severity: warn}
+
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [customer_code, product_code, plan_code, report_date]
+
+
+
+  - name: stg_atlas_pricing_rate_card_daily
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "extract(year from price_date) >= 2000"
+          config: {severity: warn}
+
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [product_code, plan_code, price_date]
+
+
+
+  - name: stg_atlas_crm_customer_info
+    tests:
+      - unique:
+          column_name: customer_code
+      - not_null:
+          column_name: customer_code
+
+
+
+  - name: stg_atlas_catalog_product_info
+    tests:
+      - unique:
+          column_name: product_code
+      - not_null:
+          column_name: product_code
+
+
+
+  - name: stg_atlas_catalog_plan_info
+    tests:
+      - unique:
+          column_name: plan_code
+      - not_null:
+          column_name: plan_code
+
+
+
+  - name: stg_atlas_ref_currency_info
+    tests:
+      - unique:
+          column_name: currency_code
+      - not_null:
+          column_name: currency_code
+
+
+
+  - name: stg_atlas_ref_country_info
+    tests:
+      - unique:
+          column_name: country_code2
+      - not_null:
+          column_name: country_code2

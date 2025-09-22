@@ -1,37 +1,37 @@
 version: 2
 
 models:
-  - name: HIST_ATLAS_METER_USAGE_DAILY
+  - name: hist_atlas_meter_usage_daily
     description: >
       SCD usage history. 'OPEN' rows come from the source for each report_date;
       'CLOSE_SYNTHETIC' rows are zero-outs created when a previously OPEN usage
       combo is absent on the latest report_date (one close per key and date).
 
     columns:
-      - name: USAGE_HKEY
+      - name: usage_hkey
         description: Surrogate key for (customer_code, product_code, plan_code, report_date bucket).
         tests: [not_null]
 
-      - name: USAGE_HDIFF
-        description: Version hash over identifying fields and units (includes REPORT_DATE).
+      - name: usage_hdiff
+        description: Version hash over identifying fields and units (includes report_date).
         tests:
           - not_null
           - unique
 
-      - name: REPORT_DATE
+      - name: report_date
         tests: [not_null]
 
-      - name: USAGE_ROW_TYPE
+      - name: usage_row_type
         tests:
           - accepted_values:
               values: ['OPEN', 'CLOSE_SYNTHETIC']
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['USAGE_HKEY','REPORT_DATE','USAGE_ROW_TYPE']
+          combination_of_columns: ['usage_hkey','report_date','usage_row_type']
 
       - hash_collision_free:
-          column_name: USAGE_HKEY
+          column_name: usage_hkey
           hashed_fields:
             - customer_code
             - product_code
@@ -39,7 +39,7 @@ models:
             - "to_varchar(report_date, 'YYYY-MM-DD')"
 
       - hash_collision_free:
-          column_name: USAGE_HDIFF
+          column_name: usage_hdiff
           hashed_fields:
             - customer_code
             - product_code

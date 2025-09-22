@@ -45,11 +45,6 @@ models:
     marts:
       +materialized: table
 
-      # disable the old finance mart if that folder still exists
-      portfolio:
-        +enabled: false
-
-      # new SaaS usage mart
       usage:
         +schema: marts_usage
         +contract: {enforced: true}

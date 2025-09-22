@@ -3,7 +3,7 @@ with
 current_from_history as (
     {{ current_from_history(
           history_rel = ref('hist_ref_atlas_country_info')
-        , key_column  = 'COUNTRY_HKEY'
+        , key_column  = 'country_hkey'
     ) }}
 )
 
