@@ -27,7 +27,7 @@ select
         else 0
     end                                                   as calc_margin_pct
   , f.margin_pct
-from {{ ref('FACT_USAGE') }} f
+from {{ ref('fact_usage') }} f
 order by
     f.report_date
   , f.customer_key

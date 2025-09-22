@@ -9,7 +9,7 @@
      - row dated 2024-07-15 with simple units
 */
 
-insert into {{ ref('usage_daily') }} (
+insert into {{ ref('fact_usage') }} (
     customer_code
   , product_code
   , plan_code

@@ -1,11 +1,7 @@
 version: 2
 
 seeds:
-  # CSVs live in seeds/*.csv
-  - name: customers
-    config:
-      alias: atlas_crm_customer_info
-
+  - name: atlas_crm_customer_info
     columns:
       - name: customer_code
         tests: [not_null, unique]
@@ -21,10 +17,7 @@ seeds:
 
 
 
-  - name: products
-    config:
-      alias: atlas_catalog_product_info
-
+  - name: atlas_catalog_product_info
     columns:
       - name: product_code
         tests: [not_null, unique]
@@ -40,10 +33,7 @@ seeds:
 
 
 
-  - name: plans
-    config:
-      alias: atlas_catalog_plan_info
-
+  - name: atlas_catalog_plan_info
     columns:
       - name: plan_name
         tests: [ not_null ]
@@ -62,10 +52,7 @@ seeds:
 
 
 
-  - name: currencies
-    config:
-      alias: atlas_ref_currency_info
-
+  - name: atlas_currency_info
     columns:
       - name: currency_code
         tests: [not_null, unique]
@@ -81,10 +68,7 @@ seeds:
 
 
 
-  - name: countries
-    config:
-      alias: atlas_ref_country_info
-
+  - name: atlas_country_info
     columns:
       - name: country_code
         tests: [not_null, unique]
@@ -97,10 +81,7 @@ seeds:
 
 
 
-  - name: price_book_daily
-    config:
-      alias: atlas_price_book_daily
-
+  - name: atlas_price_book_daily
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ product_code, plan_code, price_date ]
@@ -125,10 +106,7 @@ seeds:
 
 
 
-  - name: usage_daily
-    config:
-      alias: atlas_meter_usage_daily
-
+  - name: atlas_meter_usage_daily
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [customer_code, product_code, plan_code, report_date]

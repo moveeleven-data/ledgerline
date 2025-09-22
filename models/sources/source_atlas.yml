@@ -3,10 +3,10 @@ version: 2
 sources:
   - name: atlas_meter
     database: "{{ target.database }}"
-    schema: seeds
+    schema: "{{ target.schema }}_seeds"
     tables:
-      - name: usage_daily
-        identifier: ATLAS_METER_USAGE_DAILY
+      - name: atlas_meter_usage_daily
+        identifier: atlas_meter_usage_daily
         description: >
           Daily metered usage feed at grain customer x product x plan x day.
           For the bootstrap build this points at the seeded table. Swap schema back

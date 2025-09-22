@@ -16,7 +16,7 @@ with usage_norm as (
       , plan_code
       , price_date
       , unit_price
-  from {{ ref('stg_atlas_pricing_price_book_daily') }}
+  from {{ ref('stg_atlas_price_book_daily') }}
 )
 
 , usage_priced as (

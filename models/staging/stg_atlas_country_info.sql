@@ -6,7 +6,7 @@ with src as (
         , country_name
         , to_timestamp_ntz(load_ts)     as load_ts
         , 'SEED.atlas_ref_country_info' as record_source
-    from {{ ref('countries') }}
+    from {{ ref('atlas_country_info') }}
 )
 
 , default_row as (

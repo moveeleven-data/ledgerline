@@ -7,13 +7,13 @@ with
 invalid as (
     select
         usage_hkey
-    from {{ ref('REF_USAGE_ATLAS__invalid') }}
+    from {{ ref('ref_usage_atlas__invalid') }}
 )
 
 , leaked as (
     select
         ref.usage_hkey
-    from {{ ref('REF_USAGE_ATLAS') }} ref
+    from {{ ref('ref_usage_atlas') }} ref
     inner join invalid using (usage_hkey)
 )
 
