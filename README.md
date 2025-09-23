@@ -41,7 +41,7 @@ The star schema is what makes the business questions answerable:
   
 **fact_price_book_daily** records daily effective unit prices by product and plan.
 
-![LedgerLine Architecture](docs/assets/erd_phys_model_2.png)
+![LedgerLine Architecture](docs/assets/erd_physical_model_2.png)
 
 ---
 
