@@ -1,112 +1,145 @@
+# seeds.yml
+# ---------
+# Seeds are CSVs we store under /seeds and load into the warehouse with `dbt seed`.
+# They are small, slowing changing datasets for scaffolding and reference.
+#
+# Lifecycle order:
+# 1. Seeds: CSVs loaded into the warehouse as static tables.
+# 2. Sources: dbt definitions that point at where the raw data lives.
+#    - In dev, our seeds act as the raw layer `_seeds`.
+#    - In prod, sources instead point to real upstream raw landing schemas.
+# 3. Staging models: SQL transforms that read from `source(...)' and adapt the data.
+#    - In dev, staging queries the seeded tables.
+#    - In prod, staging queries the real ingestion tables.
+#
+# When the ingestion pipeline exists, we flip an environment variable and staging just starts reading real data.
+
 version: 2
 
 seeds:
 
-  # Raw CRM customers (let nulls/oddities land; warn on dup codes)
   - name: atlas_crm_customer_info
+    # Simulates a CRM system-of-record.
+    # First thing dbt loads on `dbt seed`, so it's available for sources/staging.
     tests:
       - unique:
           column_name: customer_code
           config:
-            severity: warn
+            severity: warn   # In seeds we want visibility, but we can still run if duplicates sneak in.
     columns:
-      - name: customer_code
+      - name: customer_code  # Business key (later becomes dim_customer surrogate key)
       - name: customer_name
-      - name: country_code
-      - name: load_ts
+      - name: country_code   # FK to country seed
+      - name: load_ts        # Ingestion timestamp (set via post-hook if left blank)
 
 
 
-  # Raw product catalog (warn on dup natural key)
   - name: atlas_catalog_product_info
+    # Authoritative list of products/services.
+    # Example: API, ETL, Alerts. This is our "menu of things you can subscribe to."
     tests:
       - unique:
           column_name: product_code
           config:
             severity: warn
     columns:
-      - name: product_code
+      - name: product_code  # Business Key (hashed into product_key in staging) 
       - name: product_name
-      - name: category
+      - name: category      # Grouping/rollup (platform, data, etc.)
       - name: load_ts
 
 
 
-  # Raw plan catalog (warn on dup natural key)
   - name: atlas_catalog_plan_info
+    # Subscription plans offered under each product.
+    # Example: "Basic" monthly vs "Enterprise" annual.
+    # Plans drive billing logic (billing_period, included units, pricing)
     tests:
       - unique:
           column_name: plan_code
           config:
             severity: warn
     columns:
-      - name: plan_code
+      - name: plan_code        # Business Key (hashed into plan_key)
       - name: plan_name
-      - name: product_code
-      - name: billing_period
+      - name: product_code     # FK to product
+      - name: billing_period   # Monthly/annual cadence (informs revenue recognition)
       - name: load_ts
 
 
 
-  # Raw currency reference (warn on dup code)
   - name: atlas_currency_info
+    # Supported currencies for billing and display.
+    # Example: USD (2 decimals), JPY (0 decimals).
+    # Billing calculation requires consistent currency precision.
     tests:
       - unique:
           column_name: currency_code
           config:
             severity: warn
     columns:
-      - name: currency_code
+      - name: currency_code   # Business key (hashed into currency_key)
       - name: currency_name
-      - name: decimal_digits
+      - name: decimal_digits  # Precision for amounts
       - name: load_ts
 
 
 
-  # Raw country reference (warn on dup code)
   - name: atlas_country_info
+    # ISO-like country list. Used for customer geography rollups.
+    # Ensures every bustomer has a valid, joinable geography.
+    # Default "-1" row is carried through to avoid broken joins.
     tests:
       - unique:
           column_name: country_code
           config:
             severity: warn
     columns:
-      - name: country_code
+      - name: country_code   # Business key (hashed into country_key)
       - name: country_name
       - name: load_ts
 
 
 
-  # Daily price book (warn if (product, plan, date) has duplicates)
   - name: atlas_price_book_daily
+    # Official per-unit prices, by product + plan + day.
+    # Example: PROD-API under PLAN-BASIC cost $0.0001 per call on 2025-09-21.
+    # The price book separates the "rate card" from the raw usage feed, so billing logic
+    # is modular and auditable.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [product_code, plan_code, price_date]
           config:
             severity: warn
+        # Duplicates mean conflicting prices for the same day.
+        # Warn only because seeds are scaffolding data. Staging will catch issues.
+
     columns:
-      - name: product_code
-      - name: plan_code
-      - name: price_date
-      - name: unit_price
+      - name: product_code   # FK to product
+      - name: plan_code      # FK to plan
+      - name: price_date     # Effective date of rate
+      - name: unit_price     # Price per unit that day
       - name: load_ts
 
 
 
-  # Raw metered usage (warn if (cust, product, plan, date) dupes)
   - name: atlas_meter_usage_daily
+    # Metered usage shows daily usage rows per customer + product + plan + date.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [customer_code, product_code, plan_code, report_date]
           config:
             severity: warn
+        # Duplicate rows mean double-counted usage and broken revenue numbers.
+        # Staging handles deduplication.
+
     columns:
-      - name: customer_code
-      - name: product_code
-      - name: plan_code
-      - name: report_date
-      - name: units_used
-      - name: included_units
+      - name: customer_code     # Business key from CRM
+      - name: product_code      # Business key for product
+      - name: plan_code         # Business key for subscription plan
+      - name: report_date       # Calendar date of usage (UTC)
+      - name: units_used        # Actual consumption for this customer/product/plan on that date
+      - name: included_units    # Allowance from the plan for that date (baseline before overages)
       - name: load_ts

@@ -1,3 +1,9 @@
+# dbt_project.yml
+# ---------------
+# This is the main configuration file for LedgerLine.
+# Here we define the project name, version, where the models live,
+# how they should be materialized, and other global behaviors.
+
 name: 'ledgerline'
 version: '1.0.0'
 config-version: 2
@@ -11,32 +17,45 @@ seed-paths:     ['seeds']
 macro-paths:    ['macros']
 snapshot-paths: ['snapshots']
 
-target-path: 'target'
-clean-targets:
+target-path: 'target'  # dbt's scratch pad. This is where dbt puts compiled SQL and artifacts during a run.
+clean-targets:   # List of directories dbt wipes when you run dbt clean.
   - 'target'
   - 'dbt_packages'
 
-vars:
-  stg_materialization: 'ephemeral'
-
-quoting:
+quoting:   # Quotation is not forced, allowing Snowflake to handle names case-insensitively.
   database:   false
   schema:     false
   identifier: false
 
+
 models:
   ledgerline:
+    # Keeps column and model descriptions visible in dbt docs.
     +persist_docs: {relation: true, columns: true}
 
     staging:
       +schema: staging
-      +materialized: "{{ var('stg_materialization', 'ephemeral') }}"
+      # Materialization strategy:
+      # Use ephemeral here so staging models compile as CTEs only,
+      # feeding the history layer with lightly adapted data.
+      # This keeps cost and clutter down.
+      +materialized: ephemeral
 
     history:
       +schema: history
       +materialized: incremental
-      +incremental_strategy: append
-      +on_schema_change: append_new_columns
+      # History strategy:
+      # We track the full change history with custom macros.
+      # Custom macros insert only new or changed rows.
+      # Each run:
+      #  - Current OPEN rows are loaded from staging.
+      #  - Prior OPEN rows missing in today's feed are converted to synthetic CLOSE rows
+      #    (end-date marker, row_type=CLOSE_SYNTHETIC, zeroed usage).
+      +incremental_strategy: merge
+      # Why ignore on schema change:
+      #   - We don’t want source schema drift to silently alter history.
+      #   - History is a contract. Any real schema change is modeled so marts remain stable.
+      +on_schema_change: ignore
 
     refined:
       +schema: refined
@@ -47,14 +66,22 @@ models:
 
       usage:
         +schema: marts_usage
+        # Contracts enforce that models have the declared columns, types, and nullability.
+        # Quality gate that forces intentional, reviewed schema evolution.
         +contract: {enforced: true}
 
 
+# Seeds are static CSVs versiond in Git. Best for small lookups (codes, catalogs, countries, currencies).
+# For LedgerLine, price_book_daily and meter_usage_daily are seeded intentionally. In a real system,
+# these would be ingested as sources.
 seeds:
   +schema: seeds
 
   ledgerline:
     +quote_columns: false
+
+    # Each seed defined its schema explicitly and fills in missing load_ts.
+    # A post-hook fills in load_ts if missing, so every row has a timestamp for lineage.
 
     atlas_crm_customer_info:
       +column_types:

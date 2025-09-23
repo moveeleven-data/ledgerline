@@ -1,12 +1,9 @@
+# selectors.yml
+# -------------
+# LedgerLine QA is test-driven through generic and singular tests enforcing schema and business rules.
+# This selector runs them in isolation, making QA easy to execute independently in CI/CD.
+
 selectors:
-  - name: qa_analyses
-    description: "All QA analyses"
-    definition: "tag:qa resource_type:analysis"
-
   - name: qa_tests
-    description: "All QA-tagged tests (singular + any generics you tagged)"
+    description: "Run only QA-tagged tests"
     definition: "tag:qa resource_type:test"
-
-  - name: qa_all
-    description: "Everything tagged qa (any resource type)"
-    definition: "tag:qa"
