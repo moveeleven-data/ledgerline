@@ -13,6 +13,17 @@ src as (
     from {{ ref('atlas_price_book_daily') }}
 )
 
+, ghosts_removed as (
+    select *
+    from src
+    where not (
+               nullif(trim(product_code), '') is null
+           and nullif(trim(plan_code),   '') is null
+           and price_date                    is null
+           and unit_price                    is null
+    )
+)
+
 , default_row as (
     select
           '-1'                           as product_code
@@ -24,7 +35,7 @@ src as (
 )
 
 , unioned as (
-    select * from src
+    select * from ghosts_removed
     union all
     select * from default_row
 )

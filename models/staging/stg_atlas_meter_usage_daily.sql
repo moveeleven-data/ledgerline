@@ -15,9 +15,22 @@ src as (
     from {{ ref('atlas_meter_usage_daily') }}
 )
 
-, dedup as (
+, ghosts_removed as (
     select *
     from src
+    where not (
+               nullif(trim(customer_code),  '') is null
+           and nullif(trim(product_code),   '') is null
+           and nullif(trim(plan_code),      '') is null
+           and report_date                      is null
+           and units_used                       is null
+           and included_units                   is null
+    )
+)
+
+, dedup as (
+    select *
+    from ghosts_removed
     qualify row_number() over (
         partition by
               customer_code

@@ -5,19 +5,19 @@
   <br/><br/>
 </p>
 
-<p align="center">Designed and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
-
 ---
 
-## Key Features
+## Business Story
 
-| Capability | What you get |
-|------------|--------------|
-| **Layered modeling** | Staging → history → refined → marts, with clear separation of concerns |
-| **Slowly changing dimensions** | History tables via custom `save_history` macro |
-| **Default key strategy** | Self-completing dimensions guarantee referential integrity |
-| **Business metrics** | Daily usage, billed amounts, overage, and margin percentage |
-| **Data quality** | Tests for hash collisions, default key rules, valid dates and bounds |
+LedgerLine models the financial pulse of a SaaS platform.  
+
+Customers subscribe to products, choose plans with included units, and are billed from a price book that sets daily rates. A usage feed records what each customer consumed.
+
+Seeds provide the system of record (customers, products, plans, prices). dbt turns this raw activity into staging, history, refined, and marts, ending in a star schema with `fact_usage` at the center.
+
+From here, you can answer:  
+
+*What revenue came from overages? Which products drive growth? Who is ready for an upsell? How do ARR/MRR trends look across geographies?*
 
 ---
 
@@ -25,7 +25,7 @@
 
 ### Data Flow
 
-Usage and reference data land in staging, history retains changes, refined computes current views and billing logic, marts publish the dimensional star schema.
+Usage and reference data land in staging, history retains changes, refined computes billing logic, marts publish the dimensional star schema.
 
 ### Schema
   
@@ -114,3 +114,6 @@ dbt docs generate && dbt docs serve
 
 **docs/**  
 - Images, ERDs, and future BI screenshots.
+
+
+<p align="center">Designed and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>

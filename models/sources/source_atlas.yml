@@ -3,10 +3,12 @@ version: 2
 sources:
   - name: atlas_meter
     database: "{{ target.database }}"
-    # Environment variable selects the schema.
-    # - Dev/local: ATLAS_METER_SCHEMA = seeds
-    # - Prod:      ATLAS_METER_SCHEMA = source_data
-    schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA') }}"
+    # Schema resolution strategy:
+    # - By default, use "<target.schema>_seeds" (for local/dev runs with dbt seeds).
+    # - Override with the DBT_ATLAS_METER_SCHEMA environment variable when needed.
+    #   Example: DBT_ATLAS_METER_SCHEMA=source_data  (production raw landing tables)
+    #   Example: DBT_ATLAS_METER_SCHEMA=seeds        (explicitly force seeds)
+    schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', target.schema ~ '_seeds') }}"
 
     tables:
       - name: atlas_meter_usage_daily
@@ -15,6 +17,7 @@ sources:
           Daily metered usage feed at grain customer x product x plan x day.
           For the bootstrap build this points at the seeded table. Swap schema back
           to source_data when you wire the real landing table.
+          
         loaded_at_field: load_ts
 
         freshness:
