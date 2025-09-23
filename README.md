@@ -5,27 +5,38 @@
   <br/><br/>
 </p>
 
----
-
 ## Business Story
 
-LedgerLine models the financial pulse of a SaaS platform.  
+LedgerLine simulates the financial heartbeat of a modern B2B SaaS company.
 
-Customers subscribe to products, choose plans with included units, and are billed from a price book that sets daily rates. A usage feed records what each customer consumed.
+Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
-Seeds provide the system of record (customers, products, plans, prices). dbt turns this raw activity into staging, history, refined, and marts, ending in a star schema with `fact_usage` at the center.
+The core services are:  
+- **PROD-API** - Every API call counts toward your bill
+- **PROD-ETL** - Rows processed in the pipeline
+- **PROD-ALRT** - Alerts or notifications sent
 
-From here, you can answer:  
+Pricing isn’t fixed. A **daily price book** sets the official unit rate for each product and plan, making room for promos or mid-month changes.  
 
-*What revenue came from overages? Which products drive growth? Who is ready for an upsell? How do ARR/MRR trends look across geographies?*
+Every night, the metering system emits a **usage feed**. Picture rows like:  
+*Customer X made 12,000 API calls on 2025-09-16.*  
+*Customer Y processed 250,000 ETL rows on the same day.*  
+
+Seed files simulate system-of-record extracts: CRM customers, catalog products and plans, plus countries and currencies.
+
+From there, we transform this foundation into **marts**. At the center is **fact_usage**, one row per customer, product, plan, and day.
+
+This star schema is what makes the business questions answerable:  
+- **Finance** can track recurring revenue, ARR/MRR, and the split between subscriptions and overages.  
+- **Product** can measure which services drive growth and how pricing changes ripple through usage.  
+- **Customer Success** can spot accounts pushing limits (prime upsell targets) or sliding into churn.  
+- **Executives** can see growth across geographies and the contribution of new offerings like Alerts.  
+
+LedgerLine shows how raw usage logs and simple reference datasets can become an auditable subscription billing engine that powers analytics across the company.  
 
 ---
 
 ## Architecture
-
-### Data Flow
-
-Usage and reference data land in staging, history retains changes, refined computes billing logic, marts publish the dimensional star schema.
 
 ### Schema
   
