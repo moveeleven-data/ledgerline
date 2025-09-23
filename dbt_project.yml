@@ -4,11 +4,11 @@ config-version: 2
 
 profile: 'ledgerline'  # dbt Cloud ignores this for jobs/IDE
 
-model-paths: ['models']
+model-paths:    ['models']
 analysis-paths: ['analyses']
-test-paths: ['tests']
-seed-paths: ['seeds']
-macro-paths: ['macros']
+test-paths:     ['tests']
+seed-paths:     ['seeds']
+macro-paths:    ['macros']
 snapshot-paths: ['snapshots']
 
 target-path: 'target'
@@ -20,8 +20,8 @@ vars:
   stg_materialization: 'ephemeral'
 
 quoting:
-  database: false
-  schema: false
+  database:   false
+  schema:     false
   identifier: false
 
 models:
@@ -48,10 +48,6 @@ models:
       usage:
         +schema: marts_usage
         +contract: {enforced: true}
-    
-    qa:
-      +schema: "{{ target.schema }}_qa" 
-      +tags: ['qa']
 
 
 seeds:
@@ -62,67 +58,67 @@ seeds:
 
     atlas_crm_customer_info:
       +column_types:
-        customer_code: varchar
-        customer_name: varchar
-        country_code: varchar
-        load_ts: timestamp_ntz
+        customer_code:  varchar
+        customer_name:  varchar
+        country_code:   varchar
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_catalog_product_info:
       +column_types:
-        product_code: varchar
-        product_name: varchar
-        category: varchar
-        load_ts: timestamp_ntz
+        product_code:   varchar
+        product_name:   varchar
+        category:       varchar
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_catalog_plan_info:
       +column_types:
-        plan_code: varchar
-        plan_name: varchar
-        product_code: varchar
+        plan_code:      varchar
+        plan_name:      varchar
+        product_code:   varchar
         billing_period: varchar
-        load_ts: timestamp_ntz
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_currency_info:
       +column_types:
-        currency_code: varchar
-        currency_name: varchar
+        currency_code:  varchar
+        currency_name:  varchar
         decimal_digits: number
-        load_ts: timestamp_ntz
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_country_info:
       +column_types:
-        country_code: varchar
-        country_name: varchar
-        load_ts: timestamp_ntz
+        country_code:   varchar
+        country_name:   varchar
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_price_book_daily:
       +column_types:
-        product_code: varchar
-        plan_code: varchar
-        price_date: date
-        unit_price: number(18,6)
-        load_ts: timestamp_ntz
+        product_code:   varchar
+        plan_code:      varchar
+        price_date:     date
+        unit_price:     number(18,6)
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
     atlas_meter_usage_daily:
       +column_types:
-        customer_code: varchar
-        product_code: varchar
-        plan_code: varchar
-        report_date: date
-        units_used: number
+        customer_code:  varchar
+        product_code:   varchar
+        plan_code:      varchar
+        report_date:    date
+        units_used:     number
         included_units: number
-        load_ts: timestamp_ntz
+        load_ts:        timestamp_ntz
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"

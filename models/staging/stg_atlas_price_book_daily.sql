@@ -13,6 +13,17 @@ src as (
     from {{ ref('atlas_price_book_daily') }}
 )
 
+, ghosts_removed as (
+    select *
+    from src
+    where not (
+               nullif(trim(product_code), '') is null
+           and nullif(trim(plan_code),   '') is null
+           and price_date                    is null
+           and unit_price                    is null
+    )
+)
+
 , default_row as (
     select
           '-1'                           as product_code
@@ -24,7 +35,7 @@ src as (
 )
 
 , unioned as (
-    select * from src
+    select * from ghosts_removed
     union all
     select * from default_row
 )
@@ -45,7 +56,7 @@ src as (
           ]) }} as price_book_hdiff
 
         , * exclude (load_ts)
-        , to_timestamp_tz('{{ run_started_at }}') as load_ts_utc
+        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
     from unioned
 )
 
