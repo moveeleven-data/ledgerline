@@ -14,7 +14,11 @@ Seed CSVs act as the authoritative sources:
 
 We stage these inputs, preserve history, and publish a star schema for analytics.
 
-NOTE: Each dimension **includes a default row** that carries through from staging → refined → marts. This row uses safe placeholder values so every fact row can join even when a business key is missing.
+---
+
+## Timezone handling
+
+All timestamps and dates are interpreted as UTC, with no time zone conversions. Because the “billing day” is global and fixed to UTC, travel and device clocks never affect billing. This is simple, consistent, and contractually fair once stated.
 
 ---
 
@@ -34,7 +38,8 @@ Official list of purchasable plans and their billing period.
 **Data quality & handling**  
 - plan_code is unique and not null in seed tests.  
 - Staging generates a surrogate key from plan_code.  
-- History tracks changes (SCD-style) so plan attributes are time-aware.  
+- History tracks changes (SCD-style) so plan attributes are time-aware.
+- Each dimension **includes a default row** that carries through from staging → refined → marts. This row uses safe placeholder values so every fact row can join even when a business key is missing.  
 
 ---
 
