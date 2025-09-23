@@ -49,11 +49,11 @@ The star schema is what makes the business questions answerable:
 
 - **[models/staging/](models/staging/)** - Standardizes sources and seeds, generates surrogate keys, and applies defaults.
 
-- **[models/history/](models/history/)** - Builds incremental history via `save_history`, including synthetic closes for churned subscriptions.
+- **[models/history/](models/history/)** - Builds incremental history, including synthetic closes for churned subscriptions.
 
-- **[models/refined/](models/refined/)** - Produces current views, billing and margin metrics, and an invalid rows view for QA.
+- **[models/refined/](models/refined/)** - Produces current views, billing and margin metrics.
 
-- **[models/marts/usage/](models/marts/usage/)** - Defines the star schema dimensions and `fact_usage`, with uniqueness and relationship tests.
+- **[models/marts/usage/](models/marts/usage/)** - Defines the dimensions and `fact_usage`, with uniqueness and relationship tests.
 
 - **[macros/](macros/)** - Core, history, and test macros, including self-completing dimensions and hash-collision checks.
 
