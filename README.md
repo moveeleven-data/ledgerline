@@ -38,10 +38,10 @@ The star schema is what makes the business questions answerable:
 ### Schema
   
 **fact_usage** records daily subscription activity and joins to five dimensions.  
-  
-**fact_price_book_daily** records daily effective unit prices by product and plan.
 
 ![LedgerLine Architecture](docs/assets/erd_physical_model_2.png)
+
+<sub>Pricing is modeled as a refined lookup table and joined during fact construction, not exposed as its own mart.</sub>
 
 ---
 
