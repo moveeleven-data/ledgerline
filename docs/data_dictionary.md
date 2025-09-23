@@ -229,25 +229,25 @@ Default country member supports complete joins and totals.
 
 ---
 
-### Daily subscription usage and billing - fact_usage
+### Daily subscription usage and billing – fact_usage
 
-**Grain:** customer × product × plan × report_date (one row per day per subscription context).
+**Grain:** one row per customer × product × plan × report_date (daily subscription usage).
 
-| Column        | Type          | Description                                      |
-|---------------|---------------|--------------------------------------------------|
-| usage_key     | varchar       | Surrogate key from the natural grain.            |
-| customer_key  | varchar       | FK → dim_customer.                               |
-| product_key   | varchar       | FK → dim_product.                                |
-| plan_key      | varchar       | FK → dim_plan.                                   |
-| currency_key  | varchar       | (If configured) FK → dim_currency.               |
-| country_key   | varchar       | Derived from customer; FK → dim_country.         |
-| report_date   | date          | Usage as-of date.                                |
-| units_used    | number        | Units consumed that day.                         |
-| included_units| number        | Units bundled by the plan that day.              |
-| overage_units | number        | GREATEST(units_used − included_units, 0).        |
-| unit_price    | number(18,6)  | From atlas_price_book_daily on (product, plan, date). |
-| billed_amount | number(18,6)  | overage_units × unit_price.                      |
-| load_ts_utc   | timestamp_ntz | Pipeline load timestamp for lineage/audit.       |
+| Column         | Type          | Description                                                                 |
+|----------------|---------------|-----------------------------------------------------------------------------|
+| usage_key      | varchar       | Unique surrogate key that identifies this daily usage record.               |
+| customer_key   | varchar       | Foreign key to **dim_customer** (the customer who used the service).        |
+| product_key    | varchar       | Foreign key to **dim_product** (the product or service consumed).           |
+| plan_key       | varchar       | Foreign key to **dim_plan** (the plan under which usage was billed).        |
+| currency_key   | varchar       | Foreign key to **dim_currency** (currency used for billing).                |
+| country_key    | varchar       | Foreign key to **dim_country** (customer’s country at time of usage).       |
+| report_date    | date          | The UTC calendar day this usage is assigned to.                             |
+| units_used     | number        | Total number of units consumed on this day.                                 |
+| included_units | number        | Units covered by the customer’s plan for this day.                          |
+| overage_units  | number        | Units above the included amount, calculated as `max(units_used - included, 0)`. |
+| unit_price     | number(18,6)  | The official per-unit price from the daily price book (by product, plan, date). |
+| billed_amount  | number(18,6)  | The amount billed for overage usage (`overage_units × unit_price`).         |
+| load_ts_utc    | timestamp_ntz | When this record was loaded into the warehouse (used for lineage and audit).|
 
 **Notes**  
 - Refined layer performs the rate lookup and overage math.  
