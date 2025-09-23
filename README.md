@@ -1,13 +1,13 @@
 <h1 align="center">LedgerLine: Subscription Usage, Billing & Margin Analytics</h1>
 
 <p align="center">
-  Accurate, auditable SaaS insights delivered from daily subscription usage with dbt and Snowflake.
+  Transform raw subscription usage into revenue, margin, and growth insights with dbt and Snowflake.
   <br/><br/>
 </p>
 
 ## Business Story
 
-LedgerLine simulates the financial heartbeat of a modern B2B SaaS company.
+LedgerLine simulates the financial heartbeat of a modern B2B SaaS enterprise.
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
@@ -16,23 +16,20 @@ The core services are:
 - **PROD-ETL** - Rows processed in the pipeline
 - **PROD-ALRT** - Alerts or notifications sent
 
-Pricing isn’t fixed. A **daily price book** sets the official unit rate for each product and plan, making room for promos or mid-month changes.  
+Pricing isn’t fixed. A **daily price book** sets the unit rate for each product and plan.  
 
-Every night, the metering system emits a **usage feed**. Picture rows like:  
-*Customer X made 12,000 API calls on 2025-09-16.*  
-*Customer Y processed 250,000 ETL rows on the same day.*  
+Every night, the metering system emits a **usage feed**:
 
-Seed files simulate system-of-record extracts: CRM customers, catalog products and plans, plus countries and currencies.
+- *Customer X made 12,000 API calls on 2025-09-16.*  
+- *Customer Y processed 250,000 ETL rows on the same day.*  
 
-From there, we transform this foundation into **marts**. At the center is **fact_usage**, one row per customer, product, plan, and day.
+The Usage fact table records daily subscription activity and joins to five dimensions.  
 
-This star schema is what makes the business questions answerable:  
-- **Finance** can track recurring revenue, ARR/MRR, and the split between subscriptions and overages.  
-- **Product** can measure which services drive growth and how pricing changes ripple through usage.  
-- **Customer Success** can spot accounts pushing limits (prime upsell targets) or sliding into churn.  
-- **Executives** can see growth across geographies and the contribution of new offerings like Alerts.  
-
-LedgerLine shows how raw usage logs and simple reference datasets can become an auditable subscription billing engine that powers analytics across the company.  
+The star schema is what makes the business questions answerable:  
+- **Finance** sees recurring revenue and how much comes from overages.
+- **Product** tracks which services drive growth and how pricing changes shift usage.
+- **Customer Success** spots accounts hitting limits (upsell potential) or showing churn risk.
+- **Executives** view growth by region and the impact of new products like Alerts.
 
 ---
 

@@ -1,10 +1,10 @@
 # Data Dictionary
 
-## Story & Sources
+LedgerLine simulates a developer-facing SaaS platform called Atlas.
 
-LedgerLine simulates a developer-focused SaaS platform called Atlas. Customers subscribe to products via plans that include some usage and charge overages beyond that.  
+Customers subscribe to products via plans that include usage and charge overages beyond that.  
 
-Seed CSVs act as the authoritative sources for this demo:
+Seed CSVs act as the authoritative sources:
 
 - CRM (customers)  
 - Catalog (products and plans)
@@ -16,9 +16,15 @@ We stage these inputs, preserve history, and publish a star schema for analytics
 
 ---
 
+## Timezone handling
+
+All timestamps and dates are interpreted as UTC, with no time zone conversions. Because the “billing day” is global and fixed to UTC, travel and device clocks never affect billing. This is simple, consistent, and contractually fair once stated.
+
+---
+
 ## Seeds (Reference & Source Data)
 
-### atlas_catalog_plan_info - Plan catalog (by product)  
+### Plan catalog (by product) - atlas_catalog_plan_info
 Official list of purchasable plans and their billing period.
 
 | Column       | Type            | Description                                       |
@@ -31,29 +37,30 @@ Official list of purchasable plans and their billing period.
 
 **Data quality & handling**  
 - plan_code is unique and not null in seed tests.  
-- Staging uppercases codes and generates a surrogate key from plan_code.  
-- History tracks changes (SCD-style) so plan attributes are time-aware.  
+- Staging generates a surrogate key from plan_code.  
+- History tracks changes (SCD-style) so plan attributes are time-aware.
+- Each dimension **includes a default row** that carries through from staging → refined → marts. This row uses safe placeholder values so every fact row can join even when a business key is missing.  
 
 ---
 
-### atlas_catalog_product_info - Product catalog  
+### Product catalog - atlas_catalog_product_info
 Authoritative list of products/services offered.
 
 | Column       | Type          | Description                               |
 |--------------|---------------|-------------------------------------------|
 | product_code | varchar       | Unique product identifier (e.g., PROD-API). |
-| product_name | varchar       | Human-readable product name.              |
+| product_name | varchar       | Human-readable product name. (e.g., Core API, ETL Engine, Managed DB)              |
 | category     | varchar       | Product grouping (e.g., platform, data).  |
 | load_ts      | timestamp_ntz | Timestamp the record was loaded.          |
 
 **Data quality & handling**  
 - product_code is unique and not null in seed tests.  
-- Staging uppercases codes and generates a surrogate key from product_code.  
+- Staging generates a surrogate key from product_code.  
 - History captures attribute changes over time.  
 
 ---
 
-### atlas_country_info - Country reference  
+### Country reference - atlas_country_info
 ISO-like list of countries for customer localization and rollups.
 
 | Column       | Type          | Description                             |
@@ -64,12 +71,12 @@ ISO-like list of countries for customer localization and rollups.
 
 **Data quality & handling**  
 - country_code is unique and not null in seed tests.  
-- Staging uppercases codes and generates a surrogate key from country_code.  
+- Staging generates a surrogate key from country_code.  
 - A default "Missing" row is maintained to guarantee joins do not break.  
 
 ---
 
-### atlas_crm_customer_info - Customers (from CRM)  
+### Customers (from CRM) - atlas_crm_customer_info
 System-of-record for customer identity and geography.
 
 | Column        | Type          | Description                                |
@@ -81,12 +88,12 @@ System-of-record for customer identity and geography.
 
 **Data quality & handling**  
 - customer_code is unique and not null in seed tests.  
-- Staging uppercases codes and generates a surrogate key from customer_code.  
+- Staging generates a surrogate key from customer_code.  
 - Default key strategy ensures referential integrity even when data is incomplete.  
 
 ---
 
-### atlas_currency_info - Currency reference  
+### Currency reference - atlas_currency_info
 Supported currencies and display precision.
 
 | Column        | Type          | Description                                    |
@@ -103,7 +110,7 @@ Supported currencies and display precision.
 
 ---
 
-### atlas_meter_usage_daily - Daily metered usage (raw feed)  
+### Daily metered usage (raw feed) - atlas_meter_usage_daily
 Daily units consumed per customer × product × plan × date.
 
 | Column        | Type          | Description                                   |
@@ -126,7 +133,7 @@ Daily units consumed per customer × product × plan × date.
 
 ---
 
-### atlas_price_book_daily - Daily unit rates (price book)  
+### Daily unit rates (price book) - atlas_price_book_daily
 Official daily per-unit price by product and plan.
 
 | Column       | Type           | Description                                 |
@@ -139,18 +146,20 @@ Official daily per-unit price by product and plan.
 
 **Data quality & handling**  
 - Uniqueness expected at (product_code, plan_code, price_date).  
-- Staging uppercases codes and normalizes dates; joins later drive billing math.  
+- Staging normalizes dates while joins drive billing math.  
 - Numeric type is enforced so prices load as decimals.  
 
 ---
 
-## Marts (Star Schema for Analytics)
+## Marts (Star Schema)
 
-Dimensions carry surrogate keys (hashed varchar) generated from stable business identifiers. Default "Missing" members ensure referential integrity. Marts are populated from the refined layer after cleaning, deduplication, history capture, and pricing logic.
+Dimensions carry surrogate keys (hashed varchar) generated from business keys.
+
+Marts are populated from the refined layer after cleaning, deduplication, history capture, and pricing logic.
 
 ---
 
-### dim_customer — Customer dimension
+### Customer dimension - dim_customer
 
 | Column        | Type    | Description                                |
 |---------------|---------|--------------------------------------------|
@@ -164,7 +173,7 @@ Keys generated in staging; history retains changes; default member prevents brok
 
 ---
 
-### dim_product - Product dimension
+### Product dimension - dim_product
 
 | Column       | Type    | Description                    |
 |--------------|---------|--------------------------------|
@@ -178,7 +187,7 @@ Built from catalog seed; tracked in history to capture attribute changes.
 
 ---
 
-### dim_plan - Plan dimension
+### Plan dimension - dim_plan
 
 | Column       | Type    | Description                                |
 |--------------|---------|--------------------------------------------|
@@ -193,7 +202,7 @@ Built from plan catalog; history captures renames or cadence changes; default me
 
 ---
 
-### dim_currency - Currency dimension
+### Currency dimension - dim_currency
 
 | Column        | Type    | Description                        |
 |---------------|---------|------------------------------------|
@@ -207,7 +216,7 @@ Default currency member prevents broken joins when code is missing.
 
 ---
 
-### dim_country - Country dimension
+### Country dimension - dim_country
 
 | Column      | Type    | Description                         |
 |-------------|---------|-------------------------------------|
@@ -220,7 +229,7 @@ Default country member supports complete joins and totals.
 
 ---
 
-### fact_usage - Daily subscription usage and billing  
+### Daily subscription usage and billing - fact_usage
 
 **Grain:** customer × product × plan × report_date (one row per day per subscription context).
 
@@ -243,13 +252,4 @@ Default country member supports complete joins and totals.
 **Notes**  
 - Refined layer performs the rate lookup and overage math.  
 - Relationship and uniqueness tests protect the grain and referential integrity.  
-- If cost inputs are added in the future, margin metrics can be derived downstream.  
-
----
-
-## How the Pieces Fit
-
-- Price book sets the daily unit price per product × plan.  
-- Usage feed reports daily consumption per customer × product × plan.  
-- Refined matches each usage row to that day’s price and calculates overages and billed amounts.  
-- Marts publish conformed dimensions and fact_usage for finance, product, and leadership analytics.  
+- If cost inputs are added in the future, margin metrics can be derived downstream.
