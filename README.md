@@ -47,26 +47,19 @@ The star schema is what makes the business questions answerable:
 
 ## Project Layout
 
-**models/staging/**  
-- Standardize sources and seeds, generate surrogate keys, add defaults.
+- **[models/staging/](models/staging/)** - Standardizes sources and seeds, generates surrogate keys, and applies defaults.
 
-**models/history/**  
-- Incremental history via `save_history`, including synthetic closes for churned subscriptions.
+- **[models/history/](models/history/)** - Builds incremental history via `save_history`, including synthetic closes for churned subscriptions.
 
-**models/refined/**  
-- Current views, billing and margin metrics, and an invalid rows view for QA.
+- **[models/refined/](models/refined/)** - Produces current views, billing and margin metrics, and an invalid rows view for QA.
 
-**models/marts/usage/**  
-- Star schema dimensions and `fact_usage`, with uniqueness and relationships tests.
+- **[models/marts/usage/](models/marts/usage/)** - Defines the star schema dimensions and `fact_usage`, with uniqueness and relationship tests.
 
-**macros/**  
-- Core, history, and test macros including self-completing dimensions and hash-collision checks.
+- **[macros/](macros/)** - Core, history, and test macros, including self-completing dimensions and hash-collision checks.
 
-**seeds/**  
-- Reference CSVs for customers, products, plans, currencies, and price books.
+- **[seeds/](seeds/)** - Reference CSVs for customers, products, plans, currencies, and price books.
 
-**docs/**  
-- Images, ERDs, and future BI screenshots.
+- **[docs/](docs/)** - Reference assets, such as ERDs, images, and future BI screenshots.
 
 
 <p align="center">Designed and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
