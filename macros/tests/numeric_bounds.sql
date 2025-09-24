@@ -13,19 +13,24 @@
  * negative usage, impossible prices, or other out-of-bounds values.
  */
 
-{% test numeric_bounds(model, column_name, min_value=None, max_value=None) %}
+{% test numeric_bounds(
+      model
+    , numeric_column
+    , min_allowed_value=None
+    , max_allowed_value=None
+) %}
 
-{% set has_min = (min_value is not none) %}   -- True if a minimum bound was supplied.
-{% set has_max = (max_value is not none) %}   -- True if a maximum bound was supplied.
-{% set col = adapter.quote(column_name) %}    -- The column name, quoted safely for the warehouse.
+{% set has_min_bound = (min_allowed_value is not none) %}   -- True if a minimum bound was supplied
+{% set has_max_bound = (max_allowed_value is not none) %}   -- True if a maximum bound was supplied
+{% set quoted_column = adapter.quote(numeric_column) %}     -- Column name, safely quoted for the warehouse
 
 select *
 from {{ model }}
 where
 
   (
-    {% if has_min %}
-      {{ col }} < {{ min_value }}  -- value is smaller than the minimum allowed
+    {% if has_min_bound %}
+      {{ quoted_column }} < {{ min_allowed_value }}   -- value is smaller than the minimum allowed
     {% else %}
       false   -- no minimum bound specified
     {% endif %}
@@ -34,8 +39,8 @@ where
   or
 
   (
-    {% if has_max %}
-      {{ col }} > {{ max_value }}  -- value is larger than the maximum allowed
+    {% if has_max_bound %}
+      {{ quoted_column }} > {{ max_allowed_value }}   -- value is larger than the maximum allowed
     {% else %}
       false   -- no maximum bound specified
     {% endif %}
