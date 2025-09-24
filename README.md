@@ -1,4 +1,4 @@
-<h1 align="center">LedgerLine: Subscription Usage, Billing & Margin Analytics</h1>
+<h1 align="center">LedgerLine: Margin & Growth Analytics</h1>
 
 <p align="center">
   Transform raw subscription usage into revenue, margin, and growth insights with dbt and Snowflake.
@@ -7,7 +7,7 @@
 
 ## Business Story
 
-LedgerLine simulates the financial heartbeat of a modern B2B SaaS enterprise.
+LedgerLine simulates the financial heartbeat of a fictional B2B SaaS platform called **Atlas**. 
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
