@@ -1,8 +1,11 @@
-/**
- * == Helper macro ==
- * It that takes the name of the macro to be run, db and schema and runs it with logs.
- * It uses the context to get the function object from its name
+/** run_migrations.sql
+ * -------------------
+ * Runs a migration macro by name with (database, schema_prefix).
+ * Logs the call, looks up the macro in context, executes it if found,
+ * otherwise logs a skip. Wrapped in `if execute` to avoid running during docs.
  */
+
+ 
 {% macro run_migration(migration_name, database, schema_prefix) %}
 {% if execute %}
     {% do log("Running " ~ migration_name ~ " migration with database = "
