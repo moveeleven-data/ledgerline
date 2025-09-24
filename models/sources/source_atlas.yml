@@ -1,19 +1,11 @@
 # source_atlas_yml
-# ----------------
-# In dbt, a "source" describes an upstream table that dbt itself does not create.
-#
-# Six of our inputs are seeds (CRM, catalog, countries, currencies, price book).
-# The metered usage feed is different. In production, it will come from a real
-# ingestion pipeline, not from dbt. That makes it a true source.
-#
-# This file is the contract for that feed:
-# - What the table is called and where to find it
-# - How fresh we expect it to be
-# - What columns exist and what they mean
-#
-# In dev, this source points at our seeded `_seeds` schema so the project runs
-# end-to-end with fake data. In prod, we flip an environment variable so the same
-# models point at the real raw landing schema.
+# -----------------------------------------------------------------------------------
+# Defines the contract for the atlas_meter usage feed, which dbt does not create.
+# Six inputs are seeds (CRM, catalog, countries, currencies, price book), but this
+# feed is a true source. In dev it points at seeded data, in prod it points at the
+# raw ingestion schema. This file declares where to find it, how fresh it should be,
+# and what its columns mean.
+# -----------------------------------------------------------------------------------
 
 version: 2
 
@@ -23,86 +15,96 @@ sources:
     # "atlas_meter" is the logical label. We'll use this in code like:
     # source('atlas_meter', 'atlas_meter_usage_daily')
 
-    database: "{{ target.database }}"
-
-    # Using target.database keeps it portable (dev/prod CI all share this).
+    database: "{{ target.database }}"   # Portable across dev/prod/CI
 
     schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', target.schema ~ '_seeds') }}"
+    tags: ['source','domain:usage_billing','data_product:ledgerline']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      data_product: 'ledgerline'
+      source_system: 'atlas_meter'
+      sla_hours: 24
+      pii: false
 
-    # Schema resolution strategy
-    # --------------------------
-    # We have two modes:
+    # --------------------------------------------------------------------------
+    # Schema Resolution
+    # --------------------------------------------------------------------------
+    # Dev/CI: schema = <target.schema>_seeds
+    #   - Reads from seeded CSVs checked into the repo.
+    #   - Developers/CI don’t need a live ingestion feed.
     #
-    #  1. DEV/CI mode:
-    #     schema = <target.schema>_seeds
-    #       dbt reads from the seeded CSV we checked into the repo.
-    #       This means developers and CI pipelines don't need a live ingestion feed
-    #       to test transformations. We can spin up a warehouse and run dbt seed.
+    # Prod: schema = DBT_ATLAS_METER_SCHEMA (env var)
+    #   - Points to the raw ingestion schema (e.g. source_data).
     #
-    #  2. PROD mode:
-    #     schema = DBT_ATLAS_METER_SCHEMA environment variable
-    #       dbt points to the raw ingestion schema (e.g. source_data).
-    #
-    # Seamless switch - Same dbt code works in dev (seeds) and prod (real data).
-    # Reproducbility - Everyone develops/tests against the same seed snapshot.
+    # Same dbt code works in both modes. Everyone develops/tests against the
+    # same seed snapshot, while prod uses real data.
+    # --------------------------------------------------------------------------
 
     tables:
-      - name: atlas_meter_usage_daily   # Logical name (dbt alias)
-        identifier: atlas_meter_usage_daily   # Physical table name in the schema (warehouse object)
+      - name: atlas_meter_usage_daily         # dbt alias
+        identifier: atlas_meter_usage_daily   # Physical table name (warehouse object)
+        tags: ['source_table','domain:usage_billing']
+        meta:
+          owner: 'Matthew Tripodi'
+          domain: 'usage_billing'
+          data_product: 'ledgerline'
+          freshness_sla_hours: 36
+          pii: false
 
         description: >
           Daily metered usage feed at grain customer + product + plan + day.
           In bootstrap mode this is a seeded table. In production it points to
           the raw landed usage feed.
+
+
+        # ----------------------------------------------------------------------
+        # Freshness
+        # ----------------------------------------------------------------------
+        # Uses load_ts as the freshness indicator.
+        # - Warn if data is more than 36 hours old
+        # - Error if more than 72 hours old
+        # ----------------------------------------------------------------------
           
         loaded_at_field: load_ts
-
-        # dbt looks at the max(load_ts) to decide how fresh the table is.
-        # We want alerts if the ingestion feed falls behind.
-        # Finance/ops depend on daily usage being available on time.
-
         freshness:
-          warn_after: {count: 36, period: hour}   # Warn if older than 36 hours (lag but not fatal)
-          error_after: {count: 72, period: hour}  # Error if older than 72 hours (serious failure)
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+
+
+        # ---------------------------------------------------------------------------
+        # Tests
+        # ---------------------------------------------------------------------------
+        # Validates source contract:
+        # - Exactly one row per customer/product/plan/day
+        # - Duplicates indicate a broken upstream feed (staging can only mask issues)
+        # ---------------------------------------------------------------------------
 
         tests:
-
-        # Source-level tests are the health gates at the edge of the pipeline.
-        # They assert contracts we rely on before data even enters staging.
-
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns: [customer_code, product_code, plan_code, report_date]
               config:
                 severity: warn
 
-            # We expect exactly one row per customer, product, plan, and day.
-            # If duplicates appear, the source feed is broken.
-            # Staging can only mask the issue by keeping the latest row,
-            # so we warn to make sure someone checks upstream.
+
+        # ------------------------------------------------------------------------
+        # Columns
+        # ------------------------------------------------------------------------
+        # Downstream contract for staging and marts. Each column’s meaning is
+        # fixed here. Upstream changes are caught before they flow further.
+        # - customer_code is the anchor key for downstream dims
+        # - report_date is the analytic anchor (UTC daily grain, churn, ARR, etc.)
+        # ------------------------------------------------------------------------
 
         columns:
-
-        # These definitions create the contract for staging and marts.
-        # If upstream ever changes column semantics, this file is where we catch it.
-
-          - name: customer_code    # External identity of a customer.
+          - name: customer_code  # External identity of a customer.
             description: Customer code from CRM (joins to dim_customer)
 
-            # This is the "anchor" column. Everything downstream keys off this field.
-            # If customer_code is missing or duplicated, every dim_customer record is suspect.
-
-
-          - name: product_code    # Identifier for which product the customer actually used
+          - name: product_code   # Identifier for which product the customer actually used
             description: Product or feature code (joins to dim_product)
 
-
-          - name: plan_code     # Decides how a customer is billed (monthly vs annual, free vs pro)
+          - name: plan_code      # Decides how a customer is billed (monthly vs annual, free vs pro)
             description: Subscription plan code (joins to dim_plan)
 
-
-          - name: report_date     # True business date the usage happened on (not ingestion timestamp)
+          - name: report_date    # True business date the usage happened on (not ingestion timestamp)
             description: Usage as-of date (daily UTC calendar grain)
-
-            # All time-based analytics anchor to this field: churn windows, ARR bridges.
-            # Enforcing UTC ensures consistency. Without it, two customers churning "on the 15th"
-            # might actually be on different calendar days depending on timezone.

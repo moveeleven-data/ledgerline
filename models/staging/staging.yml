@@ -1,28 +1,52 @@
+# staging.yml
+# -----------------------------------------------------------------------------------
+# Staging layer: lightly adapted versions of sources/seeds.
+# Ensures row-level uniqueness and basic data quality checks before feeding history.
+# -----------------------------------------------------------------------------------
+
 version: 2
 
 models:
+
+  # ----------------------------------------------------------------------
+  # stg_atlas_meter_usage_daily
+  # ----------------------------------------------------------------------
+  # Staging table for daily metered usage feed.
+  # - Year must be >= 2000
+  # - One row per (customer_code, product_code, plan_code, report_date)
+  # ----------------------------------------------------------------------
+  
   - name: stg_atlas_meter_usage_daily
     tests:
       - dbt_utils.expression_is_true:
           expression: "extract(year from report_date) >= 2000"
           config: {severity: warn}
-
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [customer_code, product_code, plan_code, report_date]
 
 
-
+  # ----------------------------------------------------------------------
+  # stg_atlas_price_book_daily
+  # ----------------------------------------------------------------------
+  # Staging table for daily price book feed.
+  # - Year must be >= 2000
+  # - One row per (product_code, plan_code, price_date)
+  # ----------------------------------------------------------------------
   - name: stg_atlas_price_book_daily
     tests:
       - dbt_utils.expression_is_true:
           expression: "extract(year from price_date) >= 2000"
           config: {severity: warn}
-
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [product_code, plan_code, price_date]
 
 
-
+  # ----------------------------------------------------------------------
+  # stg_atlas_crm_customer_info
+  # ----------------------------------------------------------------------
+  # Staging table for CRM customer info.
+  # - customer_code must be unique and not null
+  # ----------------------------------------------------------------------
   - name: stg_atlas_crm_customer_info
     tests:
       - unique:
@@ -31,7 +55,12 @@ models:
           column_name: customer_code
 
 
-
+  # ----------------------------------------------------------------------
+  # stg_atlas_catalog_product_info
+  # ----------------------------------------------------------------------
+  # Staging table for product catalog info.
+  # - product_code must be unique and not null
+  # ----------------------------------------------------------------------
   - name: stg_atlas_catalog_product_info
     tests:
       - unique:
@@ -40,7 +69,12 @@ models:
           column_name: product_code
 
 
-
+  # ----------------------------------------------------------------------
+  # stg_atlas_catalog_plan_info
+  # ----------------------------------------------------------------------
+  # Staging table for subscription plan catalog.
+  # - plan_code must be unique and not null
+  # ----------------------------------------------------------------------
   - name: stg_atlas_catalog_plan_info
     tests:
       - unique:
@@ -49,7 +83,12 @@ models:
           column_name: plan_code
 
 
-
+  # ----------------------------------------------------------------------
+  # stg_atlas_currency_info
+  # ----------------------------------------------------------------------
+  # Staging table for supported currencies.
+  # - currency_code must be unique and not null
+  # ----------------------------------------------------------------------
   - name: stg_atlas_currency_info
     tests:
       - unique:
@@ -58,6 +97,12 @@ models:
           column_name: currency_code
 
 
+  # ----------------------------------------------------------------------
+  # stg_atlas_country_info
+  # ----------------------------------------------------------------------
+  # Staging table for country reference data.
+  # - country_code2 must be unique and not null
+  # ----------------------------------------------------------------------
 
   - name: stg_atlas_country_info
     tests:
