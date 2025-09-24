@@ -33,7 +33,7 @@ The star schema is what makes the business questions answerable:
 
 ---
 
-## Architecture
+## Atlas Data Model
 
 ### Schema
   
