@@ -1,7 +1,8 @@
 # selectors.yml
 # -------------
-# LedgerLine QA is test-driven through generic and singular tests enforcing schema and business rules.
-# This selector runs them in isolation, making QA easy to execute independently in CI/CD.
+# LedgerLine QA is test-driven through the application of
+# generic and singular tests enforcing schema and business rules.
+# This selector runs them in isolation, making QA easy to execute independently in CI.
 
 selectors:
   - name: qa_tests

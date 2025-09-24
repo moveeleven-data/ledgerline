@@ -1,6 +1,6 @@
 # source_atlas_yml
 # ----------------
-# In dbt, a "source" describes an upstream table that dbt itself does NOT create.
+# In dbt, a "source" describes an upstream table that dbt itself does not create.
 #
 # Six of our inputs are seeds (CRM, catalog, countries, currencies, price book).
 # The metered usage feed is different. In production, it will come from a real
@@ -19,13 +19,16 @@ version: 2
 
 sources:
   - name: atlas_meter
-    # "name" is the logical label. We'll use this in code like:
+
+    # "atlas_meter" is the logical label. We'll use this in code like:
     # source('atlas_meter', 'atlas_meter_usage_daily')
 
     database: "{{ target.database }}"
+
     # Using target.database keeps it portable (dev/prod CI all share this).
 
     schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', target.schema ~ '_seeds') }}"
+
     # Schema resolution strategy
     # --------------------------
     # We have two modes:
@@ -44,8 +47,8 @@ sources:
     # Reproducbility - Everyone develops/tests against the same seed snapshot.
 
     tables:
-      - name: atlas_meter_usage_daily   # Logical name
-        identifier: atlas_meter_usage_daily   # Physical table name in the schema
+      - name: atlas_meter_usage_daily   # Logical name (dbt alias)
+        identifier: atlas_meter_usage_daily   # Physical table name in the schema (warehouse object)
 
         description: >
           Daily metered usage feed at grain customer + product + plan + day.
@@ -53,6 +56,7 @@ sources:
           the raw landed usage feed.
           
         loaded_at_field: load_ts
+
         # dbt looks at the max(load_ts) to decide how fresh the table is.
         # We want alerts if the ingestion feed falls behind.
         # Finance/ops depend on daily usage being available on time.
@@ -62,33 +66,43 @@ sources:
           error_after: {count: 72, period: hour}  # Error if older than 72 hours (serious failure)
 
         tests:
-        # Source-level tests are the health gates at the raw edge of the pipeline.
+
+        # Source-level tests are the health gates at the edge of the pipeline.
         # They assert contracts we rely on before data even enters staging.
+
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns: [customer_code, product_code, plan_code, report_date]
               config:
                 severity: warn
-            # The intended grain is one-row-per-day-per-plan.
-            # While the staging layer deduplicates by taking the latest load_ts,
-            # this is a damage-control tactic, not the source of truth.
+
+            # We expect exactly one row per customer, product, plan, and day.
+            # If duplicates appear, the source feed is broken.
+            # Staging can only mask the issue by keeping the latest row,
+            # so we warn to make sure someone checks upstream.
 
         columns:
+
         # These definitions create the contract for staging and marts.
         # If upstream ever changes column semantics, this file is where we catch it.
 
-          - name: customer_code   # External identity of a customer straight from the feed.
+          - name: customer_code    # External identity of a customer.
             description: Customer code from CRM (joins to dim_customer)
+
             # This is the "anchor" column. Everything downstream keys off this field.
             # If customer_code is missing or duplicated, every dim_customer record is suspect.
 
-          - name: product_code   # Identifier for which product the customer actually used
+
+          - name: product_code    # Identifier for which product the customer actually used
             description: Product or feature code (joins to dim_product)
 
-          - name: plan_code   # Decides how a customer is billed (monthly vs annual, free vs pro)
+
+          - name: plan_code     # Decides how a customer is billed (monthly vs annual, free vs pro)
             description: Subscription plan code (joins to dim_plan)
 
-          - name: report_date   # True business date the usage happened on (not ingestion timestamp)
+
+          - name: report_date     # True business date the usage happened on (not ingestion timestamp)
             description: Usage as-of date (daily UTC calendar grain)
+
             # All time-based analytics anchor to this field: churn windows, ARR bridges.
             # Enforcing UTC ensures consistency. Without it, two customers churning "on the 15th"
             # might actually be on different calendar days depending on timezone.
