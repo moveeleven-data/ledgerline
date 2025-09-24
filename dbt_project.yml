@@ -42,7 +42,7 @@ models:
 
     history:
       +schema: history
-      +materialized: incremental
+
       # History strategy:
       # We track the full change history with custom macros.
       # Custom macros insert only new or changed rows.
@@ -50,7 +50,12 @@ models:
       # Each run:
       #  - Current OPEN rows are loaded from staging.
       #  - Prior OPEN rows missing in today's feed are converted to synthetic CLOSE rows.
-      +incremental_strategy: merge
+      +materialized: incremental
+
+      # Default for history is append (since our dimensions are append-only)
+      # We override this with merge for the usage fact, since we are applying OPEN/CLOSE SCD-2 logic.
+      +incremental_strategy: append
+
       # If the source has a new column, don't add it. Why:
       #   - We don’t want source schema drift to silently alter history.
       #   - History is a contract. Any real schema change is modeled so marts remain stable.
