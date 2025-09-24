@@ -1,4 +1,19 @@
+# history.yml
+# -----------------------------------------------------------------------------------
+# History layer: SCD usage history.
+# - 'OPEN' rows come from the source for each report_date
+# - 'CLOSE_SYNTHETIC' rows are zero-outs created when an OPEN combo disappears
+#   on the latest report_date (one close per key and date).
+# -----------------------------------------------------------------------------------
+
 models:
+  # --------------------------------------------------------------------------
+  # hist_atlas_meter_usage_daily
+  # --------------------------------------------------------------------------
+  # Tracks full change history for usage. Surrogate keys and version hashes
+  # guarantee stability and detect changes. Row types enforce SCD contract.
+  # --------------------------------------------------------------------------
+  
   - name: hist_atlas_meter_usage_daily
     description: >
       SCD usage history. 'OPEN' rows come from the source for each report_date;
@@ -24,6 +39,14 @@ models:
           - accepted_values:
               arguments:
                 values: ['OPEN','CLOSE_SYNTHETIC']
+
+    # ----------------------------------------------------------------------
+    # Tests
+    # ----------------------------------------------------------------------
+    # Validates uniqueness and hash integrity:
+    # - Unique combo of (usage_hkey, report_date, usage_row_type)
+    # - usage_hkey and usage_hdiff must be collision-free
+    # ----------------------------------------------------------------------
 
     tests:
       - dbt_utils.unique_combination_of_columns:

@@ -253,3 +253,20 @@ Default country member supports complete joins and totals.
 - Refined layer performs the rate lookup and overage math.  
 - Relationship and uniqueness tests protect the grain and referential integrity.  
 - If cost inputs are added in the future, margin metrics can be derived downstream.
+
+---
+
+## Enterprise Data Warehouse Bus Matrix
+
+The bus matrix shows how our single fact table (`fact_usage`) connects to conformed dimensions.  
+Rows represent business processes (facts), columns are the shared dimensions that provide consistent slicing.  
+
+| business process | date | customer | product | plan | currency | country |
+|------------------|------|----------|---------|------|----------|---------|
+| fact_usage       |  X   |    X     |    X    |  X   |    X     |    X    |
+
+**Notes**  
+- This bus matrix is intentionally minimal. LedgerLine is scoped around a single daily usage fact for clarity.  
+- The simplicity highlights how all dimensions are conformed and consistently joinable.  
+- The design leaves open space for future facts (e.g., `fact_billing`, `fact_margin`) to plug into the same shared dimensions.  
+- Pricing is applied during fact construction from the daily price book, but because analysts do not slice by price directly, it is not modeled as a dimension here.

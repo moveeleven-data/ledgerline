@@ -1,6 +1,20 @@
+# refined.yml
+# ------------------------------------------------------------------------------------
+# Refined layer: cleaned and standardized models shaped for reuse and to feed marts.
+# This file documents column-level tests and default-key integrity checks.
+# ------------------------------------------------------------------------------------
+
 version: 2
 
 models:
+
+  # ---------------------------------------------------------------------------------
+  # ref_usage_atlas
+  # ---------------------------------------------------------------------------------
+  # Refined usage rows, one per customer_code + product_code + plan_code + day.
+  # Column tests ensure required fields are present and nonnegative where expected.
+  # ---------------------------------------------------------------------------------
+
   - name: ref_usage_atlas
     description: Refined usage rows (one per cust/product/plan/day)
     columns:
@@ -25,7 +39,7 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              # Column-level form: column is implied — do NOT repeat the name.
+              # Column-level form: column is implied, do not repeat the name.
               expression: ">= 0"
 
       - name: included_units
@@ -41,6 +55,12 @@ models:
               expression: ">= 0"
 
 
+  # -----------------------------------------------------------------------
+  # ref_customer_atlas
+  # -----------------------------------------------------------------------
+  # Customer attributes with hashed surrogate key.
+  # Default-key tests enforce presence, uniqueness posture, and no clash.
+  # -----------------------------------------------------------------------
 
   - name: ref_customer_atlas
     description: Customer attributes with hashed surrogate key.
@@ -48,10 +68,8 @@ models:
     tests:
       - has_default_key:
           column_name: customer_code
-
       - warn_on_multiple_default_key:
           column_name: customer_code
-
       - no_default_clash:
           code_col: customer_code
 
@@ -66,6 +84,11 @@ models:
         tests: [not_null]
 
 
+  # -----------------------------------------------------------------------
+  # ref_product_atlas
+  # -----------------------------------------------------------------------
+  # Product master attributes with default-key integrity checks.
+  # -----------------------------------------------------------------------
 
   - name: ref_product_atlas
     description: Product master attributes.
@@ -73,10 +96,8 @@ models:
     tests:
       - has_default_key:
           column_name: product_code
-
       - warn_on_multiple_default_key:
           column_name: product_code
-
       - no_default_clash:
           code_col: product_code
 
@@ -91,6 +112,11 @@ models:
         tests: [not_null]
 
 
+  # -----------------------------------------------------------------------
+  # ref_plan_atlas
+  # -----------------------------------------------------------------------
+  # Subscription plan attributes with default-key integrity checks.
+  # -----------------------------------------------------------------------
 
   - name: ref_plan_atlas
     description: Subscription plan attributes.
@@ -98,10 +124,8 @@ models:
     tests:
       - has_default_key:
           column_name: plan_code
-
       - warn_on_multiple_default_key:
           column_name: plan_code
-
       - no_default_clash:
           code_col: plan_code
 
@@ -116,6 +140,11 @@ models:
         tests: [not_null]
 
 
+  # -----------------------------------------------------------------------
+  # ref_currency_atlas
+  # -----------------------------------------------------------------------
+  # Currency reference data with default-key integrity checks.
+  # -----------------------------------------------------------------------
 
   - name: ref_currency_atlas
     description: Currency reference data.
@@ -139,6 +168,11 @@ models:
         tests: [not_null]
 
 
+  # -----------------------------------------------------------------------
+  # ref_country_atlas
+  # -----------------------------------------------------------------------
+  # Country reference data with default-key integrity checks.
+  # -----------------------------------------------------------------------
 
   - name: ref_country_atlas
     description: Country reference data.

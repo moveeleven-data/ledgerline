@@ -1,8 +1,13 @@
 # dbt_project.yml
-# ---------------
+# -----------------------------------------------------------------
 # This is the main configuration file for LedgerLine.
 # Here we define the project name, version, where the models live,
 # how they should be materialized, and other global behaviors.
+# -----------------------------------------------------------------
+
+# ==============================================================================
+# Project Config
+# ==============================================================================
 
 name: 'ledgerline'
 version: '1.0.0'
@@ -28,66 +33,140 @@ quoting:   # Quotation is not forced, allowing Snowflake to handle names case-in
   identifier: false
 
 
+# ==============================================================================
+# Models
+# ==============================================================================
+
 models:
   ledgerline:
     +persist_docs: {relation: true, columns: true}  # Keeps column and model descriptions visible in dbt docs.
 
+    # ---------------------------------------------------------------------------------
+    # Staging
+    # ---------------------------------------------------------------------------------
+    # Ephemeral layer.
+    # Lightly adapts raw inputs as CTEs to feed history, keeping cost and clutter down.
+    # ---------------------------------------------------------------------------------
+
     staging:
       +schema: staging
-      # We use ephemeral in staging so models compile as CTEs only,
-      # feeding the history layer with lightly adapted data.
-      # This keeps cost and clutter down.
       +materialized: ephemeral
 
+      +tags: ['layer:staging','domain:usage_billing','data_product:ledgerline']
+      +meta:                         # Metadata fields for ownership and governance.
+        owner: 'Matthew Tripodi'     # Data owner for escalation and stewardship.
+        domain: 'usage_billing'      # Business domain this data belongs to.
+        layer: 'staging'             # Pipeline layer (staging/history/refined/mart).
+        data_product: 'ledgerline'   # Logical data product grouping for docs/lineage.
+        sla_hours: 24                # Expected freshness SLA in hours.
+        pii: false                   # Contains personally identifiable information.
+ 
+
+    # --------------------------------------------------------------------------
+    # History
+    # --------------------------------------------------------------------------
+    # Change-tracking layer. Captures OPEN rows from staging, closes them when
+    # missing, and applies SCD-2 via macros. Uses append by default, with merge
+    # for usage facts. Ignores schema drift to keep history a stable contract.
+    # --------------------------------------------------------------------------
 
     history:
       +schema: history
 
-      # History strategy:
-      # We track the full change history with custom macros.
-      # Custom macros insert only new or changed rows.
-      #
-      # Each run:
-      #  - Current OPEN rows are loaded from staging.
-      #  - Prior OPEN rows missing in today's feed are converted to synthetic CLOSE rows.
       +materialized: incremental
-
-      # Default for history is append (since our dimensions are append-only)
-      # We override this with merge for the usage fact, since we are applying OPEN/CLOSE SCD-2 logic.
       +incremental_strategy: append
-
-      # If the source has a new column, don't add it. Why:
-      #   - We don’t want source schema drift to silently alter history.
-      #   - History is a contract. Any real schema change is modeled so marts remain stable.
       +on_schema_change: ignore
 
+      +tags: ['layer:history','domain:usage_billing','data_product:ledgerline']
+      +meta:
+        owner: 'Matthew Tripodi'
+        domain: 'usage_billing'
+        layer: 'history'
+        data_product: 'ledgerline'
+        sla_hours: 24
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # Refined
+    # --------------------------------------------------------------------------
+    # Cleaned and enriched layer.
+    # standardized models shaped for reuse and feeding downstream marts.
+    # --------------------------------------------------------------------------
 
     refined:
       +schema: refined
       +materialized: table
+      +tags: ['layer:refined','domain:usage_billing','data_product:ledgerline']
+      +meta:
+        owner: 'Matthew Tripodi'
+        domain: 'usage_billing'
+        layer: 'refined'
+        data_product: 'ledgerline'
+        sla_hours: 24
+        pii: false
 
+
+    # --------------------------------------------------------------------------
+    # Marts
+    # --------------------------------------------------------------------------
+    # Business-facing layer for curated, analytics-ready models.
+    # Contracts act as a quality gate, enforcing declared columns and types.
+    # --------------------------------------------------------------------------
 
     marts:
       +materialized: table
+      +tags: ['layer:marts','domain:usage_billing','data_product:ledgerline']
+      +meta:
+        owner: 'Matthew Tripodi'
+        domain: 'usage_billing'
+        layer: 'marts'
+        data_product: 'ledgerline'
+        sla_hours: 24
+        pii: false
+
       usage:
         +schema: marts_usage
-        # Contracts enforce that models have the declared columns, types, and nullability.
-        # Quality gate that forces intentional, reviewed schema evolution.
         +contract: {enforced: true}
+        +tags: ['mart:usage','domain:usage_billing','data_product:ledgerline']
+        +meta:
+          owner: 'Matthew Tripodi'
+          domain: 'usage_billing'
+          layer: 'marts'
+          mart: 'usage'
+          data_product: 'ledgerline'
+          sla_hours: 24
+          pii: false
 
 
+# ==================================================================================
+# Seeds
+# ==================================================================================
+# Static CSVs versioned in Git, best for small lookups (codes, catalogs, countries).
+#
+# In LedgerLine, price_book_daily and meter_usage_daily are seeded intentionally.
+# In production these would come from sources. Each seed declares its schema and
+# uses a post-hook to fill load_ts for lineage.
+# ==================================================================================
 
-# Seeds are static CSVs versiond in Git. Best for small lookups (codes, catalogs, countries, currencies).
-# For LedgerLine, price_book_daily and meter_usage_daily are seeded intentionally.
-# In a real system, these would be ingested as sources.
 seeds:
   +schema: seeds
 
   ledgerline:
     +quote_columns: false
+    +tags: ['layer:seeds','domain:usage_billing','data_product:ledgerline']
+    +meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'seeds'
+      data_product: 'ledgerline'
+      sla_hours: 24
+      pii: false
 
-    # Each seed defines its schema explicitly and a post-hook fills in 
-    # load_ts if missing, so every row has a timestamp for lineage.
+
+    # --------------------------------------------------------------------------
+    # atlas_crm_customer_info
+    # --------------------------------------------------------------------------
 
     atlas_crm_customer_info:
       +column_types:
@@ -95,8 +174,20 @@ seeds:
         customer_name:  varchar
         country_code:   varchar
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:crm','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_crm'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_catalog_product_info
+    # --------------------------------------------------------------------------
 
     atlas_catalog_product_info:
       +column_types:
@@ -104,8 +195,20 @@ seeds:
         product_name:   varchar
         category:       varchar
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:catalog_product','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_catalog'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_catalog_plan_info
+    # --------------------------------------------------------------------------
 
     atlas_catalog_plan_info:
       +column_types:
@@ -114,8 +217,20 @@ seeds:
         product_code:   varchar
         billing_period: varchar
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:catalog_plan','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_catalog'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_currency_info
+    # --------------------------------------------------------------------------
 
     atlas_currency_info:
       +column_types:
@@ -123,16 +238,40 @@ seeds:
         currency_name:  varchar
         decimal_digits: number
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:currency','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_reference'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_country_info
+    # --------------------------------------------------------------------------
 
     atlas_country_info:
       +column_types:
         country_code:   varchar
         country_name:   varchar
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:country','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_reference'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_price_book_daily
+    # --------------------------------------------------------------------------
 
     atlas_price_book_daily:
       +column_types:
@@ -141,8 +280,20 @@ seeds:
         price_date:     date
         unit_price:     number(18,6)
         load_ts:        timestamp_ntz
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:price_book','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_price_book'
+        owner: 'Matthew Tripodi'
+        pii: false
+
+
+    # --------------------------------------------------------------------------
+    # atlas_meter_usage_daily
+    # --------------------------------------------------------------------------
 
     atlas_meter_usage_daily:
       +column_types:
@@ -153,5 +304,14 @@ seeds:
         units_used:     number
         included_units: number
         load_ts:        timestamp_ntz
+
+
+
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
+
+      +tags: ['seed:usage','domain:usage_billing']
+      +meta:
+        source_system: 'atlas_meter'
+        owner: 'Matthew Tripodi'
+        pii: false

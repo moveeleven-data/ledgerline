@@ -1,11 +1,35 @@
+# usage.yml
+# -----------------------------------------------------------------------------------
+# The Usage Mart is a curated business-facing layer for customer usage data.
+# Contains conformed dimensions (customer, product, plan, currency, country)
+# and the fact_usage table at daily grain. All models enforce contracts to
+# guarantee schema stability and quality.
+# -----------------------------------------------------------------------------------
+
 version: 2
 
 models:
+
+  # --------------------------------------------------------------------------
+  # dim_customer
+  # --------------------------------------------------------------------------
+  # Dimension: Customer attributes for the usage mart.
+  # One row per natural customer_code.
+  # --------------------------------------------------------------------------
+
   - name: dim_customer
     description: Customer attributes for the usage mart. One row per natural customer_code.
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','dimension','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
 
     columns:
       - name: customer_key
@@ -24,12 +48,26 @@ models:
         data_type: string
 
 
+  # --------------------------------------------------------------------------
+  # dim_product
+  # --------------------------------------------------------------------------
+  # Dimension: Product master used by the usage mart.
+  # Self-completes missing codes with a default member.
+  # --------------------------------------------------------------------------
 
   - name: dim_product
     description: Product master used by the usage mart. Self completes missing codes from facts using the default member.
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','dimension','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
 
     columns:
       - name: product_key
@@ -48,12 +86,26 @@ models:
         data_type: string
 
 
+  # --------------------------------------------------------------------------
+  # dim_plan
+  # --------------------------------------------------------------------------
+  # Dimension: Subscription plans offered under each product.
+  # Drives billing logic (billing_period, included units, pricing).
+  # --------------------------------------------------------------------------
 
   - name: dim_plan
     description: Subscription plan catalog for the usage mart.
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','dimension','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
 
     columns:
       - name: plan_key
@@ -76,12 +128,26 @@ models:
         data_type: string
 
 
+  # --------------------------------------------------------------------------
+  # dim_currency
+  # --------------------------------------------------------------------------
+  # Dimension: Currency reference data.
+  # Joined to facts when pricing is currency specific.
+  # --------------------------------------------------------------------------
 
   - name: dim_currency
     description: Currency reference data joined to facts when pricing is currency specific.
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','dimension','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
 
     columns:
       - name: currency_key
@@ -100,12 +166,26 @@ models:
         tests: [not_null]
 
 
+  # --------------------------------------------------------------------------
+  # dim_country
+  # --------------------------------------------------------------------------
+  # Dimension: Country reference data.
+  # Used for enrichment and rollups.
+  # --------------------------------------------------------------------------
 
   - name: dim_country
     description: Country reference data for enrichment and rollups.
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','dimension','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
 
     columns:
       - name: country_key
@@ -121,13 +201,35 @@ models:
         tests: [not_null]
 
 
+  # --------------------------------------------------------------------------
+  # fact_usage
+  # --------------------------------------------------------------------------
+  # Fact table: Daily usage by customer, product, plan, per report_date.
+  # One row per (customer_key, product_key, plan_key, report_date).
+  # --------------------------------------------------------------------------
 
   - name: fact_usage
     description: Daily usage by customer, product, plan, per report_date. One row per (customer_key, product_key, plan_key, report_date).
     config:
       contract:
         enforced: true
+    tags: ['mart:usage','fact','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      sla_hours: 24
+      pii: false
 
+    # ----------------------------------------------------------------------
+    # Tests
+    # ----------------------------------------------------------------------
+    # Ensures uniqueness across the business grain:
+    # (customer_key, product_key, plan_key, report_date).
+    # ----------------------------------------------------------------------
+    
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: fact_usage_unique_combo
@@ -140,7 +242,6 @@ models:
     columns:
       - name: customer_key
         data_type: string
-
         tests:
           - not_null
           - relationships:
@@ -149,7 +250,6 @@ models:
 
       - name: product_key
         data_type: string
-
         tests:
           - not_null
           - relationships:
@@ -158,7 +258,6 @@ models:
 
       - name: plan_key
         data_type: string
-
         tests:
           - not_null
           - relationships:
