@@ -1,6 +1,16 @@
-with
+/**
+ * stg_usage_unique_per_day.sql
+ * ----------------------------
+ * Errors if multiple rows exist per (customer, product, plan, date).
+ *
+ * Purpose:
+ * This is the core staging fact for the star schema. It must be unique
+ * at the daily grain, or downstream facts and dimensions will break.
+ */
 
-daily_open_candidate_counts as (
+{{ config(severity = 'error') }}
+
+with usage_daily_counts as (
     select
           customer_code
         , product_code
@@ -16,5 +26,5 @@ daily_open_candidate_counts as (
 )
 
 select *
-from daily_open_candidate_counts
+from usage_daily_counts
 where daily_row_count > 1

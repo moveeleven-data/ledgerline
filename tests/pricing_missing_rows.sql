@@ -1,7 +1,18 @@
-{{ config(
-     tags = ['qa']
-   , severity = 'warn'
-) }}
+/**
+ * pricing_missing_rows.sql
+ * ------------------------
+ * Companion test to pricing_coverage_threshold.sql.sql.
+ *
+ * Together they validate pricing coverage:
+ * - pricing_coverage_threshold.sql.sql (ERROR) fails if coverage <95%.
+ * - This test (WARN) surfaces the exact customer/product/plan/date rows
+ *   that are missing a price.
+ *
+ * Purpose:
+ * Helps pinpoint the root cause of revenue leakage when the coverage test fails.
+ */
+
+{{ config(tags = ['qa'], severity = 'warn') }}
 
 with usage_rows as (
   select

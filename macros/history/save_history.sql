@@ -1,53 +1,108 @@
-{% macro save_history(
-      input_rel
-    , key_column
-    , diff_column
-    , load_ts_column = 'LOAD_TS_UTC'
-    , input_filter_expr = 'true'
-    , history_filter_expr = 'true'
-    , high_watermark_column = none
-    , high_watermark_test = '>='
-    , order_by_expr = none
-) -%}
+/**
+ * save_history.sql
+ * ----------------
+ * Purpose:
+ * Helper for building history-tracking dimension tables.
+ * Appends new versions from staging into the history table.
+ *
+ * Behavior:
+ * - First run: loads all rows from the input relation.
+ * - Incremental run:
+ *   * Finds latest version of each key in history.
+ *   * Loads only rows not already present (by diff hash).
+ *   * Optionally applies input/high-watermark filters.
+ * - Final output: rows to append, optionally ordered.
+ *
+ * Usage:
+ * Called from a dimension model, e.g.:
+ *
+ *     {{ save_history(
+ *           input_relation       = ref('stg_atlas_country_info')
+ *         , surrogate_key_column = 'country_hkey'
+ *         , diff_hash_column     = 'country_hdiff'
+ *     ) }}
+ *
+ * Notes:
+ * Intended for dimensions. Usage facts use a separate
+ * incremental merge strategy with explicit unique keys.
+ */
 
-{{ config(materialized='incremental') }}
+{% macro save_history(
+      staging_relation
+    , surrogate_key_column
+    , version_hash_column
+    , load_timestamp_column      = 'LOAD_TS_UTC'
+    , staging_filter_condition   = 'true'
+    , history_filter_condition   = 'true'
+    , high_watermark_column      = none
+    , high_watermark_operator    = '>='
+    , order_by_expression        = none
+) -%}
 
 with
 
 {%- if is_incremental() %}
-current_from_history as (
-    {{current_from_history(
-          history_rel = this
-        , key_column = key_column
-        , selection_expr = diff_column
-        , load_ts_column = load_ts_column
-        , history_filter_expr = history_filter_expr
+
+-- 1. Latest versions currently stored in history
+latest_history_versions as (
+    {{ current_from_history(
+          existing_history_relation = this
+        , key_column                = surrogate_key_column
+        , selection_expr            = version_hash_column
+        , load_ts_column            = load_timestamp_column
+        , history_filter_expr       = history_filter_condition
     ) }}
 ),
 
-load_from_input as (
-    select i.*
-    from {{input_rel}} as i
-    left outer join current_from_history as h on h.{{diff_column}} = i.{{diff_column}}
-    where h.{{diff_column}} is null
-        and {{input_filter_expr}}
-    {%- if high_watermark_column %}
-        and {{high_watermark_column}} {{high_watermark_test}} (select max({{high_watermark_column}}) from {{ this }})
-    {%- endif %}
+-- 2. Apply base staging filters
+filtered_staging as (
+    select *
+    from {{ staging_relation }} as staging_row
+    where {{ staging_filter_condition }}
+),
+
+-- 3. Apply high watermark if configured
+watermarked_staging as (
+    select *
+    from filtered_staging
+
+    {% if high_watermark_column %}
+    where {{ high_watermark_column }} {{ high_watermark_operator }} (
+              select max({{ high_watermark_column }})
+              from {{ this }}
+          )
+    {% endif %}
+
+),
+
+-- 4. Compare staging rows vs. history, keep only rows not already in history
+staging_rows_to_insert as (
+    select
+          staging_row.*
+    from watermarked_staging as staging_row
+    left join latest_history_versions as history_version
+           on history_version.{{ version_hash_column }} = staging_row.{{ version_hash_column }}
+    where history_version.{{ version_hash_column }} is null
 )
 
 {%- else %}
-load_from_input as (
-    select *
-    from {{input_rel}}
-    where {{input_filter_expr}}
+
+-- First run. Just filter staging rows
+staging_rows_to_insert as (
+    select
+          *
+    from {{ staging_relation }} as staging_row
+    where {{ staging_filter_condition }}
 )
+
 {%- endif %}
 
-select * from load_from_input
+-- Final output. Rows ready to append to history
+select *
+from staging_rows_to_insert
 
-{%- if order_by_expr %}
-order by {{order_by_expr}}
+{%- if order_by_expression %}
+order by {{ order_by_expression }}
 {%- endif %}
 
 {%- endmacro %}
