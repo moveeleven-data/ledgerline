@@ -35,9 +35,9 @@ The star schema is what makes the business questions answerable:
 
 ## Atlas Data Model
 
-### Schema
-  
-**fact_usage** records daily subscription activity and joins to five dimensions.  
+The core of Atlas is a **star schema**:  
+one fact table (**fact_usage**) that records daily subscription activity,  
+joined to five conformed dimensions (customer, product, plan, currency, country).
 
 ![LedgerLine Architecture](docs/assets/erd_physical_model_2.png)
 
