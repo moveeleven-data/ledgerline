@@ -267,7 +267,7 @@ Rows represent business processes (facts), columns are the shared dimensions tha
 | fact_usage       |  X   |    X     |    X    |  X   |    X     |    X    |
 
 **Notes**  
-- This bus matrix is intentionally minimal. Ledgerline is scoped around a single daily usage fact for clarity.  
-- The simplicity highlights how all dimensions are conformed and consistently joinable.  
+- Ledgerline is scoped around a single daily usage fact for clarity.  
+- All dimensions are conformed and consistently joinable.  
 - The design leaves open space for future facts (e.g., `fact_billing`, `fact_margin`) to plug into the same shared dimensions.  
 - Pricing is applied during fact construction from the daily price book, but because analysts do not slice by price directly, it is not modeled as a dimension here.
