@@ -2,7 +2,7 @@ with
 
 current_from_history as (
     {{ current_from_history(
-          history_rel = ref('hist_atlas_country_info')
+          history_relation = ref('hist_atlas_country_info')
         , key_column  = 'country_hkey'
     ) }}
 )

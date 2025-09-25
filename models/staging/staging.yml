@@ -19,10 +19,12 @@ models:
   - name: stg_atlas_meter_usage_daily
     tests:
       - dbt_utils.expression_is_true:
-          expression: "extract(year from report_date) >= 2000"
-          config: {severity: warn}
+          name: extract_year_from_report_date_2000
+          arguments:
+            expression: "extract(year from report_date) >= 2000"
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [customer_code, product_code, plan_code, report_date]
+          arguments:
+            combination_of_columns: [customer_code, product_code, plan_code, report_date]
 
 
   # ----------------------------------------------------------------------
@@ -35,10 +37,12 @@ models:
   - name: stg_atlas_price_book_daily
     tests:
       - dbt_utils.expression_is_true:
-          expression: "extract(year from price_date) >= 2000"
+          arguments:
+            expression: "extract(year from price_date) >= 2000"
           config: {severity: warn}
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [product_code, plan_code, price_date]
+          arguments:
+            combination_of_columns: [product_code, plan_code, price_date]
 
 
   # ----------------------------------------------------------------------

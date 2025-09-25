@@ -1,7 +1,7 @@
 {{ config(
       materialized           = 'incremental'
     , incremental_strategy   = 'merge'
-    , unique_key             = ['usage_hkey','report_date','usage_row_type']
+    , unique_key             = ['usage_hkey', 'report_date', 'usage_row_type']
     , on_schema_change       = 'ignore'
     , merge_update_columns   = [
           'usage_hdiff'
@@ -13,7 +13,7 @@
         , 'included_units'
         , 'usage_row_type'
       ]
-    , tags = ['history','usage']
+    , tags = ['history', 'usage']
 ) }}
 
 {# Resolve the usage day to process #}
@@ -25,8 +25,8 @@
 {% set usage_diff_fields_close  = ledgerline_usage_diff_fields(
       prefix                    = 'prior.'
     , report_date_expr          = as_of_date_varchar_expr
-    , units_used_expression     = '0'
-    , included_units_expression = '0'
+    , units_used_override       = '0'
+    , included_units_override   = '0'
 ) %}
 
 with
@@ -56,7 +56,10 @@ stg_today as (
 
   -- Latest OPEN strictly before as_of_date by usage business key
 , prior_latest_open as (
-  {{ latest_prior_usage_open_sql(this, as_of_date_literal) }}
+    {{ latest_prior_usage_open_sql(
+         history_relation = this
+       , as_of_date_literal = as_of_date_literal
+    ) }}
 )
 
   -- Keys present today
@@ -70,12 +73,12 @@ stg_today as (
 
   -- Synthetic CLOSE rows for keys missing today
 , closed_usages as (
-  {{ synthetic_close_usage_select_sql(
-        'prior_latest_open'
-      , 'today_keys'
-      , as_of_date_literal
-      , usage_diff_fields_close
-  ) }}
+    {{ synthetic_close_usage_select_sql(
+          prior_cte_name        = 'prior_latest_open'
+        , today_keys_cte_name   = 'today_keys'
+        , as_of_date_literal    = as_of_date_literal
+        , diff_fields_close     = usage_diff_fields_close
+    ) }}
 )
 
 , changes_to_store as (

@@ -39,20 +39,22 @@ models:
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              # Column-level form: column is implied, do not repeat the name.
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
       - name: included_units
         tests:
           - not_null
           - dbt_utils.expression_is_true:
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
       - name: overage_units
         description: Computed as GREATEST(units_used - included_units, 0)
         tests:
           - dbt_utils.expression_is_true:
-              expression: ">= 0"
+              arguments:
+                expression: ">= 0"
 
 
   # -----------------------------------------------------------------------
@@ -67,11 +69,14 @@ models:
 
     tests:
       - has_default_key:
-          column_name: customer_code
+          arguments:
+            column_name: customer_code
       - warn_on_multiple_default_key:
-          column_name: customer_code
+          arguments:
+            surrogate_key_column: customer_code
       - no_default_clash:
-          code_col: customer_code
+          arguments:
+            surrogate_key_column: customer_code
 
     columns:
       - name: customer_hkey
@@ -95,11 +100,14 @@ models:
 
     tests:
       - has_default_key:
-          column_name: product_code
+          arguments:
+            column_name: product_code
       - warn_on_multiple_default_key:
-          column_name: product_code
+          arguments:
+            surrogate_key_column: product_code
       - no_default_clash:
-          code_col: product_code
+          arguments:
+            surrogate_key_column: product_code
 
     columns:
       - name: product_hkey
@@ -123,11 +131,14 @@ models:
 
     tests:
       - has_default_key:
-          column_name: plan_code
+          arguments:
+            column_name: plan_code
       - warn_on_multiple_default_key:
-          column_name: plan_code
+          arguments:
+            surrogate_key_column: plan_code
       - no_default_clash:
-          code_col: plan_code
+          arguments:
+            surrogate_key_column: plan_code
 
     columns:
       - name: plan_hkey
@@ -151,11 +162,14 @@ models:
 
     tests:
       - has_default_key:
-          column_name: currency_code
+          arguments:
+            column_name: currency_code
       - warn_on_multiple_default_key:
-          column_name: currency_code
+          arguments:
+            surrogate_key_column: currency_code
       - no_default_clash:
-          code_col: currency_code
+          arguments:
+            surrogate_key_column: currency_code
 
     columns:
       - name: currency_hkey
@@ -179,11 +193,14 @@ models:
 
     tests:
       - has_default_key:
-          column_name: country_code2
+          arguments:
+            column_name: country_code2
       - warn_on_multiple_default_key:
-          column_name: country_code2
+          arguments:
+            surrogate_key_column: country_code2
       - no_default_clash:
-          code_col: country_code2
+          arguments:
+            surrogate_key_column: country_code2
 
     columns:
       - name: country_hkey
