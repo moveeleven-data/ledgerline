@@ -38,5 +38,6 @@ with src as (
          , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
     from unioned
 )
-select *
+select
+    *
 from hashed

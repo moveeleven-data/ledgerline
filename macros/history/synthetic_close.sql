@@ -1,10 +1,10 @@
-{# 
-  synthetic_close.sql
-  ------------------------------------
-  Build synthetic CLOSE rows for business keys that were previously OPEN but 
-  are missing on the current as-of date. These are "zero-out" rows to properly 
-  terminate usage spans.
-#}
+/**
+* synthetic_close.sql
+* ------------------------------------
+* Build synthetic CLOSE rows for business keys that were previously OPEN but 
+* are missing on the current as-of date. These are "zero-out" rows to properly 
+* terminate usage spans.
+**/
 
 {% macro synthetic_close(
       rows_from_yesterday

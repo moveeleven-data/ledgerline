@@ -44,7 +44,8 @@ with ranked_history as (
 -- Return only that expression from the most recent row per key.
 -- Example: return just the version hash to check for changes.
 
-select {{ selection_expression }}
+select
+    {{ selection_expression }}
 from ranked_history
 where row_rank = 1
 
@@ -55,7 +56,8 @@ where row_rank = 1
 -- Return the entire most recent row per key.
 -- Exclude the helper column (row_rank).
 
-select * exclude (row_rank)
+select
+    * exclude (row_rank)
 from ranked_history
 where row_rank = 1
 

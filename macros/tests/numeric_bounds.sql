@@ -24,7 +24,8 @@
 {% set has_max_bound = (max_allowed_value is not none) %}   -- True if a maximum bound was supplied
 {% set quoted_column = adapter.quote(numeric_column) %}     -- Column name, safely quoted for the warehouse
 
-select *
+select
+    *
 from {{ model }}
 where
 

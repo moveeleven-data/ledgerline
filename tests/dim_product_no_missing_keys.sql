@@ -16,7 +16,9 @@
 
 {{ config(severity = 'warn') }}
 
-with usage_products as (
+with
+
+usage_products as (
     select distinct
         product_code
     from {{ ref('ref_usage_atlas') }}
@@ -37,5 +39,6 @@ with usage_products as (
     where dimension_products.product_code is null
 )
 
-select *
+select
+    *
 from orphaned_products

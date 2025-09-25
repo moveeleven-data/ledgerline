@@ -11,7 +11,9 @@
 
 {{ config(severity = 'error', tags = ['qa']) }}
 
-with invalid_usage_rows as (
+with
+
+invalid_usage_rows as (
     select
         usage_hkey
     from {{ ref('ref_usage_atlas__invalid') }}
@@ -25,5 +27,6 @@ with invalid_usage_rows as (
         using (usage_hkey)
 )
 
-select *
+select
+    *
 from leaked_invalid_usage

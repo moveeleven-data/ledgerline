@@ -65,7 +65,8 @@ latest_history_versions as (
 -- 2. Apply base staging filters.
 
 , filtered_staging as (
-    select *
+    select
+    *
     from {{ staging_relation }} as staging_row
     where {{ staging_filter_condition }}
 )
@@ -74,7 +75,8 @@ latest_history_versions as (
 -- 3. Apply high watermark if configured.
 
 , watermarked_staging as (
-    select *
+    select
+        *
     from filtered_staging
 
     {% if high_watermark_column %}
@@ -115,7 +117,8 @@ staging_rows_to_insert as (
 
 -- Final output. Return rows to append to history.
 
-select *
+select
+    *
 from staging_rows_to_insert
 
 {%- if order_by_expression %}

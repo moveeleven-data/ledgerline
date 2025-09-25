@@ -14,8 +14,10 @@ src as (
 )
 
 , ghosts_removed as (
-    select *
+    select
+        *
     from src
+
     where not (
                nullif(trim(product_code), '') is null
            and nullif(trim(plan_code),   '') is null
@@ -60,5 +62,6 @@ src as (
     from unioned
 )
 
-select *
+select
+    *
 from hashed

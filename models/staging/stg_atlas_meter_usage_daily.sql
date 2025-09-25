@@ -16,8 +16,10 @@ src as (
 )
 
 , ghosts_removed as (
-    select *
+    select
+        *
     from src
+
     where not (
                nullif(trim(customer_code),  '') is null
            and nullif(trim(product_code),   '') is null
@@ -29,8 +31,10 @@ src as (
 )
 
 , dedup as (
-    select *
+    select
+        *
     from ghosts_removed
+
     qualify row_number() over (
         partition by
               customer_code
@@ -84,5 +88,6 @@ src as (
     from unioned
 )
 
-select *
+select
+    *
 from hashed

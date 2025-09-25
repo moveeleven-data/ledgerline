@@ -19,7 +19,6 @@ select
 from {{ model }}
 where {{ column_name }} = '{{ default_key_value }}'
   and {{ record_source_field_name }} = '{{ default_key_record_source }}'
-
 having count(*) = 0
 
 {%- endtest %}

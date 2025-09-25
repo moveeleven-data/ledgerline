@@ -22,7 +22,8 @@
     , default_lineage_source='System.DefaultKey'
 ) %}
 
-select *
+select
+    *
 from {{ model }}
 where {{ surrogate_key_column }} = '{{ default_surrogate_key }}'
   and {{ lineage_source_column }} != '{{ default_lineage_source }}'

@@ -12,10 +12,10 @@
 
 {% macro get_latest_usage_report_date() %}
 
-    {# Step 1. Respect a manual override.
+    /* Step 1. Respect a manual override.
        If someone runs dbt with --vars "as_of_date: 'YYYY-MM-DD'",
        we stop here and return that value. This allows reproducible backfills
-       or debugging against a specific date, instead of always using "latest". #}
+       or debugging against a specific date, instead of always using "latest". */
 
     {% set as_of_date_override = var('as_of_date', none) %}
 
@@ -57,6 +57,9 @@
 
     -- 5. Return the date we found, or fallback if it was null.
     
-    {{ return(latest_report_date_str if latest_report_date_str is not none else fallback_date_default) }}
+    {{ return(
+        latest_report_date_str if latest_report_date_str is not none
+                               else fallback_date_default
+    ) }}
 
 {% endmacro %}

@@ -1,13 +1,20 @@
 {{ config(tags = ['dev']) }}
 
-/*
-   Dev Helper: insert a FACT_USAGE row with a missing product_code
-   Goal: validate DIM_PRODUCT self-completion behavior when fact references unknown product
-   Notes:
-     - customer_code and plan_code map to known seeds
-     - product_code 'ZZ_TEST_PROD' does not exist in ref_product_atlas
-     - row dated 2024-07-15 with simple units
-*/
+/**
+ * dev__insert_missing_product_row.sql
+ * -----------------------------------
+ * Dev helper query.
+ *
+ * Purpose:
+ * - Insert a single fact_usage row with a product_code that does not exist in DIM_PRODUCT.
+ * - This simulates a data quality issue and validates that the
+ *   self_completing_dimension macro fills in a default row.
+ *
+ * Setup:
+ * - customer_code and plan_code map to known valid seeds.
+ * - product_code 'ZZ_TEST_PROD' is deliberately missing from ref_product_atlas.
+ * - Row is dated 2024-07-15 with small unit values.
+ */
 
 insert into {{ ref('fact_usage') }} (
     customer_code
@@ -18,12 +25,13 @@ insert into {{ ref('fact_usage') }} (
   , included_units
   , load_ts
 )
+
 values (
-    'CUST001'        -- valid customer
-  , 'ZZ_TEST_PROD'   -- deliberately unknown product
-  , 'PLAN_BASIC'     -- valid plan
-  , to_date('2024-07-15')
-  , 10
-  , 5
-  , current_timestamp()
+    'CUST001'              -- valid customer from seed
+  , 'ZZ_TEST_PROD'         -- deliberately unknown product to trigger dimension backfill
+  , 'PLAN_BASIC'           -- valid plan from seed
+  , to_date('2024-07-15')  -- chosen test date
+  , 10                     -- small number of units used
+  , 5                      -- included units
+  , current_timestamp()    -- load timestamp for lineage
 );
