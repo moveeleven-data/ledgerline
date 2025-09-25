@@ -1,19 +1,16 @@
 /**
  * save_history.sql
  * ----------------
- * Purpose:
- * Helper for building history-tracking dimension tables.
  * Appends new versions from staging into the history table.
  *
- * Behavior:
- * - First run: loads all rows from the input relation.
- * - Incremental run:
- *   * Finds latest version of each key in history.
- *   * Loads only rows not already present (by diff hash).
- *   * Optionally applies input/high-watermark filters.
- * - Final output: rows to append, optionally ordered.
+ * - First run: Loads all rows from the input relation.
  *
- * Usage:
+ * - Incremental run:
+ *   - Finds latest version of each key in history.
+ *   - Loads only rows not already present.
+ *
+ * - Final output: Rows to append, optionally ordered.
+ *
  * Called from a dimension model, e.g.:
  *
  *     {{ save_history(
@@ -21,29 +18,39 @@
  *         , surrogate_key_column = 'country_hkey'
  *         , diff_hash_column     = 'country_hdiff'
  *     ) }}
- *
- * Notes:
- * Intended for dimensions. Usage facts use a separate
- * incremental merge strategy with explicit unique keys.
  */
+
+ {#
+  Parameters:
+    staging_relation:          Staging model providing new rows
+    surrogate_key_column:      Surrogate key in history (e.g. country_hkey)
+    version_hash_column:       Diff hash to detect changes (e.g. country_hdiff)
+    load_timestamp_column:     Recency column (default LOAD_TS_UTC)
+    staging_filter_condition:  Optional WHERE for staging
+    history_filter_condition:  Optional WHERE for history
+    high_watermark_column:     Column to filter staging >= max(history)
+    high_watermark_operator:   Operator for high-watermark filter
+    order_by_expression:       Optional ORDER BY in final output
+#}
 
 {% macro save_history(
       staging_relation
     , surrogate_key_column
     , version_hash_column
-    , load_timestamp_column      = 'LOAD_TS_UTC'
-    , staging_filter_condition   = 'true'
-    , history_filter_condition   = 'true'
-    , high_watermark_column      = none
-    , high_watermark_operator    = '>='
-    , order_by_expression        = none
+    , load_timestamp_column     = 'LOAD_TS_UTC'
+    , staging_filter_condition  = 'true'
+    , history_filter_condition  = 'true'
+    , high_watermark_column     = none
+    , high_watermark_operator   = '>='
+    , order_by_expression       = none
 ) -%}
 
 with
 
 {%- if is_incremental() %}
 
--- 1. Latest versions currently stored in history
+-- 1. Select the latest versions currently stored in history
+
 latest_history_versions as (
     {{ current_from_history(
           history_relation         = this
@@ -54,14 +61,18 @@ latest_history_versions as (
     ) }}
 )
 
+
 -- 2. Apply base staging filters
+
 , filtered_staging as (
     select *
     from {{ staging_relation }} as staging_row
     where {{ staging_filter_condition }}
 )
 
+
 -- 3. Apply high watermark if configured
+
 , watermarked_staging as (
     select *
     from filtered_staging
@@ -75,7 +86,9 @@ latest_history_versions as (
 
 )
 
--- 4. Compare staging rows vs. history, keep only rows not already in history
+
+-- 4. Keep only rows not already in history.
+
 , staging_rows_to_insert as (
     select
           staging_row.*
@@ -87,7 +100,9 @@ latest_history_versions as (
 
 {%- else %}
 
--- First run. Just filter staging rows
+
+-- First run. Select and filter all rows from staging.
+
 staging_rows_to_insert as (
     select
           *
@@ -97,7 +112,9 @@ staging_rows_to_insert as (
 
 {%- endif %}
 
--- Final output. Rows ready to append to history
+
+-- Final output. Return rows to append to history.
+
 select *
 from staging_rows_to_insert
 

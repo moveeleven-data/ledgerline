@@ -13,7 +13,7 @@
             "Running migration: " ~ migration_name
             ~ " (database = " ~ target_database
             ~ ", schema_prefix = " ~ schema_prefix ~ ")",
-            info=true
+            info = true
         ) }}
 
         {% set migration_macro = context.get(migration_name, none) %}
@@ -21,7 +21,7 @@
         {% if migration_macro %}
             {{ run_query(migration_macro(target_database, schema_prefix)) }}
         {% else %}
-            {{ log("!! Migration macro " ~ migration_name ~ " not found. Skipping.", info=true) }}
+            {{ log("!! Migration macro " ~ migration_name ~ " not found. Skipping.", info = true) }}
         {% endif %}
 
     {% endif %}

@@ -12,6 +12,6 @@
   , schema_prefix = target.schema
 ) -%}
 
-drop table if exists {{ target_database }}.{{ schema_prefix }}_REFINED.REF_COUNTRY_ATLAS;
+drop table if exists {{ target_database }}.{{ schema_prefix }}_refined.ref_country_atlas;
     
 {%- endmacro %}

@@ -27,7 +27,7 @@ clean-targets:   # List of directories dbt wipes when you run dbt clean.
   - 'target'
   - 'dbt_packages'
 
-quoting:   # Quotation is not forced, allowing Snowflake to handle names case-insensitively.
+quoting:   # Don't force quotation, allowing Snowflake to handle names case-insensitively.
   database:   false
   schema:     false
   identifier: false
@@ -91,7 +91,7 @@ models:
     # Refined
     # --------------------------------------------------------------------------
     # Cleaned and enriched layer.
-    # standardized models shaped for reuse and feeding downstream marts.
+    # Standardized models shaped for reuse and feeding downstream marts.
     # --------------------------------------------------------------------------
 
     refined:
@@ -110,7 +110,7 @@ models:
     # --------------------------------------------------------------------------
     # Marts
     # --------------------------------------------------------------------------
-    # Business-facing layer for curated, analytics-ready models.
+    # Curated, business-facing models.
     # Contracts act as a quality gate, enforcing declared columns and types.
     # --------------------------------------------------------------------------
 
