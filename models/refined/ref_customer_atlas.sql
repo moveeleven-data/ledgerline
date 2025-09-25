@@ -2,7 +2,7 @@ with
 
 current_from_history as (
     {{ current_from_history(
-          history_rel = ref('hist_atlas_crm_customer_info')
+          history_relation = ref('hist_atlas_crm_customer_info')
         , key_column  = 'customer_hkey'
     ) }}
 )

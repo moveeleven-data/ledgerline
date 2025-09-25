@@ -50,22 +50,25 @@ models:
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - usage_hkey
-            - report_date
-            - usage_row_type
+          arguments:
+            combination_of_columns:
+              - usage_hkey
+              - report_date
+              - usage_row_type
 
       - hash_collision_free:
-          column_name: usage_hkey
-          hashed_fields:
-            - customer_code
-            - product_code
-            - plan_code
-            - "to_varchar(report_date, 'YYYY-MM-DD')"
+          arguments:
+            hash_column: usage_hkey
+            source_columns:
+              - customer_code
+              - product_code
+              - plan_code
+              - "to_varchar(report_date, 'YYYY-MM-DD')"
 
       - hash_collision_free:
-          column_name: usage_hdiff
-          hashed_fields:
-            - customer_code
-            - product_code
-            - plan_code
+          arguments:
+            hash_column: usage_hdiff
+            source_columns:
+              - customer_code
+              - product_code
+              - plan_code

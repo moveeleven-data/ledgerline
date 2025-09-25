@@ -46,23 +46,23 @@ with
 -- 1. Latest versions currently stored in history
 latest_history_versions as (
     {{ current_from_history(
-          existing_history_relation = this
-        , key_column                = surrogate_key_column
-        , selection_expr            = version_hash_column
-        , load_ts_column            = load_timestamp_column
-        , history_filter_expr       = history_filter_condition
+          history_relation         = this
+        , key_column               = surrogate_key_column
+        , selection_expression     = version_hash_column
+        , load_timestamp_column    = load_timestamp_column
+        , history_filter_condition = history_filter_condition
     ) }}
-),
+)
 
 -- 2. Apply base staging filters
-filtered_staging as (
+, filtered_staging as (
     select *
     from {{ staging_relation }} as staging_row
     where {{ staging_filter_condition }}
-),
+)
 
 -- 3. Apply high watermark if configured
-watermarked_staging as (
+, watermarked_staging as (
     select *
     from filtered_staging
 
@@ -73,10 +73,10 @@ watermarked_staging as (
           )
     {% endif %}
 
-),
+)
 
 -- 4. Compare staging rows vs. history, keep only rows not already in history
-staging_rows_to_insert as (
+, staging_rows_to_insert as (
     select
           staging_row.*
     from watermarked_staging as staging_row

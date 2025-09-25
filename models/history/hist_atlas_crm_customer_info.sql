@@ -1,5 +1,5 @@
 {{ save_history(
-      input_rel   = ref('stg_atlas_crm_customer_info')
-    , key_column  = 'customer_hkey'
-    , diff_column = 'customer_hdiff'
+      staging_relation   = ref('stg_atlas_crm_customer_info')
+    , surrogate_key_column  = 'customer_hkey'
+    , version_hash_column = 'customer_hdiff'
 ) }}

@@ -1,5 +1,5 @@
 {{ save_history(
-      input_rel   = ref('stg_atlas_catalog_product_info')
-    , key_column  = 'product_hkey'
-    , diff_column = 'product_hdiff'
+      staging_relation   = ref('stg_atlas_catalog_product_info')
+    , surrogate_key_column  = 'product_hkey'
+    , version_hash_column = 'product_hdiff'
 ) }}
