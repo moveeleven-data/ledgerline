@@ -10,7 +10,9 @@
 
 {{ config(severity = 'error') }}
 
-with usage_daily_counts as (
+with
+
+usage_daily_counts as (
     select
           customer_code
         , product_code
@@ -25,6 +27,7 @@ with usage_daily_counts as (
         , report_date
 )
 
-select *
+select
+    *
 from usage_daily_counts
 where daily_row_count > 1

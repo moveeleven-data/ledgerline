@@ -23,10 +23,11 @@ top_keys_with_closes as (
       , count_if(
             usage_row_type = 'CLOSE_SYNTHETIC'
         ) as num_close_events
-        
+
     from {{ ref('hist_atlas_meter_usage_daily') }}
     group by usage_hkey
-    having num_close_events > 0
+    having
+        num_close_events > 0
 
     qualify row_number() over (
         order by

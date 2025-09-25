@@ -14,7 +14,9 @@
 
 {{ config(tags = ['qa'], severity = 'warn') }}
 
-with usage_rows as (
+with
+
+usage_rows as (
   select
       upper(customer_code)   as customer_code
     , upper(product_code)    as product_code
@@ -45,5 +47,6 @@ with usage_rows as (
   where price_rows.unit_price is null
 )
 
-select *
+select
+    *
 from usage_without_price

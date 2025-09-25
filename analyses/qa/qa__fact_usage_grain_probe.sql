@@ -17,11 +17,13 @@
 with
 
 fact_usage_filtered as (
-    select *
+    select
+        *
     from {{ ref('fact_usage') }}
 
     {% if as_of_date %}
-    where report_date = to_date('{{ as_of_date }}')
+    where
+        report_date = to_date('{{ as_of_date }}')
     {% endif %}
 )
 

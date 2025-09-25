@@ -47,6 +47,7 @@ select
 
   , base.country_code2 as country_code
   , coalesce(ref.country_name, base.country_name) as country_name
+  
 from dim_country_base as base
 left join {{ ref('ref_country_atlas') }} as ref
   on ref.country_code2 = base.country_code2

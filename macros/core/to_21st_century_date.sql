@@ -10,6 +10,7 @@
  */
 
 {% macro to_21st_century_date(col) %}
+
 (
     try_to_date(
         case
@@ -30,4 +31,5 @@
      , 'YYYY-MM-DD'
     )
 )
+
 {% endmacro %}

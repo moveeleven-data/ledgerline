@@ -29,7 +29,8 @@ with invalid_default_source_usage as (
       and {{ lineage_source_column }} = '{{ default_lineage_source_value }}'
 )
 
-select *
+select
+    *
 from invalid_default_source_usage
 
 {%- endtest %}

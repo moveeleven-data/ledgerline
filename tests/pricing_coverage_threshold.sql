@@ -1,7 +1,7 @@
 /**
- * pricing_coverage_threshold.sql.sql
+ * pricing_coverage_threshold.sql
  * -----------------------------
- * Companion test to pricing_missing_rows.sql.
+ * Companion test to pricing_missing_rows.
  *
  * Together they validate pricing coverage:
  * - This test (ERROR) checks coverage rate: fails if <95% of usage rows
@@ -18,7 +18,9 @@
 {% set start_date = "dateadd(day, -6, to_date('" ~ as_of_str ~ "'))" %}
 {% set end_date   = "to_date('" ~ as_of_str ~ "')" %}
 
-with usage_window as (
+with
+
+usage_window as (
     select
         report_date
       , unit_price
@@ -37,6 +39,8 @@ with usage_window as (
     from usage_window
 )
 
-select *
+select
+    *
 from pricing_counts
-where priced_usage_rows::float / nullif(total_usage_rows, 0) < 0.95
+where
+    priced_usage_rows::float / nullif(total_usage_rows, 0) < 0.95

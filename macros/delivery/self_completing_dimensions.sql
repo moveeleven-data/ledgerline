@@ -87,7 +87,8 @@ base_dimension as (
    - We select that row only (LIMIT 1 ensures we only keep one copy). */
 
 , default_dimension_row as (
-    select *
+    select
+        *
     from base_dimension
     where {{ dim_key_column }} = '{{ dim_default_key_value }}'
     limit 1
@@ -125,6 +126,8 @@ base_dimension as (
     select * from synthetic_missing_rows
 )
 
-select * from completed_dimension
+select
+    *
+from completed_dimension
 
 {% endmacro %}

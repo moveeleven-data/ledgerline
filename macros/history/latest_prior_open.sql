@@ -16,7 +16,8 @@
 
 {% macro latest_prior_open(history_relation, as_of_date_literal) -%}
 
-select *
+select
+    *
 from {{ history_relation }}
 where usage_row_type = 'OPEN'
   and report_date < {{ as_of_date_literal }}

@@ -5,7 +5,9 @@
  * edge-case source dates into expected 21st-century dates.
  */
 
-with test_data as (
+with
+
+test_data as (
     select
           '0021-09-23'::date as src_date
         , '2021-09-23'::date as expected_date

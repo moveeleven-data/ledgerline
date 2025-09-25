@@ -57,6 +57,9 @@
 
     -- 5. Return the date we found, or fallback if it was null.
     
-    {{ return(latest_report_date_str if latest_report_date_str is not none else fallback_date_default) }}
+    {{ return(
+        latest_report_date_str if latest_report_date_str is not none
+                               else fallback_date_default
+    ) }}
 
 {% endmacro %}

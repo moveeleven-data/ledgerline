@@ -15,7 +15,9 @@
     , source_columns
 ) %}
 
-with all_tuples as (
+with
+
+all_tuples as (
     select distinct
           {{ hash_column }} as hash
         , {{ source_columns | join(', ') }}
@@ -31,7 +33,8 @@ with all_tuples as (
     having count(*) > 1
 )
 
-select *
+select
+    *
 from validation_errors
 
 {% endtest %}

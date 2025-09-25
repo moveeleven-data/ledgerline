@@ -27,7 +27,9 @@
 {% set as_of_str  = get_latest_usage_report_date() %}
 {% set as_of_date = "to_date('" ~ as_of_str ~ "')" %}
 
-with open_subscriptions_prior as (
+with
+
+open_subscriptions_prior as (
     select distinct
           customer_code
         , product_code
@@ -57,5 +59,6 @@ with open_subscriptions_prior as (
     where asof.customer_code is null
 )
 
-select *
+select
+    *
 from orphaned_subscriptions

@@ -16,7 +16,9 @@ with
    - All pricing logic isolated upstream in int__fact_usage_priced. */
 
 priced_usage as (
-    select * from {{ ref('int__fact_usage_priced') }}
+    select
+        *
+    from {{ ref('int__fact_usage_priced') }}
 )
 
 /* Step 2. Join conformed dimensions and compute billing values.

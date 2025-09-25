@@ -47,6 +47,7 @@ select
   , coalesce(ref.plan_name,       base.plan_name)       as plan_name
   , coalesce(ref.product_code,    base.product_code)    as product_code
   , coalesce(ref.billing_period,  base.billing_period)  as billing_period
+  
 from dim_plan_base as base
 left join {{ ref('ref_plan_atlas') }} as ref
   on ref.plan_code = base.plan_code

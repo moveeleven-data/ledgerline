@@ -18,29 +18,36 @@
 with
 
 staging_rowcount as (
-    select count(*) as staging_count
+    select
+        count(*) as staging_count
     from {{ ref('stg_atlas_meter_usage_daily') }}
-    where report_date = to_date('{{ as_of_date }}')
+    where
+        report_date = to_date('{{ as_of_date }}')
 )
 
 
 , history_rowcount as (
-    select count(*) as history_count
+    select
+        count(*) as history_count
     from {{ ref('hist_atlas_meter_usage_daily') }}
-    where report_date = to_date('{{ as_of_date }}')
+    where
+        report_date = to_date('{{ as_of_date }}')
 )
 
 
 , refined_rowcount as (
-    select count(*) as refined_count
+    select
+        count(*) as refined_count
     from {{ ref('ref_usage_atlas') }}
 )
 
 
 , fact_rowcount as (
-    select count(*) as fact_count
+    select
+        count(*) as fact_count
     from {{ ref('fact_usage') }}
-    where report_date = to_date('{{ as_of_date }}')
+    where
+        report_date = to_date('{{ as_of_date }}')
 )
 
 

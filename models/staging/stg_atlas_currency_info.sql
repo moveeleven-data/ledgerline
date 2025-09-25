@@ -41,4 +41,6 @@ src as (
     from unioned
 )
 
-select * from hashed
+select
+    *
+from hashed

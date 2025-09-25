@@ -67,5 +67,4 @@ left join dim_codes                                                     -- Produ
        on dim_codes.product_code = fact_codes.product_code
 
 where refined_product_codes.product_code is null
-
 order by fact_codes.product_code;
