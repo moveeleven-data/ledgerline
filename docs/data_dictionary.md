@@ -1,6 +1,6 @@
 # Data Dictionary
 
-LedgerLine simulates a developer-facing SaaS platform called Atlas.
+Ledgerline simulates a developer-facing SaaS platform called Atlas.
 
 Customers subscribe to products via plans that include usage and charge overages beyond that.  
 
