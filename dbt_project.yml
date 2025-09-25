@@ -13,6 +13,9 @@ name: 'ledgerline'
 version: '1.0.0'
 config-version: 2
 
+vars:
+  default_billing_currency: 'USD'
+
 profile: 'ledgerline'  # dbt Cloud ignores this for jobs/IDE
 
 model-paths:    ['models']
@@ -137,6 +140,10 @@ models:
           data_product: 'ledgerline'
           sla_hours: 24
           pii: false
+          
+        intermediate:
+          +schema: marts_usage_int
+          +materialized: view
 
 
 # ==================================================================================

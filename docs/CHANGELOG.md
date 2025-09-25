@@ -1,5 +1,11 @@
 ## LedgerLine Changelog
 
+### 2025-09-25
+
+- Completed documentation of all macros and analyses.
+- Implemented self-completing dimensions in all dims except currency.
+- Simplified fact_usage mart by creating an intermediate table to calculating pricing.
+
 ### 2025-09-22
 
 Rebuild all layers to accomodate LederLine dataset. Verify all models are build and clean data lands in Snowflake.

@@ -1,4 +1,26 @@
+/**
+ * dim_plan.sql
+ * ------------
+ * Plan is the subscription catalog by product. Usage can reference a plan
+ * before the catalog is refreshed, so we self-complete from usage to maintain
+ * joinability. Canonical attributes are taken from the refined plan table.
+ *
+ * Design rules:
+ * - Keys come from plan_code with a stable surrogate key preferred from the
+ *   refined table when present.
+ * - Default member keeps joins valid when inputs are incomplete.
+ *
+ * Note: We are not re-generating hashes for rows that already have them.
+ * We provide a fallback key only for the synthetic rows the
+ * self_completing_dimension macro creates.
+ */
+
 with
+
+/* Step 1. Build the base set via self-completion.
+
+   Start from the refined plan reference and add any plan codes that appear
+   in usage but are missing in the dimension. */
 
 dim_plan_base as (
   {{ self_completing_dimension(
@@ -10,10 +32,15 @@ dim_plan_base as (
   ) }}
 )
 
+/* Step 2. Enrich with canonical attributes and pick a stable key.
+
+   Prefer the refined surrogate key when present; otherwise generate a
+   deterministic surrogate from plan_code. */
+
 select
     coalesce(
         ref.plan_hkey
-      , {{ dbt_utils.generate_surrogate_key(['base.plan_code']) }}
+      , {{ dbt_utils.generate_surrogate_key(["upper(base.plan_code)"]) }}
     ) as plan_key
 
   , base.plan_code

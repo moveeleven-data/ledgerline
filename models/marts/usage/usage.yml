@@ -202,6 +202,63 @@ models:
 
 
   # --------------------------------------------------------------------------
+  # int__fact_usage_priced
+  # --------------------------------------------------------------------------
+  # Intermediate model: Applies pricing logic at natural-key grain
+  # (customer_code × product_code × plan_code × report_date).
+  # Feeds fact_usage. Not intended for direct analyst use.
+  # --------------------------------------------------------------------------
+
+  - name: int__fact_usage_priced
+    description: >
+      Intermediate model that applies pricing logic at the natural-key grain
+      (customer_code × product_code × plan_code × report_date).
+      Feeds fact_usage. Not intended for direct analyst use.
+    config:
+      tags: ['mart:usage','intermediate','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'intermediate'
+      pii: false
+
+    columns:
+      - name: report_date
+        data_type: date
+        tests: [not_null]
+
+      - name: customer_code_nk
+        data_type: string
+        tests: [not_null]
+
+      - name: product_code_nk
+        data_type: string
+        tests: [not_null]
+
+      - name: plan_code_nk
+        data_type: string
+        tests: [not_null]
+
+      - name: currency_code_nk
+        data_type: string
+        tests: [not_null]
+
+      - name: units_used
+        data_type: number(38,0)
+
+      - name: included_units
+        data_type: number(38,0)
+
+      - name: overage_units
+        data_type: number(38,0)
+
+      - name: unit_price
+        data_type: number(18,6)
+
+
+  # --------------------------------------------------------------------------
   # fact_usage
   # --------------------------------------------------------------------------
   # Fact table: Daily usage by customer, product, plan, per report_date.

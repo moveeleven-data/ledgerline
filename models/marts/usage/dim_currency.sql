@@ -1,12 +1,18 @@
--- dim_currency.sql
+/**
+ * dim_currency.sql
+ * ----------------
+ * Currency is a closed domain. The price book and all billing math assume
+ * that codes come from a vetted reference list. We do not self-complete this
+ * dimension, because fabricating rows would hide bad data (for example USDD).
+ *
+ * Design rules:
+ * - Fact rows must carry an explicit currency_code at pricing time.
+ * - This dimension is a plain projection from the refined reference table.
+ * - Tests in usage.yml enforce uniqueness and relationships.
+ */
 
-/* 
-We treat currency as a closed domain and make the fact explicitly carry the billing currency.
-We do not self-complete the currency dimension. Self-completion hides bad data like “USDD” or “EURO”.
-Closed domains should fail fast, not auto-invent rows.
-
-We put currency_code on the fact at pricing time and keep dim_currency a plain select from the refined table.
-*/
+-- Step 1. Select the authoritative rows from the refined layer.
+--         Keep only valid codes to fail fast when upstream inputs are wrong.
 
 select
     currency_hkey as currency_key
