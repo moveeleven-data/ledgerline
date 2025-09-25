@@ -1,21 +1,46 @@
 {{ config(tags = ['qa']) }}
 
--- QA Check: Foreign key coverage and default-member usage for FACT_USAGE
--- Inputs:
---   as_of_date: target reporting date (YYYY-MM-DD, defaults to run_started_at)
+/**
+ * qa__default_hits_by_day.sql
+ * ---------------------------
+ * Check FACT_USAGE rows against dimension tables.
+ *
+ * Purpose:
+ * - Count usage rows that fail to join to dim_customer, dim_product, or dim_plan.
+ * - Count usage rows that join, but land on the default product row (-1).
+ *
+ * Input:
+ * - as_of_date: reporting date (YYYY-MM-DD).
+ *   Defaults to run_started_at if not provided.
+ *
+ * Output:
+ * - One row for the given date with counts of missing or default matches.
+ */
 
 {% set as_of_date = var('as_of_date', run_started_at.strftime('%Y-%m-%d')) %}
 
 select
-    f.report_date
-  , count_if(c.customer_key is null)                                 as missing_customer_dim
-  , count_if(p.product_key  is null)                                 as missing_product_dim
-  , count_if(pl.plan_key    is null)                                 as missing_plan_dim
-  , count_if(p.product_key  is not null and p.product_code = '-1')   as hits_product_default
-from {{ ref('fact_usage') }} f
-left join {{ ref('dim_customer') }} c on c.customer_key = f.customer_key
-left join {{ ref('dim_product')  }} p on p.product_key  = f.product_key
-left join {{ ref('dim_plan')     }} pl on pl.plan_key   = f.plan_key
-where f.report_date = to_date('{{ as_of_date }}')
-group by
-    f.report_date;
+    fact_usage.report_date
+
+  , count_if(dim_customer.customer_key is null) as missing_customer_dim
+  , count_if(dim_product.product_key is null)   as missing_product_dim
+  , count_if(dim_plan.plan_keyis null)          as missing_plan_dim
+
+  , count_if(
+            dim_product.product_key is not null
+        and dim_product.product_code = '-1'
+    ) as hits_product_default
+
+from {{ ref('fact_usage') }} as fact_usage
+
+left join {{ ref('dim_customer') }} as dim_customer
+       on dim_customer.customer_key = fact_usage.customer_key
+
+left join {{ ref('dim_product') }} as dim_product
+       on dim_product.product_key = fact_usage.product_key
+
+left join {{ ref('dim_plan') }} as dim_plan
+       on dim_plan.plan_key = fact_usage.plan_key
+
+where fact_usage.report_date = to_date('{{ as_of_date }}')
+group by fact_usage.report_date;
