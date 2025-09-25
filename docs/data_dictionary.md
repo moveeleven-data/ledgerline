@@ -259,6 +259,7 @@ Default country member supports complete joins and totals.
 ## Enterprise Data Warehouse Bus Matrix
 
 The bus matrix shows how our single fact table (`fact_usage`) connects to conformed dimensions.  
+
 Rows represent business processes (facts), columns are the shared dimensions that provide consistent slicing.  
 
 | business process | date | customer | product | plan | currency | country |
