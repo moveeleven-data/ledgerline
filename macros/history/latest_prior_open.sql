@@ -1,12 +1,12 @@
 {# 
-  latest_prior_usage_open_sql.sql
+  latest_prior_open.sql
   -------------------------------
   Select the most recent OPEN usage row for each business key (customer, product, plan),
   strictly before a given as-of date. Used to detect subscriptions that were open 
   prior to the processing date.
 #}
 
-{% macro latest_prior_usage_open_sql(history_relation, as_of_date_literal) -%}
+{% macro latest_prior_open(history_relation, as_of_date_literal) -%}
 
 select *
 from {{ history_relation }}

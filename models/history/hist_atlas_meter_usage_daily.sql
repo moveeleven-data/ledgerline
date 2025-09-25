@@ -56,8 +56,8 @@ stg_today as (
 
   -- Latest OPEN strictly before as_of_date by usage business key
 , prior_latest_open as (
-    {{ latest_prior_usage_open_sql(
-         history_relation = this
+    {{ latest_prior_open(
+         history_relation   = this
        , as_of_date_literal = as_of_date_literal
     ) }}
 )
@@ -73,11 +73,11 @@ stg_today as (
 
   -- Synthetic CLOSE rows for keys missing today
 , closed_usages as (
-    {{ synthetic_close_usage_select_sql(
-          prior_cte_name        = 'prior_latest_open'
-        , today_keys_cte_name   = 'today_keys'
+    {{ synthetic_close(
+          prior_open_alias      = 'prior_latest_open'
+        , today_keys_alias      = 'today_keys'
         , as_of_date_literal    = as_of_date_literal
-        , diff_fields_close     = usage_diff_fields_close
+        , diff_fields_for_close = usage_diff_fields_close
     ) }}
 )
 

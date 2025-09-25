@@ -1,12 +1,12 @@
 {# 
-  synthetic_close_usage_select_sql.sql
+  synthetic_close.sql
   ------------------------------------
   Build synthetic CLOSE rows for business keys that were previously OPEN but 
   are missing on the current as-of date. These are "zero-out" rows to properly 
   terminate usage spans.
 #}
 
-{% macro synthetic_close_usage_select_sql(
+{% macro synthetic_close(
       prior_open_alias
     , today_keys_alias
     , as_of_date_literal
@@ -15,9 +15,9 @@
 
 select
       {{ dbt_utils.generate_surrogate_key([
-            prior_open_alias ~ '.customer_code'
-          , prior_open_alias ~ '.product_code'
-          , prior_open_alias ~ '.plan_code'
+            'prior.customer_code'
+          , 'prior.product_code'
+          , 'prior.plan_code'
           , "to_varchar(" ~ as_of_date_literal ~ ", 'YYYY-MM-DD')"
       ]) }}                                                          as usage_hkey
     , {{ dbt_utils.generate_surrogate_key(diff_fields_for_close) }}  as usage_hdiff
