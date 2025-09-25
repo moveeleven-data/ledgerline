@@ -43,7 +43,9 @@ with
 
 {%- if is_incremental() %}
 
--- 1. Latest versions currently stored in history
+
+-- 1. Latest versions currently stored in history.
+
 latest_history_versions as (
     {{ current_from_history(
           history_relation         = this
@@ -54,14 +56,18 @@ latest_history_versions as (
     ) }}
 )
 
--- 2. Apply base staging filters
+
+-- 2. Apply base staging filters.
+
 , filtered_staging as (
     select *
     from {{ staging_relation }} as staging_row
     where {{ staging_filter_condition }}
 )
 
--- 3. Apply high watermark if configured
+
+-- 3. Apply high watermark if configured.
+
 , watermarked_staging as (
     select *
     from filtered_staging
@@ -75,7 +81,9 @@ latest_history_versions as (
 
 )
 
--- 4. Compare staging rows vs. history, keep only rows not already in history
+
+-- 4. Compare staging rows vs. history, keep only rows not already in history.
+
 , staging_rows_to_insert as (
     select
           staging_row.*
@@ -87,7 +95,9 @@ latest_history_versions as (
 
 {%- else %}
 
--- First run. Just filter staging rows
+
+-- First run. Just filter staging rows.
+
 staging_rows_to_insert as (
     select
           *
@@ -97,7 +107,9 @@ staging_rows_to_insert as (
 
 {%- endif %}
 
--- Final output. Rows ready to append to history
+
+-- Final output. Rows ready to append to history.
+
 select *
 from staging_rows_to_insert
 
