@@ -40,9 +40,9 @@ with ranked_history as (
 
 {% if selection_expression %}
 
--- Case 1: A selection_expression was provided
--- Return only that expression from the most recent row per key
--- Example: return just the version hash to check for changes
+-- Case 1: A selection_expression was provided.
+-- Return only that expression from the most recent row per key.
+-- Example: return just the version hash to check for changes.
 
 select {{ selection_expression }}
 from ranked_history
@@ -51,9 +51,9 @@ where row_rank = 1
 
 {% else %}
 
--- Case 2: No selection_expression was provided
--- Return the entire most recent row per key
--- Exclude the helper column (row_rank)
+-- Case 2: No selection_expression was provided.
+-- Return the entire most recent row per key.
+-- Exclude the helper column (row_rank).
 
 select * exclude (row_rank)
 from ranked_history

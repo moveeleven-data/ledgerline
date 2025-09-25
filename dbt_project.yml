@@ -1,6 +1,6 @@
 # dbt_project.yml
 # -----------------------------------------------------------------
-# This is the main configuration file for LedgerLine.
+# This is the main configuration file for Ledgerline.
 # Here we define the project name, version, where the models live,
 # how they should be materialized, and other global behaviors.
 # -----------------------------------------------------------------

@@ -1,4 +1,4 @@
-<h1 align="center">LedgerLine: Margin & Growth Analytics</h1>
+<h1 align="center">Ledgerline: Margin & Growth Analytics</h1>
 
 <p align="center">
   Transform raw subscription usage into revenue, margin, and growth insights with dbt and Snowflake.
@@ -7,7 +7,7 @@
 
 ## Business Story
 
-LedgerLine simulates the financial heartbeat of a fictional B2B SaaS platform called **Atlas**. 
+Ledgerline simulates the financial heartbeat of a fictional B2B SaaS platform called **Atlas**. 
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
@@ -39,7 +39,7 @@ The core of Atlas is a **star schema**:
 one fact table (**fact_usage**) that records daily subscription activity,  
 joined to five conformed dimensions (customer, product, plan, currency, country).
 
-![LedgerLine Architecture](docs/assets/erd_physical_model_2.png)
+![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 
 <sub>Pricing is modeled as a refined lookup table and joined during fact construction, not exposed as its own mart.</sub>
 

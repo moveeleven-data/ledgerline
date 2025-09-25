@@ -1,6 +1,6 @@
 # packages.yml
 # ---------------------------------------------------------------
-# In LedgerLine we install dbt_utils.
+# In Ledgerline we install dbt_utils.
 # dbt_utils provides the macros we rely on for history:
 # surrogate_key, hash collision checks, unique combinations, etc.
 # ---------------------------------------------------------------

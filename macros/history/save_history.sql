@@ -62,7 +62,7 @@ latest_history_versions as (
 )
 
 
--- 2. Apply base staging filters
+-- 2. Apply base staging filters.
 
 , filtered_staging as (
     select *
@@ -71,7 +71,7 @@ latest_history_versions as (
 )
 
 
--- 3. Apply high watermark if configured
+-- 3. Apply high watermark if configured.
 
 , watermarked_staging as (
     select *
