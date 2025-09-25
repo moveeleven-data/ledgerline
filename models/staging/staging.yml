@@ -34,6 +34,7 @@ models:
   # - Year must be >= 2000
   # - One row per (product_code, plan_code, price_date)
   # ----------------------------------------------------------------------
+  
   - name: stg_atlas_price_book_daily
     tests:
       - dbt_utils.expression_is_true:
@@ -51,6 +52,7 @@ models:
   # Staging table for CRM customer info.
   # - customer_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_crm_customer_info
     tests:
       - unique:
@@ -65,6 +67,7 @@ models:
   # Staging table for product catalog info.
   # - product_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_catalog_product_info
     tests:
       - unique:
@@ -79,6 +82,7 @@ models:
   # Staging table for subscription plan catalog.
   # - plan_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_catalog_plan_info
     tests:
       - unique:
@@ -93,6 +97,7 @@ models:
   # Staging table for supported currencies.
   # - currency_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_currency_info
     tests:
       - unique:
