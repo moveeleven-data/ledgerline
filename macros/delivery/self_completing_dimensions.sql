@@ -44,6 +44,7 @@ base_dimension as (
    If no fact_defs are passed, return an empty set. */
 
 , fact_keys as (
+
     {% if fact_defs|length > 0 %}
 
         {%- for fact_model_key in fact_defs %}
@@ -54,15 +55,16 @@ base_dimension as (
             where {{ fact_model_key['key'] }} is not null
 
             {% if not loop.last %}
-            union                                               -- combine keys from all fact models
+            union                       -- combine keys from all fact models
             {% endif %}
 
         {%- endfor -%}
 
     {%- else %}
-        select null as foreign_key                              -- empty set if no facts provided
+        select null as foreign_key      -- empty set if no facts provided
         where false
     {%- endif %}
+    
 )
 
 

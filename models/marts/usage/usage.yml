@@ -209,7 +209,7 @@ models:
   # --------------------------------------------------------------------------
 
   - name: fact_usage
-    description: Daily usage by customer, product, plan, per report_date. One row per (customer_key, product_key, plan_key, report_date).
+    description: Daily usage by customer, product, plan, per report_date.
     config:
       contract:
         enforced: true
@@ -222,13 +222,6 @@ models:
       tier: 'gold'
       sla_hours: 24
       pii: false
-
-    # ----------------------------------------------------------------------
-    # Tests
-    # ----------------------------------------------------------------------
-    # Ensures uniqueness across the business grain:
-    # (customer_key, product_key, plan_key, report_date).
-    # ----------------------------------------------------------------------
     
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -267,6 +260,15 @@ models:
               arguments:
                 to: ref('dim_plan')
                 field: plan_key
+      
+      - name: currency_key
+        data_type: string
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_currency')
+                field: currency_key
 
       - name: report_date
         data_type: date
