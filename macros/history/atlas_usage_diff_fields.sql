@@ -31,10 +31,10 @@
     , included_units_override    = none
 ) %}
 
-    -- For usage metrics (units_used, included_units):
-    -- If an override is provided (e.g. '0' for CLOSE rows), use it.
+    -- For usage metrics (units_used, included_units),
+    -- if an override is provided (e.g. '0' for CLOSE rows), use it.
     -- Otherwise, fall back to the prefixed column (e.g. prior.units_used).
-    
+
     {%- set units_used_field = units_used_override
          if units_used_override is not none
          else prefix ~ 'units_used'

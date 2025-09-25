@@ -15,7 +15,7 @@
 
 select
       '{{ default_key_value }}'          as {{ column_name }}
-    , '{{ default_key_record_source }}' as {{ record_source_field_name }}
+    , '{{ default_key_record_source }}'  as {{ record_source_field_name }}
 from {{ model }}
 where {{ column_name }} = '{{ default_key_value }}'
   and {{ record_source_field_name }} = '{{ default_key_record_source }}'

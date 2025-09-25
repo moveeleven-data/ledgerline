@@ -48,6 +48,7 @@ select {{ selection_expression }}
 from ranked_history
 where row_rank = 1
 
+
 {% else %}
 
 -- Case 2: No selection_expression was provided.
