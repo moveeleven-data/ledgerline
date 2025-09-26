@@ -12,7 +12,7 @@
  * Helps pinpoint the root cause of revenue leakage when the coverage test fails.
  */
 
-{{ config(tags = ['qa'], severity = 'warn') }}
+{{ config(tags=['qa'], severity='warn') }}
 
 with
 

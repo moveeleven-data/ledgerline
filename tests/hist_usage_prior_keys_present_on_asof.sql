@@ -10,19 +10,7 @@
  * Missing rows break churn and carry-forward logic.
  */
 
-/**
- * hist_usage_prior_keys_present_on_asof.sql
- * -----------------------------------------
- * Errors if subscriptions that were OPEN before the as-of date
- * have no row on the as-of date (orphaned keys).
- *
- * Purpose:
- * Ensures continuity in the history table. An OPEN subscription yesterday
- * must still appear today, either as still OPEN or properly closed.
- * Missing rows break churn and carry-forward logic.
- */
-
-{{ config(severity='error') }}
+{{ config(tags=['qa'], severity='error') }}
 
 {% set as_of_str  = get_latest_usage_report_date() %}
 {% set as_of_date = "to_date('" ~ as_of_str ~ "')" %}

@@ -9,7 +9,7 @@
  * must be filtered out before making it into analytics-ready data.
  */
 
-{{ config(severity = 'error', tags = ['qa']) }}
+{{ config(tags=['qa'], severity='error') }}
 
 with
 

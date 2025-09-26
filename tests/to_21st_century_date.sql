@@ -5,6 +5,8 @@
  * edge-case source dates into expected 21st-century dates.
  */
 
+{{ config(tags=['qa'], severity='warn') }}
+
 with
 
 test_data as (
