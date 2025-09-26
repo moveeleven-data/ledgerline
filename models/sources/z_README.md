@@ -1,6 +1,6 @@
 # Ledgerline Sources
 
-Sources declare **external tables that dbt does not create**. Sources are declarations only; they don’t create tables.
+Sources declare external tables that dbt does not create. Sources are declarations only; they don’t create tables.
 They tell dbt where to look and what to expect. They define where data lands in the warehouse,
 how fresh it should be, and what its contract is. 
 
@@ -62,11 +62,3 @@ Source-level tests protect **upstream integrity**
 - Column presence, types, and descriptions to lock the contract.  
 
 Anything more sophisticated (like nonnegativity, sanity checks, or deduplication) is handled in staging.
-
----
-
-## Source to Staging
-
-**Usage feed**: Staging models read directly from `source('atlas_meter','atlas_meter_usage_daily')`.  
-
-**CRM, catalog, reference, pricing**: In development, staging reads from seeded tables (`ref(...)`). In production, these could be upgraded to real sources if ingestion pipelines land them upstream.  

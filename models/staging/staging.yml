@@ -1,8 +1,11 @@
 # staging.yml
-# -----------------------------------------------------------------------------------
-# Staging layer: lightly adapted versions of sources/seeds.
-# Ensures row-level uniqueness and basic data quality checks before feeding history.
-# -----------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Schema definitions for the Staging layer.
+#
+# Staging adapts raw sources/seeds into normalized, deduplicated tables.
+# It enforces uniqueness, adds default rows, and prepares clean inputs
+# for history.
+# ---------------------------------------------------------------------------
 
 version: 2
 

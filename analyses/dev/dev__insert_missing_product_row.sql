@@ -1,5 +1,3 @@
-{{ config(tags = ['dev']) }}
-
 /**
  * dev__insert_missing_product_row.sql
  * -----------------------------------

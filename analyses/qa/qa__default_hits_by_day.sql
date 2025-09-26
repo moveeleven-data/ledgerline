@@ -1,5 +1,3 @@
-{{ config(tags = ['qa']) }}
-
 /**
  * qa__default_hits_by_day.sql
  * ---------------------------

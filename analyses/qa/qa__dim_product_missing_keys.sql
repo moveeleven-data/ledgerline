@@ -1,5 +1,3 @@
-{{ config(tags = ['qa']) }}
-
 /**
  * qa__dim_product_missing_keys.sql
  * --------------------------------

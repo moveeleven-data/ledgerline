@@ -1,5 +1,3 @@
-{{ config(tags = ['qa']) }}
-
 /**
  * qa__rowcount_check_by_layer.sql
  * -------------------------------

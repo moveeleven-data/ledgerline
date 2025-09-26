@@ -1,6 +1,6 @@
 # Ledgerline Seeds
 
-Seeds are **versioned CSVs** that provide Atlas reference data and sample source feeds.  
+Seeds are versioned CSVs that provide Atlas reference data and sample source feeds.  
 
 - In **development and CI**, seeds provide both reference data and sample feeds (CRM, catalog, usage, pricing). This lets the full pipeline run end-to-end without relying on live upstream systems.  
 - In **production**, dynamic feeds such as usage and pricing are replaced by true sources, while stable reference lists (countries, currencies, products, plans) may remain seeded.  
@@ -41,7 +41,7 @@ Ledgerline ships seven seed datasets.
 
 ## Materialization and Lifecycle
 
-Seeds are materialized as **Snowflake tables** in the `seeds` schema. A few rules apply:
+Seeds are materialized as Snowflake tables in the `seeds` schema. A few rules apply:
 
 - **Typing**: Each CSV specifies `+column_types` so Snowflake doesn’t guess. This keeps the schema predictable.  
 - **Lineage**: A post-hook sets `load_ts` if it’s null, giving every row a load timestamp.  
@@ -50,7 +50,7 @@ Seeds are materialized as **Snowflake tables** in the `seeds` schema. A few rule
 
 ## Contracts and Constraints
 
-Seeds serve as the **first contract layer** of the pipeline. Each one declares basic uniqueness or combination tests in `seeds.yml`. This ensures that invalid shapes are caught early.
+Seeds serve as the first contract layer of the pipeline. Each one declares basic uniqueness or combination tests in `seeds.yml`. This ensures that invalid shapes are caught early.
 
 Key constraints:
 
@@ -62,7 +62,7 @@ Key constraints:
 - `atlas_price_book_daily`: unique combination `(product_code, plan_code, price_date)`.  
 - `atlas_meter_usage_daily`: unique combination `(customer_code, product_code, plan_code, report_date)`.
 
-These constraints **mimic reality** (customers must have one identity, usage must not double-count) and protect staging from broken inputs.
+These constraints mimic reality (customers must have one identity, usage must not double-count) and protect staging from broken inputs.
 
 ---
 
@@ -79,4 +79,4 @@ Testing happens at two levels:
    - Stronger validations (nonnegative amounts, year >= 2000, not nulls)  
    - Deduplication at natural grain  
 
-This two-tier strategy means **cheap, broad tests at the seed stage** and **stricter, domain-aware tests in staging**.
+This two-tier strategy means cheap, broad tests at the seed stage and stricter, domain-aware tests in staging.

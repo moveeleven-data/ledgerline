@@ -1,8 +1,10 @@
 # source_atlas.yml
 # ---------------------------------------------------------------------------
-# Declares the Atlas metering feed (atlas_meter_usage_daily) as a dbt source.
-# In dev/CI it resolves to seeds, in prod it resolves to the raw ingestion schema.
-# This file pins the contract (location, freshness, grain, and columns).
+# Schema definition for the Atlas metering feed (atlas_meter_usage_daily).
+#
+# In dev/CI it resolves to seeded tables, in prod it resolves to the
+# raw ingestion schema. This file pins the contract for location,
+# freshness, grain, and columns.
 # ---------------------------------------------------------------------------
 
 version: 2

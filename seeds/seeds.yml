@@ -1,7 +1,10 @@
 # seeds.yml
 # ---------------------------------------------------------------------------
-# Declares Ledgerline seed datasets (CRM, catalog, reference lists, pricing,
-# and sample usage). These CSVs load as static tables via `dbt seed`.
+# Schema definitions for Ledgerline seed datasets.
+#
+# Seeds include CRM, catalog, reference lists, pricing, and sample usage.
+# These CSVs load as static tables with dbt seed and act as portable
+# inputs for dev, CI, and testing.
 # ---------------------------------------------------------------------------
 
 version: 2
