@@ -1,78 +1,72 @@
 # Ledgerline Sources
 
-Sources declare **external tables that dbt does not create**. They define where data lands in the warehouse, how fresh it should be, and what its contract is. In Ledgerline, the primary runtime source is the **Atlas metering feed**. Other inputs (CRM, catalog, reference, pricing) are represented as seeds in development, but could later be promoted to true sources if upstream systems land them.
+Sources declare **external tables that dbt does not create**. Sources are declarations only; they don’t create tables.
+They tell dbt where to look and what to expect. They define where data lands in the warehouse,
+how fresh it should be, and what its contract is. 
+
+In Ledgerline, the only true runtime source is the Atlas metering feed. This feed records how much each customer used each product and plan on a given day. It appends new rows daily and never rewrites past data. We track freshness, enforce uniqueness at the daily grain, and apply staged cleaning logic. 
+
+The other inputs - customer, product, plan, currency, and country - are modeled as seeds since they are relatively static.  
+
+The daily price book is seeded here for portability and reproducibility. In a production system, however, it would be treated as a source with freshness tests, since rates change over time.
+
+---
+
+## Lifecycle
+
+1. **Seeds** are loaded into the warehouse as static tables via `dbt seed`.  
+2. **Sources** resolve runtime inputs.  
+   - In dev/CI, seeds act as the `_seeds` schema.  
+   - In prod, sources point to raw ingestion schemas.  
+3. **Staging** normalizes inputs before history.  
+   - In dev, staging queries seeds.  
+   - In prod, staging queries live ingestion tables.  
 
 ---
 
 ## Atlas Metering Source
 
-- **Logical name**: `atlas_meter`  
-- **Table**: `atlas_meter_usage_daily`  
-- **Schema resolution**:  
-  - **Dev and CI**: `{{ target.schema }}_seeds` — resolves to the seeded usage table so the full pipeline is reproducible without upstream feeds.  
-  - **Prod**: `{{ env_var("DBT_ATLAS_METER_SCHEMA", target.schema ~ "_seeds") }}` — resolves to the true raw landing schema.  
+**Logical name**: `atlas_meter`  
+**Table**: `atlas_meter_usage_daily`  
 
-This indirection allows the **same dbt code to run in all environments**, with only the schema locator changing.
+**Schema resolution**:  
+- **Studio and Dev jobs** resolve to `dbt_mtripodi_seeds` (from Project default). The usage table comes from seeds, making the entire pipeline reproducible without upstream dependencies.  
+- **Prod jobs** resolve to `source_data` (from the `DBT_ATLAS_METER_SCHEMA` environment variable). This points at the raw landing schema with live usage data.  
 
----
-
-## Freshness and Quality Gates
-
-The source enforces **governance checks at the warehouse edge**:
-
-- `loaded_at_field = load_ts` is the freshness indicator.  
-- **Freshness SLA**:  
-  - Warn if more than 36 hours old  
-  - Error if more than 72 hours old  
-- **Grain contract**: one row per `(customer_code, product_code, plan_code, report_date)`.  
-
-These rules live in `source_atlas_yml` and fail fast when the feed is stale or duplicated, preventing bad data from propagating into history and marts.
+This setup ensures the **same dbt code runs everywhere**. In development you work against seeds for speed and consistency, while in production jobs the source points at real data.
 
 ---
 
-## Flow into Staging
+## Freshness and Quality Checks
 
-- **Usage feed**: staging models read directly from `source('atlas_meter','atlas_meter_usage_daily')`.  
-- **CRM, catalog, reference, pricing**: in development, staging reads from seeded tables (`ref(...)`). In production, these could be upgraded to real sources if ingestion pipelines land them upstream.  
+We check the Atlas metering feed as soon as it lands in the warehouse. We make sure the data is recent and shaped correctly before it flows further downstream.  
 
-This layered approach lets you start lightweight with seeds, but **graduate to full source contracts** without rewriting downstream code.
+- **Freshness SLA**  
+  - Warn if more than **36 hours** old  
+  - Error if more than **72 hours** old
 
----
+- **Grain contract**  
+  - Exactly one row per `(customer_code, product_code, plan_code, report_date)`  
+  - No duplicates allowed  
 
-## Design Principles
-
-- **Grain enforced at source**: Uniqueness tests make sure the raw feed respects its daily grain. Staging will still dedupe, but the first line of defense is here.  
-- **UTC only**: `report_date` is always the calendar day in UTC. No time zone conversions are done in this layer.  
-- **Freshness is a gate**: If the feed is late, downstream jobs should block or run in safe mode.  
-
----
-
-## Hashing Strategy
-
-There is **no hashing at the source level**. Sources expose the natural keys and attributes exactly as landed. Hashes and surrogate keys are introduced in staging, where deterministic field lists guarantee stable key generation across environments.
+If the data is stale or doesn’t meet the expected grain, the tests stop the process. This ensures that staging, history, and marts all build on top of healthy input data.
 
 ---
 
 ## Testing Strategy
 
-Source-level tests focus on **upstream integrity**:
+Source-level tests protect **upstream integrity**
 
-- `dbt_utils.unique_combination_of_columns` to enforce the natural grain.  
-- Freshness checks with explicit warn and error windows.  
-- Column presence and descriptions to lock the contract.  
+- `dbt_utils.unique_combination_of_columns` on the declared grain.  
+- Freshness checks with explicit warn/error windows.  
+- Column presence, types, and descriptions to lock the contract.  
 
-More sophisticated validations (nonnegativity, year sanity checks, deduplication) happen in staging.
-
----
-
-## Documentation Posture
-
-Column descriptions in the source YAML define the **public contract** of the upstream system. Downstream models rely on these definitions to maintain consistency. If an upstream team renames or repurposes a column, source tests will surface the break before it contaminates history or marts.
+Anything more sophisticated (like nonnegativity, sanity checks, or deduplication) is handled in staging.
 
 ---
 
-## Operational Notes
+## Source to Staging
 
-- Treat `source()` as the **single point of contract** with upstream. Any change to raw schemas should be absorbed here, not hacked around in marts.  
-- Remember: sources are **declarations only**. dbt does not create them, it only references them.  
-- In dev and CI, seeds give you a safe, reproducible sandbox. In prod, sources give you SLAs and accountability.  
+**Usage feed**: Staging models read directly from `source('atlas_meter','atlas_meter_usage_daily')`.  
+
+**CRM, catalog, reference, pricing**: In development, staging reads from seeded tables (`ref(...)`). In production, these could be upgraded to real sources if ingestion pipelines land them upstream.  
