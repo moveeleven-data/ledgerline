@@ -30,4 +30,5 @@ usage_daily_counts as (
 select
     *
 from usage_daily_counts
-where daily_row_count > 1
+where
+    daily_row_count > 1

@@ -42,5 +42,7 @@ left join {{ ref('dim_product') }} as dim_product
 left join {{ ref('dim_plan') }} as dim_plan
        on dim_plan.plan_key = fact_usage.plan_key
 
-where fact_usage.report_date = to_date('{{ as_of_date }}')
-group by fact_usage.report_date;
+where
+    fact_usage.report_date = to_date('{{ as_of_date }}')
+group by
+    fact_usage.report_date;

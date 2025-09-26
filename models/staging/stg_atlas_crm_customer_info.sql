@@ -1,6 +1,19 @@
 {{ config(materialized='ephemeral') }}
 
-with src as (
+/**
+ * stg_atlas_crm_customer_info.sql
+ * -------------------------------
+ * Staging model for CRM customer reference data.
+ *
+ * Purpose:
+ * - Normalize customer and country codes.
+ * - Add a default row for safe joins.
+ * - Generate surrogate keys for uniqueness and change tracking.
+ */
+
+with
+
+customer_source as (
     select
           upper(customer_code)           as customer_code
         , customer_name
@@ -10,7 +23,7 @@ with src as (
     from {{ ref('atlas_crm_customer_info') }}
 )
 
-, default_row as (
+, customer_default_row as (
     select
           '-1'                           as customer_code
         , 'Missing'                      as customer_name
@@ -19,13 +32,19 @@ with src as (
         , 'System.DefaultKey'            as record_source
 )
 
-, unioned as (
-    select * from src
+, customer_combined as (
+    select
+        *
+    from customer_source
+    
     union all
-    select * from default_row
+    
+    select
+        *
+    from customer_default_row
 )
 
-, hashed as (
+, customer_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
         , {{ dbt_utils.generate_surrogate_key([
@@ -34,10 +53,11 @@ with src as (
               ,'country_code2'
           ]) }} as customer_hdiff
 
-         , * exclude (load_ts)
-         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from unioned
+        , * exclude (load_ts)
+        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+    from customer_combined
 )
+
 select
     *
-from hashed
+from customer_hashed

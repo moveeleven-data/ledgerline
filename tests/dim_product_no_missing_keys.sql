@@ -22,7 +22,8 @@ usage_products as (
     select distinct
         product_code
     from {{ ref('ref_usage_atlas') }}
-    where product_code is not null
+    where
+        product_code is not null
 )
 
 , dimension_products as (
@@ -35,8 +36,10 @@ usage_products as (
     select
         usage_products.product_code
     from usage_products
-    left join dimension_products using (product_code)
-    where dimension_products.product_code is null
+    left join dimension_products
+        using (product_code)
+    where
+        dimension_products.product_code is null
 )
 
 select

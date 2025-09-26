@@ -20,12 +20,15 @@
 
 {{ config(severity = 'warn') }}
 
-with invalid_default_source_usage as (
+with
+
+invalid_default_source_usage as (
     select distinct
           {{ surrogate_key_column }}
         , {{ lineage_source_column }}
     from {{ model }}
-    where {{ surrogate_key_column }} != '{{ default_surrogate_key_value }}'
+    where
+          {{ surrogate_key_column }} != '{{ default_surrogate_key_value }}'
       and {{ lineage_source_column }} = '{{ default_lineage_source_value }}'
 )
 

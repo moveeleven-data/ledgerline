@@ -52,7 +52,8 @@ base_dimension as (
             select distinct 
                 {{ fact_model_key['key'] }} as foreign_key
             from {{ ref(fact_model_key['model']) }}
-            where {{ fact_model_key['key'] }} is not null
+            where
+                {{ fact_model_key['key'] }} is not null
 
             {% if not loop.last %}
             union                       -- combine keys from all fact models
@@ -61,8 +62,10 @@ base_dimension as (
         {%- endfor -%}
 
     {%- else %}
-        select null as foreign_key      -- empty set if no facts provided
-        where false
+        select
+            null as foreign_key      -- empty set if no facts provided
+        where
+            false
     {%- endif %}
     
 )
@@ -77,7 +80,8 @@ base_dimension as (
     from fact_keys
     left outer join base_dimension
          on base_dimension.{{ dim_key_column }} = fact_keys.foreign_key
-    where base_dimension.{{ dim_key_column }} is null
+    where
+        base_dimension.{{ dim_key_column }} is null
 )
 
 
@@ -90,7 +94,8 @@ base_dimension as (
     select
         *
     from base_dimension
-    where {{ dim_key_column }} = '{{ dim_default_key_value }}'
+    where
+        {{ dim_key_column }} = '{{ dim_default_key_value }}'
     limit 1
 )
 
@@ -121,9 +126,15 @@ base_dimension as (
      - Plus new rows for every fact key that was missing. */
 
 , completed_dimension as (
-    select * from base_dimension
+    select
+        *
+    from base_dimension
+
     union all
-    select * from synthetic_missing_rows
+
+    select
+        *
+    from synthetic_missing_rows
 )
 
 select

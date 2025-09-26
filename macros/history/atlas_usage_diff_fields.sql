@@ -36,13 +36,17 @@
     -- Otherwise, fall back to the prefixed column (e.g. prior.units_used).
 
     {%- set units_used_field = units_used_override
-         if units_used_override is not none
-         else prefix ~ 'units_used'
+         if
+            units_used_override is not none
+         else
+            prefix ~ 'units_used'
     -%}
 
     {%- set included_units_field = included_units_override
-         if included_units_override is not none
-         else prefix ~ 'included_units'
+         if
+            included_units_override is not none
+         else
+            prefix ~ 'included_units'
     -%}
 
     -- Final ordered list of fields used in surrogate key generation.

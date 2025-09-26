@@ -1,8 +1,21 @@
 {{ config(materialized='ephemeral') }}
 
+/**
+ * stg_atlas_meter_usage_daily.sql
+ * -------------------------------
+ * Staging model for daily metered usage feed.
+ *
+ * Purpose:
+ * - Normalize codes and dates.
+ * - Remove ghost rows (fully empty records).
+ * - Deduplicate at the natural grain (cust × prod × plan × date).
+ * - Add a default row for safe joins.
+ * - Generate surrogate keys for uniqueness and change tracking.
+ */
+
 with
 
-src as (
+source_usage as (
     select
           upper(customer_code)                       as customer_code
         , upper(product_code)                        as product_code
@@ -15,11 +28,10 @@ src as (
     from {{ ref('atlas_meter_usage_daily') }}
 )
 
-, ghosts_removed as (
+, ghost_rows_removed as (
     select
         *
-    from src
-
+    from source_usage
     where not (
                nullif(trim(customer_code),  '') is null
            and nullif(trim(product_code),   '') is null
@@ -30,20 +42,14 @@ src as (
     )
 )
 
-, dedup as (
+, deduplicated_usage as (
     select
         *
-    from ghosts_removed
+    from ghost_rows_removed
 
     qualify row_number() over (
-        partition by
-              customer_code
-            , product_code
-            , plan_code
-            , report_date
-        order by
-              load_ts desc
-            , units_used desc
+        partition by customer_code, product_code, plan_code, report_date
+        order by load_ts desc, units_used desc
     ) = 1
 )
 
@@ -59,13 +65,19 @@ src as (
         , 'System.DefaultKey'            as record_source
 )
 
-, unioned as (
-    select * from dedup
+, combined_usage as (
+    select
+        *
+    from deduplicated_usage
+
     union all
-    select * from default_row
+
+    select
+        *
+    from default_row
 )
 
-, hashed as (
+, hashed_usage as (
     select
           {{ dbt_utils.generate_surrogate_key([
                 'customer_code'
@@ -85,9 +97,9 @@ src as (
 
         , * exclude (load_ts)
         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from unioned
+    from combined_usage
 )
 
 select
     *
-from hashed
+from hashed_usage

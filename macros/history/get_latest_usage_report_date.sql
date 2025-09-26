@@ -39,7 +39,8 @@
                     max(report_date)
                   , 'YYYY-MM-DD'
               ) as max_report_date
-        from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
+        from
+            {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
     {% endset %}
 
     {% set query_result = run_query(latest_report_date_sql) %}
@@ -48,7 +49,7 @@
     -- 4. Pull the first value from the result, if any.
 
     {% set latest_report_date_str = (
-          query_result
+              query_result
           and query_result.columns
           and query_result.columns[0].values()
           and query_result.columns[0].values()[0]
@@ -58,8 +59,9 @@
     -- 5. Return the date we found, or fallback if it was null.
     
     {{ return(
-        latest_report_date_str if latest_report_date_str is not none
-                               else fallback_date_default
+        latest_report_date_str
+            if latest_report_date_str is not none
+          else fallback_date_default
     ) }}
 
 {% endmacro %}
