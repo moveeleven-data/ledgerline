@@ -60,19 +60,6 @@ These tests are intentionally strict. If staging has to “fix” too much bad d
 
 ---
 
-## Why This Layer Matters
-
-Without staging, downstream models would constantly re-implement normalization, deduplication, and key generation. That would be both expensive and brittle. Staging provides a single, centralized place for all adaptation logic, ensuring:
-
-- Stable surrogate keys  
-- Clean change-tracking in history  
-- Safe joins in marts  
-- Lower warehouse costs  
-
-It is the quiet backbone of the Ledgerline pipeline.
-
----
-
 ## Grains & Keys (Facts)
 
 ### Usage feed
@@ -113,3 +100,4 @@ Staging stores all dates and timestamps in UTC.
 - Load timestamps are stamped in UTC when the pipeline runs.  
 
 No time zone conversions are applied in staging. Standardizing everything to UTC avoids regional discrepencies and makes metrics like usage, billing, and churn globally comparable.
+
