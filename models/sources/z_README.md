@@ -9,7 +9,7 @@ We track freshness, enforce uniqueness at the daily grain, and apply staged clea
 
 The other inputs - customer, product, plan, currency, and country - are modeled as seeds since they are relatively static.  
 
-(The daily price book is seeded as well for portability. In a production system, it would be treated as a source with freshness tests, since rates change over time.)
+*(The daily price book is seeded as well for portability. In a production system, it would be treated as a source with freshness tests, since rates change over time.)*
 
 ---
 
