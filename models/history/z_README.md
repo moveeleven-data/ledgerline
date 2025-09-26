@@ -97,7 +97,7 @@ We also use continuity checks to confirm that if a key was open yesterday, it st
 
 - To reprocess a specific day, run with `--vars "as_of_date: YYYY-MM-DD"` (UTC date). This rebuilds that day’s `OPEN` and `CLOSE_SYNTHETIC` rows.  
 
->> Word of caution. Changing a single day in isolation may alter the baseline that later days depend on. If continuity matters (for example, churn counts), re-run the subsequent days as well.
+> Word of caution. Changing a single day in isolation may alter the baseline that later days depend on. If continuity matters (for example, churn counts), re-run the subsequent days as well.
 
 - Reference tables are append-only. Each new attribute version simply appends a row without altering prior records.
 
