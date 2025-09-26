@@ -35,7 +35,8 @@ with ranked_history as (
               order by {{ load_timestamp_column }} desc
           ) as row_rank
     from {{ history_relation }}
-    where {{ history_filter_condition }}
+    where
+        {{ history_filter_condition }}
 )
 
 {% if selection_expression %}

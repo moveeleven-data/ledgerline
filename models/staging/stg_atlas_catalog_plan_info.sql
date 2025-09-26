@@ -1,8 +1,17 @@
-{{ config(materialized='ephemeral') }}
+/**
+ * stg_atlas_catalog_plan_info.sql
+ * -------------------------------
+ * Staging model for subscription plan catalog data.
+ *
+ * Purpose:
+ * - Normalize plan_code and product_code.
+ * - Add a default row for safe joins.
+ * - Generate surrogate keys for uniqueness and change tracking.
+ */
 
 with
 
-src as (
+plan_source as (
     select
           upper(plan_code)                  as plan_code
         , plan_name
@@ -13,7 +22,7 @@ src as (
     from {{ ref('atlas_catalog_plan_info') }}
 )
 
-, default_row as (
+, plan_default_row as (
     select
           '-1'                           as plan_code
         , 'Missing'                      as plan_name
@@ -23,13 +32,19 @@ src as (
         , 'System.DefaultKey'            as record_source
 )
 
-, unioned as (
-    select * from src
+, plan_combined as (
+    select
+        *
+    from plan_source
+
     union all
-    select * from default_row
+
+    select
+        *
+    from plan_default_row
 )
 
-, hashed as (
+, plan_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['plan_code']) }} as plan_hkey
         , {{ dbt_utils.generate_surrogate_key([
@@ -41,7 +56,9 @@ src as (
 
         , * exclude (load_ts)
         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from unioned
+    from plan_combined
 )
 
-select * from hashed
+select
+    *
+from plan_hashed

@@ -1,9 +1,20 @@
-with
+/**
+ * ref_product_atlas.sql
+ * ----------------------------------
+ * Refined dimension for products.
+ *
+ * Purpose:
+ * - Collapse SCD history to the current product record per surrogate key.
+ * - Provide stable product attributes for marts.
+ *
+ * Grain:
+ * - One row per product_hkey.
+ */
 
-current_from_history as (
+with current_from_history as (
     {{ current_from_history(
           history_relation = ref('hist_atlas_catalog_product_info')
-        , key_column  = 'product_hkey'
+        , key_column       = 'product_hkey'
     ) }}
 )
 

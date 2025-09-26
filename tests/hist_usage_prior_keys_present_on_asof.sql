@@ -35,7 +35,8 @@ open_subscriptions_prior as (
         , product_code
         , plan_code
     from {{ ref('hist_atlas_meter_usage_daily') }}
-    where usage_row_type = 'OPEN'
+    where
+          usage_row_type = 'OPEN'
       and report_date < {{ as_of_date }}
 )
 
@@ -45,7 +46,8 @@ open_subscriptions_prior as (
         , product_code
         , plan_code
     from {{ ref('hist_atlas_meter_usage_daily') }}
-    where report_date = {{ as_of_date }}
+    where
+        report_date = {{ as_of_date }}
 )
 
 , orphaned_subscriptions as (
@@ -56,7 +58,8 @@ open_subscriptions_prior as (
     from open_subscriptions_prior as prior
     left join subscriptions_asof as asof
         using (customer_code, product_code, plan_code)
-    where asof.customer_code is null
+    where
+        asof.customer_code is null
 )
 
 select

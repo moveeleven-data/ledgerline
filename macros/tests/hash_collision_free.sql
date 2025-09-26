@@ -29,8 +29,10 @@ all_tuples as (
           hash
         , count(*) as row_count
     from all_tuples
-    group by hash
-    having count(*) > 1
+    group by
+        hash
+    having
+        count(*) > 1
 )
 
 select

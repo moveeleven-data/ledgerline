@@ -25,7 +25,8 @@ usage_window as (
         report_date
       , unit_price
     from {{ ref('fact_usage') }}
-    where report_date between {{ start_date }} and {{ end_date }}
+    where
+        report_date between {{ start_date }} and {{ end_date }}
 )
 
 , pricing_counts as (

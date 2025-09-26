@@ -1,9 +1,20 @@
-with
+/**
+ * ref_country_atlas.sql
+ * --------------------------
+ * Refined dimension for countries.
+ *
+ * Purpose:
+ * - Collapse SCD history to the current country record per surrogate key.
+ * - Provide stable business attributes for joins in marts.
+ *
+ * Grain:
+ * - One row per country_hkey.
+ */
 
-current_from_history as (
+with current_from_history as (
     {{ current_from_history(
           history_relation = ref('hist_atlas_country_info')
-        , key_column  = 'country_hkey'
+        , key_column       = 'country_hkey'
     ) }}
 )
 

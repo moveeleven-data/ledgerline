@@ -1,8 +1,17 @@
-{{ config(materialized='ephemeral') }}
+/**
+ * stg_atlas_catalog_product_info.sql
+ * ----------------------------------
+ * Staging model for product catalog reference data.
+ *
+ * Purpose:
+ * - Normalize product_code to uppercase.
+ * - Add a default row for safe joins.
+ * - Generate surrogate keys for uniqueness and change tracking.
+ */
 
 with
 
-src as (
+product_source as (
     select
           upper(product_code)               as product_code
         , product_name
@@ -12,7 +21,7 @@ src as (
     from {{ ref('atlas_catalog_product_info') }}
 )
 
-, default_row as (
+, product_default_row as (
     select
           '-1'                           as product_code
         , 'Missing'                      as product_name
@@ -21,13 +30,19 @@ src as (
         , 'System.DefaultKey'            as record_source
 )
 
-, unioned as (
-    select * from src
+, product_combined as (
+    select
+        *
+    from product_source
+
     union all
-    select * from default_row
+
+    select
+        *
+    from product_default_row
 )
 
-, hashed as (
+, product_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['product_code']) }} as product_hkey
         , {{ dbt_utils.generate_surrogate_key([
@@ -38,9 +53,9 @@ src as (
 
         , * exclude (load_ts)
         , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
-    from unioned
+    from product_combined
 )
 
 select
     *
-from hashed
+from product_hashed

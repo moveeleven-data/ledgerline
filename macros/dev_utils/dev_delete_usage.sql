@@ -21,7 +21,8 @@
 
     delete from {{ ref('usage_daily') }}
 
-    where customer_code = '{{ customer_code | upper }}'
+    where 1=1
+      and customer_code = '{{ customer_code | upper }}'
       and product_code  = '{{ product_code  | upper }}'
       and plan_code     = '{{ plan_code     | upper }}'
       and report_date   = to_date('{{ report_date_str }}')

@@ -25,7 +25,8 @@ with fact_codes as (
     select distinct
         product_code
     from {{ ref('ref_usage_atlas') }}
-    where product_code is not null
+    where
+        product_code is not null
 )
 
 
@@ -66,5 +67,7 @@ left join refined_product_codes                                         -- Produ
 left join dim_codes                                                     -- Product codes in Product dimension.
        on dim_codes.product_code = fact_codes.product_code
 
-where refined_product_codes.product_code is null
-order by fact_codes.product_code;
+where
+    refined_product_codes.product_code is null
+order by
+    fact_codes.product_code;

@@ -30,4 +30,5 @@ select
     , expected_date
     , {{ to_21st_century_date('src_date') }} as actual_date
 from test_data
-where {{ to_21st_century_date('src_date') }} <> expected_date
+where
+    {{ to_21st_century_date('src_date') }} <> expected_date

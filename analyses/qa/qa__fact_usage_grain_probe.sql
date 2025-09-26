@@ -39,6 +39,7 @@ group by
   , product_key
   , plan_key
   , report_date
-having count(*) > 1
+having
+    count(*) > 1
 order by
     row_count desc;

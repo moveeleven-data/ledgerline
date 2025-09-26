@@ -25,7 +25,8 @@ top_keys_with_closes as (
         ) as num_close_events
 
     from {{ ref('hist_atlas_meter_usage_daily') }}
-    group by usage_hkey
+    group by
+        usage_hkey
     having
         num_close_events > 0
 

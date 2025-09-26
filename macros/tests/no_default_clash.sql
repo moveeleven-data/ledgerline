@@ -25,7 +25,8 @@
 select
     *
 from {{ model }}
-where {{ surrogate_key_column }} = '{{ default_surrogate_key }}'
+where
+      {{ surrogate_key_column }} = '{{ default_surrogate_key }}'
   and {{ lineage_source_column }} != '{{ default_lineage_source }}'
 
 {% endtest %}

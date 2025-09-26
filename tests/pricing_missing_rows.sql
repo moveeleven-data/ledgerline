@@ -17,34 +17,35 @@
 with
 
 usage_rows as (
-  select
-      upper(customer_code)   as customer_code
-    , upper(product_code)    as product_code
-    , upper(plan_code)       as plan_code
-    , report_date::date      as report_date
-  from {{ ref('ref_usage_atlas') }}
+    select
+        upper(customer_code)   as customer_code
+      , upper(product_code)    as product_code
+      , upper(plan_code)       as plan_code
+      , report_date::date      as report_date
+    from {{ ref('ref_usage_atlas') }}
 )
 
 , price_rows as (
-  select
-      upper(product_code)    as product_code
-    , upper(plan_code)       as plan_code
-    , price_date::date       as price_date
-    , unit_price
-  from {{ ref('stg_atlas_price_book_daily') }}
+    select
+        upper(product_code)    as product_code
+      , upper(plan_code)       as plan_code
+      , price_date::date       as price_date
+      , unit_price
+    from {{ ref('stg_atlas_price_book_daily') }}
 )
 
 , usage_without_price as (
-  select
-      usage_rows.product_code
-    , usage_rows.plan_code
-    , usage_rows.report_date
-  from usage_rows
-  left join price_rows
-    on  price_rows.product_code = usage_rows.product_code
-    and price_rows.plan_code    = usage_rows.plan_code
-    and price_rows.price_date   = usage_rows.report_date
-  where price_rows.unit_price is null
+    select
+        usage_rows.product_code
+      , usage_rows.plan_code
+      , usage_rows.report_date
+    from usage_rows
+    left join price_rows
+        on  price_rows.product_code = usage_rows.product_code
+        and price_rows.plan_code    = usage_rows.plan_code
+        and price_rows.price_date   = usage_rows.report_date
+    where
+        price_rows.unit_price is null
 )
 
 select
