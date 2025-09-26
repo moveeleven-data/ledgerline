@@ -14,7 +14,7 @@
  * - Final select Returns any fact_codes not found in dim_codes.
  */
 
-{{ config(severity = 'warn') }}
+{{ config(tags=['qa'], severity='warn') }}
 
 with
 

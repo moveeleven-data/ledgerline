@@ -8,7 +8,7 @@
  * at the daily grain, or downstream facts and dimensions will break.
  */
 
-{{ config(severity = 'error') }}
+{{ config(tags=['qa'], severity='error') }}
 
 with
 

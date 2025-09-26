@@ -4,15 +4,15 @@
  * Companion test to pricing_missing_rows.
  *
  * Together they validate pricing coverage:
- * - This test (ERROR) checks coverage rate: fails if <95% of usage rows
+ * - This test (error) checks coverage rate: fails if <95% of usage rows
  *   in the last 7 days have a unit_price.
- * - pricing_missing_rows.sql (WARN) lists the specific rows that are unpriced.
+ * - pricing_missing_rows.sql (warn) lists the specific rows that are unpriced.
  *
  * Purpose:
  * Ensures billing integrity by catching large-scale gaps in pricing.
  */
 
-{{ config(severity='error') }}
+{{ config(tags=['qa'], severity='error') }}
 
 {% set as_of_str  = get_latest_usage_report_date() %}
 {% set start_date = "dateadd(day, -6, to_date('" ~ as_of_str ~ "'))" %}
