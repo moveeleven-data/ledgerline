@@ -1,21 +1,30 @@
-# source_atlas_yml
-# -----------------------------------------------------------------------------------
-# Defines the contract for the atlas_meter usage feed, which dbt does not create.
-# Six inputs are seeds (CRM, catalog, countries, currencies, price book), but this
-# feed is a true source. In dev it points at seeded data, in prod it points at the
-# raw ingestion schema. This file declares where to find it, how fresh it should be,
-# and what its columns mean.
-# -----------------------------------------------------------------------------------
+# source_atlas.yml
+# ---------------------------------------------------------------------------
+# Schema definition for the Atlas metering feed (atlas_meter_usage_daily).
+#
+# In dev/CI it resolves to seeded tables, in prod it resolves to the
+# raw ingestion schema. This file pins the contract for location,
+# freshness, grain, and columns.
+# ---------------------------------------------------------------------------
 
 version: 2
 
 sources:
   - name: atlas_meter
-
-    # "atlas_meter" is the logical label. We'll use this in code like:
-    # source('atlas_meter', 'atlas_meter_usage_daily')
-
+  
     database: "{{ target.database }}"   # Portable across dev/prod/CI
+
+    # -------------------------------------------------------------------------
+    # Schema Resolution
+    # --------------------------------------------------------------------------
+    # Studio and Dev jobs:
+    #   schema = dbt_mtripodi_seeds (from Project default)
+    #   - Reads from seeded CSVs so development and CI builds are reproducible.
+    #
+    # Prod jobs:
+    #   schema = source_data (from DBT_ATLAS_METER_SCHEMA env var)
+    #   - Points to the raw ingestion schema with live usage data.
+    # --------------------------------------------------------------------------
 
     schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', target.schema ~ '_seeds') }}"
     tags: ['source','domain:usage_billing','data_product:ledgerline']
@@ -26,20 +35,6 @@ sources:
       source_system: 'atlas_meter'
       sla_hours: 24
       pii: false
-
-    # --------------------------------------------------------------------------
-    # Schema Resolution
-    # --------------------------------------------------------------------------
-    # Dev/CI: schema = <target.schema>_seeds
-    #   - Reads from seeded CSVs checked into the repo.
-    #   - Developers/CI don’t need a live ingestion feed.
-    #
-    # Prod: schema = DBT_ATLAS_METER_SCHEMA (env var)
-    #   - Points to the raw ingestion schema (e.g. source_data).
-    #
-    # Same dbt code works in both modes. Everyone develops/tests against the
-    # same seed snapshot, while prod uses real data.
-    # --------------------------------------------------------------------------
 
     tables:
       - name: atlas_meter_usage_daily         # dbt alias

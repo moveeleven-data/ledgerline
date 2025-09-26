@@ -1,5 +1,3 @@
-{{ config(tags = ['qa']) }}
-
 /**
  * qa__synthetic_close_timelines.sql
  * ---------------------------------

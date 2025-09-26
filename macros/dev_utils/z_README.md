@@ -1,12 +1,16 @@
 # Dev Utils Macros
 
-The `macros/dev_utils/` folder contains **helpers for local development and iteration**. These macros are meant to speed up testing and debugging, not to shape production data.
+This folder contains helpers for local development and iteration.
+
+These macros are meant to speed up testing and debugging, not to shape production data.
+
+Basic guardrails are built in to ensure they only run in dev targets.
 
 ---
 
 ## Scope
 
-- Write to **development tables only**, never to marts or production schemas.  
+- Write to development tables only, never to marts or production schemas.  
 - Provide shortcuts for inserting or removing synthetic rows so you can exercise logic quickly.  
 - Make iteration fast during model design, QA, or exploratory work.  
 
@@ -14,6 +18,6 @@ The `macros/dev_utils/` folder contains **helpers for local development and iter
 
 ## Current State
 
-Right now the folder has simple insert/delete utilities for synthetic usage rows. Over time, it may grow to include other developer-focused helpers.  
+This folder currently holds simple insert/delete utilities for synthetic usage rows. It may expand with other developer-focused helpers.  
 
-These macros are **for development only** — never call them from models that run in production.
+While there are guardrails in place, these macros are strictly for development. Never call them from production models.

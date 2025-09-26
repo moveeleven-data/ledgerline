@@ -1,5 +1,3 @@
-{{ config(tags = ['qa']) }}
-
 /**
  * qa__fact_usage_metric_check.sql
  * -------------------------------

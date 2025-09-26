@@ -1,16 +1,11 @@
 # seeds.yml
-# --------------------------------------------------------------------------------
-# Seeds are small, slowing changing datasets for scaffolding and reference.
+# ---------------------------------------------------------------------------
+# Schema definitions for Ledgerline seed datasets.
 #
-# Lifecycle:
-# 1. Seeds: CSVs are first loaded into the warehouse as static tables.
-# 2. Sources: dbt then resolves the location of our raw data.
-#    - In dev, our seeds act as the raw layer `_seeds`.
-#    - In prod, sources instead point to real upstream raw landing schemas.
-# 3. Staging models: Lightly adapts the source data before feeding it to history.
-#    - In dev, staging queries the seeded tables.
-#    - In prod, staging queries the real ingestion tables.
-# --------------------------------------------------------------------------------
+# Seeds include CRM, catalog, reference lists, pricing, and sample usage.
+# These CSVs load as static tables with dbt seed and act as portable
+# inputs for dev, CI, and testing.
+# ---------------------------------------------------------------------------
 
 version: 2
 

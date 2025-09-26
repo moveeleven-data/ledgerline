@@ -1,10 +1,11 @@
 # history.yml
-# -----------------------------------------------------------------------------------
-# History layer: SCD usage history.
-# - 'OPEN' rows come from the source for each report_date
-# - 'CLOSE_SYNTHETIC' rows are zero-outs created when an OPEN combo disappears
-#   on the latest report_date (one close per key and date).
-# -----------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Schema definitions for the History layer.
+#
+# This layer preserves full change history for both reference data
+# and usage spans. It makes time explicit by storing surrogate keys,
+# version hashes, and row types (OPEN / CLOSE_SYNTHETIC).
+# ---------------------------------------------------------------------------
 
 models:
 

@@ -1,6 +1,8 @@
 # Usage Mart
 
-The Usage Mart is a **curated star schema**. It publishes conformed dimensions and a daily usage fact table shaped for finance, product, and customer success analytics.  
+The Usage Mart is a curated star schema.
+
+It publishes conformed dimensions and a daily usage fact table shaped for finance, product, and customer success analytics.  
 
 This layer is what most analysts and BI tools query directly. It translates clean refined data into business-facing structures.
 
@@ -8,62 +10,51 @@ This layer is what most analysts and BI tools query directly. It translates clea
 
 ## Overall Flow
 
-1. **Refined usage**  
-   - `ref_usage_atlas` provides the latest `OPEN` usage at the natural key grain.  
-   - Adds `overage_units = greatest(units_used - included_units, 0)`.  
+1. **Usage input**  
+   Pull the latest daily usage at the natural key grain, with convenience fields like overage units added.  
+   *(model: `ref_usage_atlas`)*  
 
 2. **Pricing**  
-   - `int__fact_usage_priced` is a view that applies pricing rules.  
-   - For each usage row, look up the last effective `unit_price` on or before `report_date` from the daily price book.  
-   - Assign a `currency_code` from `var('default_billing_currency', 'USD')`. Multi-currency can be added later by carrying the actual price book currency.  
+   Apply pricing rules using the daily price book. For each row, assign the last valid unit price on or before the report date and apply a billing currency.  
+   *(model: `int__fact_usage_priced`)*  
 
 3. **Dimensions**  
-   - **dim_customer, dim_product, dim_plan, dim_country** use `self_completing_dimension`. These start from the refined dimension, then clone the default member for any codes referenced in facts but not yet present.  
-   - **dim_currency** is a closed domain. It comes directly from refined and does not self complete. Invalid currency codes should fail tests.  
+   Bring in customer, product, plan, country, and currency dimensions so every fact row has a matching key.  
+   *(models: `dim_customer`, `dim_product`, `dim_plan`, `dim_country`, `dim_currency`)*  
 
-4. **Fact**  
-   - `fact_usage` joins priced usage to dimensions.  
-   - Computes `billed_value`, `included_value`, `overage_value`, and `overage_share`.  
-   - Publishes one row per enforced grain: `(customer_key, product_key, plan_key, report_date)` (plus `currency_key` if multi-currency is introduced).  
+4. **Fact table**  
+   Join priced usage to dimensions, calculate billing values, and publish one row per enforced grain (customer, product, plan, date, plus currency if enabled).  
+   *(model: `fact_usage`)*  
 
 ---
 
 ## Grain and Contract
 
-- **Fact grain**: `(customer_key, product_key, plan_key, report_date)`.  
-- Contracts are enforced in `usage.yml` with uniqueness, column types, and foreign key relationships.  
-- If multi-currency is introduced, extend the grain to `(customer_key, product_key, plan_key, report_date, currency_key)`.
+- The fact table is stored at the daily level for each customer, product, and plan.  
+- Data contracts enforce rules like uniqueness, correct column types, and valid relationships to dimensions.  
+- If multiple currencies are introduced, we will expand the grain to include currency as well, so each row is uniquely defined by customer, product, plan, date, and currency.  
 
 ---
 
 ## Materialization
 
-- **Dimensions**: `table` for fast BI lookups and stable joins.  
-- **Intermediate pricing**: `view`. Keeps pricing rules visible and auditable, while the final fact table persists results.  
-- **Fact**: `table` for performance and reproducibility.  
+- Dimensions are stored as tables so they can be joined quickly and consistently in BI tools.  
+- The intermediate pricing step is kept as a view, which makes the pricing rules easy to read and audit without materializing extra data.  
+- The final fact table is stored as a table for performance and reproducibility.  
 
-This split balances clarity (readable logic in views) with performance (cached facts and dimensions).
-
----
-
-## Keys and Hashing Decisions
-
-- **Preferred key source**: refined surrogates (`*_hkey`).  
-- **Fallback**: if a refined row does not exist but usage references a new code, clone the default dimension row and assign a fallback key `hash(upper(code))`.  
-
-This ensures:  
-- Existing rows keep their canonical keys.  
-- Fact rows are never lost when usage arrives before catalog refresh.  
-- Analysts can still query those facts with a visible “System.DefaultKey” lineage until the true record lands.
+This balance keeps the logic transparent while ensuring that the heaviest joins are precomputed and cached.  
 
 ---
 
-## Self-Completing Dimensions
+## Keys and Self-Completing Dimensions
 
-- Keeps facts **joinable** even if catalogs are late.  
-- Synthetic rows carry `record_source = 'System.DefaultKey'`.  
-- On the next refresh, once the real dimension row exists in refined, the mart automatically transitions to the canonical surrogate key.  
-- Because joins use natural codes in the pricing view, no fact rows are lost during this transition.  
+In the usage mart, facts normally link to surrogate keys that flow through from the refined layer. These are the stable identifiers created in staging and carried forward into refined dimensions.  
+
+Sometimes usage arrives with a code (customer, product, plan, or country) that isn’t in refined yet. Instead of dropping that row, the mart creates a placeholder by cloning the default dimension member. It then applies the same surrogate key recipe defined in staging for that dimension. Because these recipes are deterministic, the placeholder row gets the exact same key it will have once the real record lands.  
+
+These rows are clearly marked with `System.DefaultKey`, making it obvious that they came from a placeholder. When the true record eventually shows up in refined, the mart automatically switches over to the canonical row without losing any facts or changing their identity.
+
+This “self-completing” pattern applies to customer, product, plan, and country. It ensures that facts always have a dimension row to join to, even if reference catalogs are late. Currency is handled differently, because valid currencies come from a fixed list, no placeholders are created. If a code is missing or invalid, the row fails validation so the issue is visible right away.
 
 ---
 
@@ -71,27 +62,19 @@ This ensures:
 
 Declared in `usage.yml`:
 
-- **Dimensions**  
-  - `not_null` and `unique` on surrogate and business keys.  
+**Dimensions**  
+- `not_null` and `unique` on surrogate and business keys.  
 
-- **Fact**  
-  - `dbt_utils.unique_combination_of_columns` at the declared grain.  
-  - `relationships` tests from each foreign key to its dimension key.  
+**Fact**  
+- `dbt_utils.unique_combination_of_columns` at the declared grain.  
+- `relationships` tests from each foreign key to its dimension key.  
 
-- **Pricing coverage**  
-  - Singular test: error if coverage over the last 7 days < 95%.  
-  - Warning: list missing price rows for investigation.  
+**Pricing coverage**  
+- Singular test: error if coverage over the last 7 days < 95%.  
+- Warning: list missing price rows for investigation.  
 
-- **Integrity**  
-  - Warn if product codes appear in usage but not in `dim_product`. This is backed up by self-completion, but alerts you that upstream catalogs are lagging.  
-
----
-
-## Design Decisions
-
-- **Currency handling** is explicit. Default = `USD`. If multi-currency is added, expand the grain and enforce coverage with tests.  
-- **Pricing logic as a view**: keeps rules transparent and auditable. If it becomes heavy, promote to a table and add freshness checks.  
-- **Contracts**: marts enforce strict contracts so BI tools always query consistent shapes.  
+**Integrity**  
+- Warn if product codes appear in usage but not in `dim_product`. This is backed up by self-completion, but alerts you that upstream catalogs are lagging.  
 
 ---
 
@@ -99,21 +82,6 @@ Declared in `usage.yml`:
 
 1. Seeds load (or upstream sources land).  
 2. Staging runs (ephemeral CTEs feeding history).  
-3. History updates: dimensions with `save_history`, usage with daily merge and synthetic closes.  
+3. History updates dimensions with `save_history`, usage with daily merge and synthetic closes.  
 4. Refined collapses history to current.  
-5. Marts build: conformed dimensions first, `int__fact_usage_priced`, then `fact_usage`.  
-
----
-
-## Performance Notes
-
-- Add clustering or micro-partitioning on `report_date` in `fact_usage` if it grows large.  
-- Consider incremental builds keyed by `report_date` if pricing or joins become expensive.  
-
----
-
-## Why This Layer Matters
-
-The Usage Mart is the **business contract**. It turns raw usage into **dollars and dimensions**. Finance teams use it to reconcile billings, product managers use it to measure adoption, and customer success uses it to monitor overages.  
-
-By enforcing contracts, preserving default members, and making self-completion explicit, the mart keeps facts **queryable and trustworthy** — even when upstream systems are late or incomplete.
+5. Marts build conformed dimensions first, `int__fact_usage_priced`, then `fact_usage`.  

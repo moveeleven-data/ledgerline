@@ -1,10 +1,10 @@
 # usage.yml
-# -----------------------------------------------------------------------------------
-# The Usage Mart is a curated business-facing layer for customer usage data.
-# Contains conformed dimensions (customer, product, plan, currency, country)
-# and the fact_usage table at daily grain. All models enforce contracts to
-# guarantee schema stability and quality.
-# -----------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Schema definitions for the Usage Mart.
+#
+# This layer publishes conformed dimensions (customer, product, plan,
+# currency, country) and the daily fact_usage table.
+# ----------------------------------------------------------------------
 
 version: 2
 

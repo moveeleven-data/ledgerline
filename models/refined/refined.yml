@@ -1,8 +1,11 @@
 # refined.yml
-# ------------------------------------------------------------------------------------
-# Refined layer: cleaned and standardized models shaped for reuse and to feed marts.
-# This file documents column-level tests and default-key integrity checks.
-# ------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Schema definitions for the Refined layer.
+#
+# This layer collapses SCD history into current views and standardizes
+# fact inputs. It provides clean, reusable tables that serve as the
+# contract for marts and other downstream consumers.
+# ---------------------------------------------------------------------------
 
 version: 2
 
