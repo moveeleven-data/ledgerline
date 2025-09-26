@@ -1,4 +1,4 @@
-# Tests Layer
+# Singular Tests
 
 This folder contains singular tests. These are custom SQL assertions that run with `dbt test`.  
 
