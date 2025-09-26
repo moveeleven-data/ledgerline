@@ -63,25 +63,25 @@ From raw usage to revenue, nothing gets lost in translation.
 ## Project Layout
 
   **[models/](models/)** - core transformation layers.  
-  - **sources/** - Declares runtime sources (Atlas metering feed).  
-  - **staging/** - Normalizes seeds/sources, deduplicates, adds surrogate keys.  
-  - **history/** - Persists full change logs (SCD2 reference history).  
-  - **refined/** - Collapses history into current views.  
-  - **marts/usage/** - Publishes the Usage Mart.
+  - **sources/** - declares runtime sources (Atlas metering feed).  
+  - **staging/** - normalizes seeds/sources, deduplicates, adds surrogate keys.  
+  - **history/** - persists full change logs (SCD2 reference history).  
+  - **refined/** - collapses history into current views.  
+  - **marts/usage/** - publishes the Usage Mart.
 
   **[macros/](macros/)** - reusable utilities.  
-  - **core/** - Pure helpers (date normalization, string cleanup).  
-  - **delivery/** - Presentation utilities (self-completing dimensions).  
-  - **dev_utils/** - Local iteration helpers (insert/delete test rows).  
-  - **history/** - Toolkit for state persistence.  
-  - **migrations/** - Versioned DDL.  
-  - **tests/** - Generic test definitions.
+  - **core/** - pure helpers (date normalization, string cleanup).  
+  - **delivery/** - presentation utilities (self-completing dimensions).  
+  - **dev_utils/** - local iteration helpers (insert/delete test rows).  
+  - **history/** - toolkit for state persistence.  
+  - **migrations/** - versioned DDL.  
+  - **tests/** - generic test definitions.
 
   **[seeds/](seeds/)** - versioned reference CSVs.
 
   **[analyses/](analyses/)** - ad-hoc SQL.  
-  - **qa/** - Audit probes and diagnostics.  
-  - **dev/** - Scratch queries for local iteration and macro testing.
+  - **qa/** - audit probes and diagnostics.  
+  - **dev/** - scratch queries for local iteration and macro testing.
 
   **[tests/](tests/)** - singular tests.
 
