@@ -54,7 +54,7 @@ The diagram below shows how the fact and dimensions connect into a simple, relia
 
 Atlas reduces everything to one clear structure: daily activity measured and explained.
 
-Every team sees the same story in the same numbers.
+Every team sees the **same story** in the **same numbers**.
 
 From raw usage to revenue, nothing gets lost in translation.
 
