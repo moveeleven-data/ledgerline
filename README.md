@@ -52,9 +52,9 @@ The diagram below shows how the fact and dimensions connect into a simple, relia
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 
-Atlas reduces everything to one clear structure: daily activity measured and explained. Every team sees the same story in the same numbers.
+Atlas reduces everything to one clear structure: daily activity measured and explained.
 
-One table turns clicks and calls into dollars, with dimensions that explain who used what, where, and when.  
+Every team sees the same story in the same numbers.
 
 From raw usage to revenue, nothing gets lost in translation.
 
