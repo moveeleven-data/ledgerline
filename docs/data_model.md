@@ -33,16 +33,17 @@
 
 ## Enterprise Data Warehouse Bus Matrix
 
-The bus matrix shows how our single fact table (`fact_usage`) connects to conformed dimensions.  
+The bus matrix shows how our single fact table (`fact_usage`) connects to shared dimensions.  
 
-Rows represent business processes (facts), columns are the shared dimensions that provide consistent slicing.  
+- **Rows** represent business processes (facts).  
+- **Columns** represent conformed dimensions that provide consistent slicing.  
 
 | business process | date | customer | product | plan | currency | country |
 |------------------|------|----------|---------|------|----------|---------|
 | fact_usage       |  X   |    X     |    X    |  X   |    X     |    X    |
 
-**Notes**  
-- Ledgerline is scoped around a single daily usage fact for clarity.  
-- All dimensions are conformed and consistently joinable.  
-- The design leaves open space for future facts (e.g., `fact_billing`, `fact_margin`) to plug into the same shared dimensions.  
-- Pricing is applied during fact construction from the daily price book, but because analysts do not slice by price directly, it is not modeled as a dimension here.
+### Notes
+- Ledgerline currently focuses on a single daily usage fact for simplicity.  
+- All listed dimensions are conformed and consistently joinable.  
+- The design allows for future facts (e.g., `fact_billing`, `fact_margin`) to plug into the same shared dimensions.  
+- Pricing comes from the daily price book during fact construction. Because analysts wouldn't typically slice data by price directly, it is not modeled as a separate dimension.  
