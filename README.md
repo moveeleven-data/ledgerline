@@ -47,19 +47,37 @@ joined to five conformed dimensions (customer, product, plan, currency, country)
 
 ## Project Layout
 
-- **[models/staging/](models/staging/)** - Standardizes sources and seeds, generates surrogate keys, and applies defaults.
+- **[models/](models/)**  
+  Core transformation layers.  
+  - **sources/** - Declares runtime sources (feeds like Atlas metering).  
+  - **staging/** - Normalizes seeds/sources, deduplicates, adds surrogate keys.  
+  - **history/** - Persists full change logs (SCD2 reference history and usage spans).  
+  - **refined/** - Collapses history into current, cleaned views.  
+  - **marts/usage/** - Publishes the Usage Mart star schema.
 
-- **[models/history/](models/history/)** - Builds incremental history, including synthetic closes for churned subscriptions.
+- **[macros/](macros/)**  
+  Reusable utilities grouped by purpose.  
+  - **core/** - Pure helpers (date normalization, string cleanup).  
+  - **delivery/** - Presentation utilities (self-completing dimensions).  
+  - **dev_utils/** - Local iteration helpers (insert/delete test rows).  
+  - **history/** - Toolkit for state persistence.  
+  - **migrations/** - Versioned DDL.  
+  - **tests/** - Generic test definitions.
 
-- **[models/refined/](models/refined/)** - Produces current views, billing and margin metrics.
+- **[seeds/](seeds/)**  
+  Versioned CSVs for CRM, catalog, reference lists, pricing, and sample usage.
 
-- **[models/marts/usage/](models/marts/usage/)** - Defines the dimensions and `fact_usage`, with uniqueness and relationship tests.
+- **[analyses/](analyses/)**  
+  Ad-hoc SQL outside the DAG.  
+  - **qa/** - Audit probes and diagnostics.  
+  - **dev/** - Scratch queries for local iteration and macro testing.
 
-- **[macros/](macros/)** - Core, history, and test macros, including self-completing dimensions and hash-collision checks.
+- **[tests/](tests/)**  
+  Singular tests that encode project-specific assertions beyond generic YAML tests.
 
-- **[seeds/](seeds/)** - Reference CSVs for customers, products, plans, currencies, and price books.
+- **[docs/](docs/)**  
+  Documentation assets: ERDs, diagrams, and BI references.
 
-- **[docs/](docs/)** - Reference assets, such as ERDs, images, and future BI screenshots.
-
+---
 
 <p align="center">Designed and maintained by <a href="https://github.com/moveeleven-data">Matthew Tripodi</a></p>
