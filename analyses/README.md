@@ -1,4 +1,4 @@
-# Analyses Layer
+# Analyses
 
 This folder holds ad-hoc SQL for development, debugging, and QA. These queries are not materialized or in the DAG. dbt compiles them to `target/analysis` for direct execution in the warehouse.  
 
