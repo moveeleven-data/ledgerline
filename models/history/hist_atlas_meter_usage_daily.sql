@@ -1,20 +1,18 @@
 {{ config(
-      materialized           = 'incremental'
-    , incremental_strategy   = 'merge'
-    , unique_key             = ['usage_hkey', 'report_date', 'usage_row_type']
-    , on_schema_change       = 'ignore'
-    , merge_update_columns   = [
-          'usage_hdiff'
-        , 'customer_code'
-        , 'product_code'
-        , 'plan_code'
-        , 'record_source'
-        , 'units_used'
-        , 'included_units'
-        , 'usage_row_type'
-      ]
-    , tags = ['history', 'usage']
+    incremental_strategy = 'merge',
+    unique_key = ['usage_hkey', 'report_date', 'usage_row_type'],
+    merge_update_columns = [
+         'usage_hdiff'
+       , 'customer_code'
+       , 'product_code'
+       , 'plan_code'
+       , 'record_source'
+       , 'units_used'
+       , 'included_units'
+       , 'usage_row_type'
+    ]
 ) }}
+
 
 /**
  * hist_atlas_meter_usage_daily.sql

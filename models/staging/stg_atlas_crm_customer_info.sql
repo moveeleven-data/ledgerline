@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 /**
  * stg_atlas_crm_customer_info.sql
  * -------------------------------

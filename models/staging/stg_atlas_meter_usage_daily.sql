@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 /**
  * stg_atlas_meter_usage_daily.sql
  * -------------------------------

@@ -1,9 +1,20 @@
-with
+/**
+ * ref_plan_atlas.sql
+ * -------------------------------
+ * Refined dimension for subscription plans.
+ *
+ * Purpose:
+ * - Collapse SCD history to the current plan record per surrogate key.
+ * - Provide stable attributes (plan name, product, billing period) for marts.
+ *
+ * Grain:
+ * - One row per plan_hkey.
+ */
 
-current_from_history as (
+with current_from_history as (
     {{ current_from_history(
           history_relation = ref('hist_atlas_catalog_plan_info')
-        , key_column  = 'plan_hkey'
+        , key_column       = 'plan_hkey'
     ) }}
 )
 

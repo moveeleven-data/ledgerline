@@ -1,9 +1,20 @@
-with
+/**
+ * ref_customer_atlas.sql
+ * -------------------------------
+ * Refined dimension for customers.
+ *
+ * Purpose:
+ * - Collapse SCD history to the current customer record per surrogate key.
+ * - Provide stable attributes for geography and identity in marts.
+ *
+ * Grain:
+ * - One row per customer_hkey.
+ */
 
-current_from_history as (
+with current_from_history as (
     {{ current_from_history(
           history_relation = ref('hist_atlas_crm_customer_info')
-        , key_column  = 'customer_hkey'
+        , key_column       = 'customer_hkey'
     ) }}
 )
 
