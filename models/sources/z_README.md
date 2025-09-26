@@ -1,14 +1,15 @@
-# Ledgerline Sources
+# Source Systems
 
-Sources declare external tables that dbt does not create. Sources are declarations only; they don’t create tables.
-They tell dbt where to look and what to expect. They define where data lands in the warehouse,
+Sources are declarations of external tables that dbt does not create. They define where data lands in the warehouse,
 how fresh it should be, and what its contract is. 
 
-In Ledgerline, the only true runtime source is the Atlas metering feed. This feed records how much each customer used each product and plan on a given day. It appends new rows daily and never rewrites past data. We track freshness, enforce uniqueness at the daily grain, and apply staged cleaning logic. 
+In Ledgerline, the only true source is the Atlas metering feed. This feed records how much each customer used each product and plan on a given day. It appends new rows daily.
+
+We track freshness, enforce uniqueness at the daily grain, and apply staged cleaning logic. 
 
 The other inputs - customer, product, plan, currency, and country - are modeled as seeds since they are relatively static.  
 
-The daily price book is seeded here for portability and reproducibility. In a production system, however, it would be treated as a source with freshness tests, since rates change over time.
+(The daily price book is seeded as well for portability. In a production system, it would be treated as a source with freshness tests, since rates change over time.)
 
 ---
 
