@@ -11,6 +11,13 @@
  * - Generate surrogate keys for uniqueness and change tracking.
  */
 
+{% set record_source_label =
+    'SOURCE.atlas_meter_usage_daily'
+    if (target.name | lower == 'prod'
+        or env_var('DBT_ATLAS_USAGE_MODE', 'seed') | lower == 'source')
+    else 'SEED.atlas_meter_usage_daily'
+%}
+
 with
 
 source_usage as (
@@ -22,8 +29,8 @@ source_usage as (
         , units_used                                 as units_used
         , included_units                             as included_units
         , to_timestamp_ntz(load_ts)                  as load_ts
-        , 'SEED.atlas_meter_usage_daily'             as record_source
-    from {{ ref('atlas_meter_usage_daily') }}
+        , '{{ record_source_label }}'                as record_source
+    from {{ resolve_atlas_usage_relation() }}
 )
 
 , ghost_rows_removed as (
