@@ -1,3 +1,6 @@
+-- depends_on: {{ ref('atlas_meter_usage_daily') }}
+-- depends_on: {{ source('atlas_meter','atlas_meter_usage_daily') }}
+
 {{ config(
     incremental_strategy = 'merge',
     unique_key = ['usage_hkey', 'report_date', 'usage_row_type'],
