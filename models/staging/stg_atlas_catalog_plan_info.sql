@@ -46,7 +46,10 @@ plan_source as (
 
 , plan_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key(['plan_code']) }} as plan_hkey
+          {{ dbt_utils.generate_surrogate_key([
+               'plan_code'
+          ]) }} as plan_hkey
+
         , {{ dbt_utils.generate_surrogate_key([
                'plan_code'
               ,'plan_name'
