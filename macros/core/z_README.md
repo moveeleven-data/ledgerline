@@ -16,3 +16,7 @@ This folder contains universal utilities that are safe to use anywhere in the pr
 ## Current State
 
 This folder is intentionally small. As the project grows, add only lightweight, universal helpers here that improve clarity without introducing side effects.
+
+Currently includes:
+- Date normalization (`to_21st_century_date`)  
+- Upstream source resolution for usage feeds (`resolve_atlas_usage_relation`)
