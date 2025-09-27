@@ -26,7 +26,7 @@ sources:
     #   - Points to the raw ingestion schema with live usage data.
     # --------------------------------------------------------------------------
 
-    schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', generate_schema_name('SEEDS', this)) }}"
+    schema: "{{ env_var('DBT_ATLAS_METER_SCHEMA', target.schema ~ '_seeds') }}"
     tags: ['source','domain:usage_billing','data_product:ledgerline']
     meta:
       owner: 'Matthew Tripodi'
