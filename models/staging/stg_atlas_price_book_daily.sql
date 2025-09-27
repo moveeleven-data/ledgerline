@@ -27,11 +27,11 @@ source_prices as (
 , ghost_rows_removed as (
     select *
     from source_prices
-    where not (
-               nullif(trim(product_code), '') is null
-           and nullif(trim(plan_code),   '') is null
-           and price_date                    is null
-           and unit_price                    is null
+    where (
+          nullif(trim(product_code), '') is not null
+      and nullif(trim(plan_code),   '')  is not null
+      and price_date                     is not null
+      and unit_price                     is not null
     )
 )
 
