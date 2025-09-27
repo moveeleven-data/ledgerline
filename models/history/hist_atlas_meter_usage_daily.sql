@@ -1,9 +1,9 @@
 {{ declare_usage_lineage_dependencies() }}
 
 {{ config(
-    incremental_strategy = 'merge',
-    unique_key = ['usage_hkey', 'report_date', 'usage_row_type'],
-    merge_update_columns = [
+     incremental_strategy = 'merge'
+   , unique_key = ['usage_hkey', 'report_date', 'usage_row_type']
+   , merge_update_columns = [
          'usage_hdiff'
        , 'customer_code'
        , 'product_code'

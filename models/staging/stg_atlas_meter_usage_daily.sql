@@ -1,4 +1,4 @@
-{{ declare_usage_upstream_dependencies() }}
+{{ declare_usage_lineage_dependencies() }}
 
 /**
  * stg_atlas_meter_usage_daily.sql
@@ -17,7 +17,7 @@
     'SOURCE.atlas_meter_usage_daily'
     if (target.name | lower == 'prod'
         or env_var('DBT_ATLAS_USAGE_MODE', 'seed') | lower == 'source')
-    else 'SEED.atlas_meter_usage_daily'
+    else 'SEED.atlas_meter_usage_daily_seed'
 %}
 
 with
