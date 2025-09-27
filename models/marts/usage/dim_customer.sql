@@ -38,7 +38,6 @@ select
         ref.customer_hkey
       , {{ dbt_utils.generate_surrogate_key(["upper(base.customer_code)"]) }}
     ) as customer_key
-    
   , base.customer_code
   , coalesce(ref.customer_name, base.customer_name) as customer_name
   , coalesce(ref.country_code2, base.country_code2) as country_code
@@ -46,4 +45,5 @@ select
 from dim_customer_base as base
 left join {{ ref('ref_customer_atlas') }} as ref
   on ref.customer_code = base.customer_code
-where base.customer_code is not null
+where 
+    base.customer_code is not null
