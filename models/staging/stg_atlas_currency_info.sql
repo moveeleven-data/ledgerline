@@ -44,7 +44,10 @@ currency_source as (
 
 , currency_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key(['currency_code']) }} as currency_hkey
+          {{ dbt_utils.generate_surrogate_key([
+               'currency_code'
+          ]) }} as currency_hkey
+
         , {{ dbt_utils.generate_surrogate_key([
                'currency_code'
               ,'currency_name'
