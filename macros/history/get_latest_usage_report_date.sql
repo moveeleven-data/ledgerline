@@ -12,56 +12,45 @@
 
 {% macro get_latest_usage_report_date() %}
 
+    {% set fallback_date_default = var('fallback_date_default', '2000-01-01') %}
+
     /* Step 1. Respect a manual override.
-       If someone runs dbt with --vars "as_of_date: 'YYYY-MM-DD'",
-       we stop here and return that value. This allows reproducible backfills
-       or debugging against a specific date, instead of always using "latest". */
+       If someone runs dbt with --vars "as_of_date: 'YYYY-MM-DD'"
+       we stop here and return that value. This allows reproducible backfills. */
 
     {% set as_of_date_override = var('as_of_date', none) %}
-
     {% if as_of_date_override is not none %}
         {{ return(as_of_date_override) }}
     {% endif %}
 
-
-    -- 2. If not running SQL (like in docs build), return predefined fallback date.
+    -- 2. If compiling (docs build or parse-only), return predefined fallback date.
 
     {% if not execute %}
         {{ return(fallback_date_default) }}
     {% endif %}
 
-
-    -- 3. Build query to find the max report_date from the usage feed.
+    -- 3. Build query to find the max report_date, with a SQL-level fallback.
 
     {% set latest_report_date_sql %}
-        select
-              to_char(
-                    max(report_date)
-                  , 'YYYY-MM-DD'
-              ) as max_report_date
-        from
-            {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
+        select to_char(
+                 coalesce(max(report_date), to_date('{{ fallback_date_default }}')),
+                 'YYYY-MM-DD'
+               ) as max_report_date
+        from {{ resolve_atlas_usage_relation() }}
     {% endset %}
 
-    {% set query_result = run_query(latest_report_date_sql) %}
+    -- 4. Execute query and capture result.
 
+    {% set query_output = run_query(latest_report_date_sql) %}
 
-    -- 4. Pull the first value from the result, if any.
+    -- 5. Return the latest report_date if found.
 
-    {% set latest_report_date_str = (
-              query_result
-          and query_result.columns
-          and query_result.columns[0].values()
-          and query_result.columns[0].values()[0]
-    ) or none %}
+    {% set latest_date = none %}
 
+    {% if query_output and query_output.columns and query_output.columns[0].values() %}
+        {% set latest_date = query_output.columns[0].values() | first %}
+    {% endif %}
 
-    -- 5. Return the date we found, or fallback if it was null.
-    
-    {{ return(
-        latest_report_date_str
-            if latest_report_date_str is not none
-          else fallback_date_default
-    ) }}
+    {{ return(latest_date or fallback_date_default) }}
 
 {% endmacro %}
