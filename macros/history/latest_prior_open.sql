@@ -18,8 +18,7 @@
 
 select
     *
-from
-    {{ history_relation }}
+from {{ history_relation }}
 where
       usage_row_type = 'OPEN'
   and report_date < {{ as_of_date_literal }}
