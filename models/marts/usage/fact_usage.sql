@@ -44,7 +44,7 @@ priced_usage as (
         , case
               when (priced_usage.units_used * coalesce(priced_usage.unit_price, 0)) > 0
                 then (priced_usage.overage_units * coalesce(priced_usage.unit_price, 0))
-                     / (priced_usage.units_used * coalesce(priced_usage.unit_price, 0))
+                   / (priced_usage.units_used * coalesce(priced_usage.unit_price, 0))
               else 0
           end as overage_share
 
@@ -82,4 +82,5 @@ select
     , included_value
     , overage_value
     , overage_share
+
 from enriched_usage
