@@ -42,7 +42,6 @@ select
         ref.plan_hkey
       , {{ dbt_utils.generate_surrogate_key(["upper(base.plan_code)"]) }}
     ) as plan_key
-
   , base.plan_code
   , coalesce(ref.plan_name,       base.plan_name)       as plan_name
   , coalesce(ref.product_code,    base.product_code)    as product_code
@@ -51,4 +50,5 @@ select
 from dim_plan_base as base
 left join {{ ref('ref_plan_atlas') }} as ref
   on ref.plan_code = base.plan_code
-where base.plan_code is not null
+where
+    base.plan_code is not null
