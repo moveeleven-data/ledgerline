@@ -1,0 +1,27 @@
+name: Sync env branches from main
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fast-forward env branches to this commit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branches = ['dev','qa','prod'];
+            for (const br of branches) {
+              await github.rest.git.updateRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: `heads/${br}`,
+                sha: context.sha,
+                force: true   // WARNING: overwrites unique commits on those branches
+              });
+              core.info(`Updated ${br} to ${context.sha}`);
+            }
