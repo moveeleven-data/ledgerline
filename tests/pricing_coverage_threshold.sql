@@ -1,3 +1,5 @@
+{{ declare_usage_lineage_dependencies() }}
+
 /**
  * pricing_coverage_threshold.sql
  * -----------------------------
