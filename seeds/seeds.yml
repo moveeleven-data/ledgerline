@@ -135,6 +135,7 @@ seeds:
             combination_of_columns: [product_code, plan_code, price_date]
           config:
             severity: warn
+
     columns:
       - name: product_code
         description: FK to product
@@ -160,6 +161,7 @@ seeds:
             combination_of_columns: [customer_code, product_code, plan_code, report_date]
           config:
             severity: warn
+
     columns:
       - name: customer_code
         description: Business key from CRM
