@@ -44,7 +44,10 @@ product_source as (
 
 , product_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key(['product_code']) }} as product_hkey
+          {{ dbt_utils.generate_surrogate_key([
+               'product_code'
+          ]) }} as product_hkey
+
         , {{ dbt_utils.generate_surrogate_key([
                'product_code'
               ,'product_name'
