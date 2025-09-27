@@ -1,5 +1,11 @@
 ## LedgerLine Changelog
 
+### 2025-09-27
+
+- Completed documentation across entire repo.
+- Set up schema and connection settings for the 'build-all' QA and PROD jobs.
+- Verified the QA job runs, produces accurate data in the correct database and schema.
+
 ### 2025-09-25
 
 - Completed documentation of all macros and analyses.
