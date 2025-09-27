@@ -73,10 +73,16 @@ normalized_usage as (
            on p.product_code = u.product_code_nk
           and p.plan_code    = u.plan_code_nk
           and p.price_date  <= u.report_date
-    qualify row_number() over (
-              partition by u.report_date, u.product_code_nk, u.plan_code_nk
-              order by p.price_date desc nulls last
-            ) = 1
+
+    qualify
+        row_number() over (
+            partition by
+                 u.report_date
+               , u.product_code_nk
+               , u.plan_code_nk
+            order by
+                 p.price_date desc nulls last
+    ) = 1
 )
 
 
