@@ -2,7 +2,17 @@
 
 ### 2025-09-27
 
+With Colibri working, the lineage view made one problem clear: our usage report macro was pulling through staging,
+but the seed name didn’t line up. Renaming it to atlas_meter_usage_daily_seed fixed the mismatch while keeping the
+resolver so dev still reads from the seed and prod from the source.
+
+QA builds now run clean, artifacts are generated as expected, and the
+“latest usage report date” query points at a real table instead of a temporary CTE. This gives us clearer lineage,
+steadier builds, and less chance for surprises down the line.
+
 - Completed documentation across entire repo.
+- Added two macros for dynamic dependency handling.
+- Changed name of usage dev seed to avoid conflict with prod usage source.
 - Set up schema and connection settings for the 'build-all' QA and PROD jobs.
 - Verified the QA job runs, produces accurate data in the correct database and schema.
 
