@@ -1,3 +1,6 @@
+-- depends_on: {{ ref('atlas_meter_usage_daily') }}
+-- depends_on: {{ source('atlas_meter','atlas_meter_usage_daily') }}
+
 /**
  * hist_usage_prior_keys_present_on_asof.sql
  * -----------------------------------------
