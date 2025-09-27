@@ -21,13 +21,11 @@
  */
 
 {% macro resolve_atlas_usage_relation() -%}
-
     {% set mode = env_var('DBT_ATLAS_USAGE_MODE', 'seed') | lower %}
 
     {% if target.name | lower == 'prod' or mode == 'source' %}
         {{ return(source('atlas_meter','atlas_meter_usage_daily')) }}
     {% else %}
-        {{ return(ref('atlas_meter_usage_daily')) }}
+        {{ return(ref('atlas_meter_usage_daily_seed')) }}
     {% endif %}
-
 {%- endmacro %}

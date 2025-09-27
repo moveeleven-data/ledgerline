@@ -299,10 +299,10 @@ seeds:
 
 
     # --------------------------------------------------------------------------
-    # atlas_meter_usage_daily
+    # atlas_meter_usage_daily_seed
     # --------------------------------------------------------------------------
 
-    atlas_meter_usage_daily:
+    atlas_meter_usage_daily_seed:
       +column_types:
         customer_code:  varchar
         product_code:   varchar

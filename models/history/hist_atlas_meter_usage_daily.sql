@@ -148,5 +148,15 @@ stg_today as (
 )
 
 select
-    *
+    usage_hkey
+  , usage_hdiff
+  , customer_code
+  , product_code
+  , plan_code
+  , record_source
+  , report_date
+  , units_used
+  , included_units
+  , load_ts_utc
+  , usage_row_type
 from changes_dedup

@@ -36,7 +36,7 @@
                  coalesce(max(report_date), to_date('{{ fallback_date_default }}')),
                  'YYYY-MM-DD'
                ) as max_report_date
-        from {{ resolve_atlas_usage_relation() }}
+        from {{ ref('stg_atlas_meter_usage_daily') }}
     {% endset %}
 
     -- 4. Execute query and capture result.
