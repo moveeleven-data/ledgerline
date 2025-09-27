@@ -19,11 +19,12 @@ latest_any as (
         *
     from {{ ref('hist_atlas_meter_usage_daily') }}
 
-    qualify row_number() over (
-        partition by usage_hkey
-        order by
-            report_date desc
-          , load_ts_utc desc
+    qualify
+        row_number() over (
+            partition by usage_hkey
+            order by
+                report_date desc
+              , load_ts_utc desc
     ) = 1
 )
 
