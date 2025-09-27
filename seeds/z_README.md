@@ -35,7 +35,7 @@ Ledgerline ships seven seed datasets.
 **Pricing**  
 - `atlas_price_book_daily`  
 **Sample Metering Feed**  
-- `atlas_meter_usage_daily`
+- `atlas_meter_usage_daily_seed`
 
 ---
 

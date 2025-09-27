@@ -149,12 +149,12 @@ seeds:
 
 
   # --------------------------------------------------------------------------
-  # atlas_meter_usage_daily
+  # atlas_meter_usage_daily_seed
   # --------------------------------------------------------------------------
   # Metered usage rows per customer + product + plan + date.
   # --------------------------------------------------------------------------
 
-  - name: atlas_meter_usage_daily
+  - name: atlas_meter_usage_daily_seed
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:

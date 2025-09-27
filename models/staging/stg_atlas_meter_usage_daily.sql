@@ -1,3 +1,5 @@
+{{ declare_usage_upstream_dependencies() }}
+
 /**
  * stg_atlas_meter_usage_daily.sql
  * -------------------------------
