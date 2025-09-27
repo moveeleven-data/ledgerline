@@ -12,7 +12,9 @@
  * - One row per usage_hkey (latest OPEN record).
  */
 
-with latest_any as (
+with
+
+latest_any as (
     select
         *
     from {{ ref('hist_atlas_meter_usage_daily') }}
