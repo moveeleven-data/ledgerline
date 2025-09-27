@@ -133,15 +133,16 @@ stg_today as (
         *
     from changes_to_store
 
-    qualify row_number() over (
-        partition by
-           usage_hkey
-         , report_date
-         , usage_row_type
+    qualify
+        row_number() over (
+            partition by
+            usage_hkey
+          , report_date
+          , usage_row_type
         order by
-           load_ts_utc desc
-         , usage_hdiff desc
-  ) = 1
+            load_ts_utc desc
+          , usage_hdiff desc
+    ) = 1
 )
 
 select
