@@ -28,13 +28,16 @@ The other inputs - customer, product, plan, currency, and country - are modeled 
 ## Atlas Metering Source
 
 **Logical name**: `atlas_meter`  
-**Table**: `atlas_meter_usage_daily`  
+**Table**: `atlas_meter_usage_daily`
+
+**Database resolution**:  
+- Uses `{{ target.database }}` so Dev/QA/Prod each hit their own database (e.g., `LEDGER_LINE_DEV`, `LEDGER_LINE_QA`, `LEDGER_LINE_PROD`).
 
 **Schema resolution**:  
-- **Studio and Dev jobs** resolve to `dbt_mtripodi_seeds` (from Project default). The usage table comes from seeds, making the entire pipeline reproducible without upstream dependencies.  
-- **Prod jobs** resolve to `source_data` (from the `DBT_ATLAS_METER_SCHEMA` environment variable). This points at the raw landing schema with live usage data.  
+- **Default (Dev/QA/CI)** → `{{ generate_schema_name('SEEDS', this) }}` (e.g., `DBT_MTRIPODI_SEEDS`). We build the seeds first, so sources read from seeded tables for reproducible runs.  
+- **Production override** → Set the env var `DBT_ATLAS_METER_SCHEMA` to your raw ingestion schema (e.g., `SOURCE_DATA`) so production reads live landed data.
 
-This setup ensures the **same dbt code runs everywhere**. In development you work against seeds for speed and consistency, while in production jobs the source points at real data.
+This keeps one code path: seeds in Dev/QA, raw in Prod (via env var), with the database set per environment.
 
 ---
 
