@@ -68,7 +68,8 @@ latest_history_versions as (
     select
     *
     from {{ staging_relation }} as staging_row
-    where {{ staging_filter_condition }}
+    where
+         {{ staging_filter_condition }}
 )
 
 
@@ -80,10 +81,13 @@ latest_history_versions as (
     from filtered_staging
 
     {% if high_watermark_column %}
-    where {{ high_watermark_column }} {{ high_watermark_operator }} (
-              select max({{ high_watermark_column }})
-              from {{ this }}
-          )
+    where
+        {{ high_watermark_column }} {{ high_watermark_operator }}
+        (
+             select
+                 max({{ high_watermark_column }})
+             from {{ this }}
+        )
     {% endif %}
 
 )
