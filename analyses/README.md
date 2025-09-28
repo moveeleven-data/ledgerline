@@ -19,3 +19,10 @@ Use this space for quick experiments, reproducible QA probes, and one-off checks
   - Default-key hit analysis.  
   - Duplicate detection at a declared grain.  
   - Pricing coverage checks over a rolling window.
+
+- **`analyses/eda/`**  
+  Saved, reproducible EDA queries used for the executive report. Examples:  
+  - Per subscription limit behavior and utilization profile.  
+  - Price sensitivity of billed amounts to the daily price book.  
+  - Fairness checks by country and plan.  
+  - Final plan change recommendations with expected 90 day impact.
