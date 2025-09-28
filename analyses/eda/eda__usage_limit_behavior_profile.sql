@@ -16,3 +16,7 @@ Figures:
 - fig_limit_streaks_by_plan.png:     Shows longest overage streaks by plan
 - fig_fairness_by_country.png:       Compares usage fairness across countries
 */
+
+select
+    max(report_date)
+from {{ ref('fact_usage') }}

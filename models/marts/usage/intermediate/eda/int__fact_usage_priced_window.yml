@@ -1,0 +1,66 @@
+# int__fact_usage_priced_window.yml
+# ----------------------------------------------------------------------
+# Intermediate model for EDA. Prices usage across a configurable date
+# window using the same rules as int__fact_usage_priced but keeps all
+# days for exploratory analysis.
+# ----------------------------------------------------------------------
+
+version: 2
+
+models:
+  - name: int__fact_usage_priced_window
+    description: >
+      Priced usage for a date window at the natural-key grain.
+      Computes overages and applies the most recent unit_price.
+      Supports fact_usage_window and other EDA models.
+
+    config:
+      tags: ['mart:usage','intermediate','domain:usage_billing']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'intermediate'
+      pii: false
+
+    columns:
+      - name: report_date
+        description: Usage date in UTC.
+        tests: [not_null]
+
+      - name: customer_code_nk
+        description: Customer natural key.
+        tests: [not_null]
+
+      - name: product_code_nk
+        description: Product natural key.
+        tests: [not_null]
+
+      - name: plan_code_nk
+        description: Plan natural key.
+        tests: [not_null]
+
+      - name: units_used
+        description: Units recorded for the day.
+        tests: [not_null]
+
+      - name: included_units
+        description: Units included by the plan for the day.
+        tests: [not_null]
+
+      - name: overage_units
+        description: Units above the included amount, never below zero.
+        tests: [not_null]
+
+      - name: unit_price
+        description: Price per unit from the daily price book.
+        tests: [not_null]
+
+      - name: currency_code_nk
+        description: Currency code applied during pricing.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['USD']
+              quote: true

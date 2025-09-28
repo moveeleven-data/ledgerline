@@ -30,6 +30,8 @@ Produce an EDA and executive report that identifies which customers should recei
 
 2. **Action:** Set the window to the last 90 days (UTC).  
    **Result:** Start and end dates are clearly recorded.  
+   - start_date = 2025-09-28
+   - end_date   = 2025-09-28
 
 3. **Action:** Run `eda_usage_limit_behavior_profile.sql`.  
    **Result:** Counts by product and plan check out and metrics are populated.  

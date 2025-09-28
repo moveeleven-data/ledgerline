@@ -1,0 +1,102 @@
+# fact_usage_window.yml
+# ----------------------------------------------------------------------
+# Windowed fact table for EDA. Keeps daily rows over a chosen date range
+# so you can analyze streaks, distributions, and trends. Exists alongside
+# fact_usage, which stays limited to the latest day for finance reporting.
+# ----------------------------------------------------------------------
+
+version: 2
+
+models:
+  - name: fact_usage_window
+    description: >
+      Daily usage and billing fact over a configurable date range.
+      Mirrors fact_usage logic but keeps every day so EDA visuals
+      can show patterns over time. Not for finance reporting.
+
+    config:
+      tags: ['mart:usage','fact','domain:usage_billing','eda']
+    meta:
+      owner: 'Matthew Tripodi'
+      domain: 'usage_billing'
+      layer: 'marts'
+      mart: 'usage'
+      tier: 'gold'
+      pii: false
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - customer_key
+            - product_key
+            - plan_key
+            - report_date
+
+    columns:
+      - name: customer_key
+        description: Surrogate key from dim_customer.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: customer_key
+
+      - name: product_key
+        description: Surrogate key from dim_product.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: product_key
+
+      - name: plan_key
+        description: Surrogate key from dim_plan.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_plan')
+              field: plan_key
+
+      - name: currency_key
+        description: Surrogate key from dim_currency.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_currency')
+              field: currency_key
+
+      - name: report_date
+        description: Usage day in UTC.
+        tests: [not_null]
+
+      - name: units_used
+        description: Units recorded for the day.
+        tests: [not_null]
+
+      - name: included_units
+        description: Units included by plan for the day.
+        tests: [not_null]
+
+      - name: overage_units
+        description: Units above the included amount (never below zero).
+        tests: [not_null]
+
+      - name: unit_price
+        description: Price per unit from the daily price book.
+        tests: [not_null]
+
+      - name: billed_value
+        description: Total billed amount (units_used × unit_price).
+        tests: [not_null]
+
+      - name: included_value
+        description: Value of included units (included_units × unit_price).
+        tests: [not_null]
+
+      - name: overage_value
+        description: Value of overages (overage_units × unit_price).
+        tests: [not_null]
+
+      - name: overage_share
+        description: Share of spend from overages (overage_value ÷ billed_value).
+        tests: [not_null]
