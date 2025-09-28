@@ -60,6 +60,18 @@ From raw usage to revenue, nothing gets lost in translation.
 
 ---
 
+## Executive EDA
+
+**Guiding question:**  
+Which customers would clearly benefit from a plan recommendation next quarter, either an upgrade or an adjustment to included units, to improve 90-day revenue and customer value while keeping pricing fair, based on limit-hitting patterns and the daily price book?
+
+Start here:
+- Read the full report: `reports/executive_report_plan_change_recommendations.md`
+- Explore lineage in dbt docs: `models/exposures/exposure_eda_plan_change_recommendations.yml`
+- Reproduce the analysis with the saved SQL queries in: `analyses/eda/`
+
+---
+
 ## Project Layout
 
   **[models/](models/)** - core transformation layers.  
