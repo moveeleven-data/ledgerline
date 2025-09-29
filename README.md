@@ -78,7 +78,7 @@ The intent is to right-size plans so they match actual use. That means giving cu
 
 ---
 
-## Project Layout
+## Codebase Overview
 
   **[models/](models/)** - core transformation layers.  
   - **sources/** - declares runtime sources (Atlas metering feed).  
