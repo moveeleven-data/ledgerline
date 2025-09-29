@@ -89,6 +89,7 @@ normalized_usage as (
         row_number() over (
             partition by
                  usage.report_date
+               , usage.customer_code_nk
                , usage.product_code_nk
                , usage.plan_code_nk
             order by

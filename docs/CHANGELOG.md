@@ -1,5 +1,10 @@
 ## LedgerLine Changelog
 
+### 2025-09-28
+
+- Built fact_usage_window mart that is built off of staging and contains all historical rows for EDA.
+- Begin exploratory data analysis using this new mart.
+
 ### 2025-09-27
 
 With Colibri working, the lineage view made one problem clear: our usage report macro was pulling through staging,

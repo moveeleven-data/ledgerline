@@ -85,9 +85,6 @@ normalized_usage as (
     ) = 1
 )
 
-
-/* Final select: priced usage with all fields. */
-
 select
     *
 from usage_priced
