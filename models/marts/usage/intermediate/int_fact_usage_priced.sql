@@ -4,7 +4,7 @@
 ) }}
 
 /**
- * int__fact_usage_priced.sql
+ * int_fact_usage_priced.sql
  * --------------------------
  * Intermediate model: prepare priced usage at the grain
  *   customer_code × product_code × plan_code × report_date.

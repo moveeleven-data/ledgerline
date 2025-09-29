@@ -21,7 +21,7 @@
 with
 
 /* Step 1. Bring in priced usage within the window.
-   - Uses int__fact_usage_priced_window as the source. */
+   - Uses int_fact_usage_priced_window as the source. */
 
 priced_usage as (
     select
@@ -34,7 +34,7 @@ priced_usage as (
         , included_units
         , overage_units
         , unit_price
-    from {{ ref('int__fact_usage_priced_window') }}
+    from {{ ref('int_fact_usage_priced_window') }}
 )
 
 /* Step 2. Add dimension keys and compute billing fields.

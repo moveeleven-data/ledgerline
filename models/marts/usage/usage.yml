@@ -205,14 +205,14 @@ models:
 
 
   # --------------------------------------------------------------------------
-  # int__fact_usage_priced
+  # int_fact_usage_priced
   # --------------------------------------------------------------------------
   # Intermediate model: Applies pricing logic at natural-key grain
   # (customer_code × product_code × plan_code × report_date).
   # Feeds fact_usage. Not intended for direct analyst use.
   # --------------------------------------------------------------------------
 
-  - name: int__fact_usage_priced
+  - name: int_fact_usage_priced
     description: >
       Intermediate model that applies pricing logic at the natural-key grain
       (customer_code × product_code × plan_code × report_date).

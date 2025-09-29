@@ -1,14 +1,14 @@
-# int__fact_usage_priced_window.yml
+# intfact_usage_priced_window.yml
 # ----------------------------------------------------------------------
 # Intermediate model for EDA. Prices usage across a configurable date
-# window using the same rules as int__fact_usage_priced but keeps all
+# window using the same rules as int_fact_usage_priced but keeps all
 # days for exploratory analysis.
 # ----------------------------------------------------------------------
 
 version: 2
 
 models:
-  - name: int__fact_usage_priced_window
+  - name: int_fact_usage_priced_window
     description: >
       Priced usage for a date window at the natural-key grain.
       Computes overages and applies the most recent unit_price.
@@ -29,7 +29,7 @@ models:
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: int__fact_usage_priced_window_unique_combo
+          name: int_fact_usage_priced_window_unique_combo
           arguments:
             combination_of_columns:
               - report_date

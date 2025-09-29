@@ -13,12 +13,12 @@
 with
 
 /* Step 1. Bring in priced usage.
-   - All pricing logic isolated upstream in int__fact_usage_priced. */
+   - All pricing logic isolated upstream in int_fact_usage_priced. */
 
 priced_usage as (
     select
         *
-    from {{ ref('int__fact_usage_priced') }}
+    from {{ ref('int_fact_usage_priced') }}
 )
 
 /* Step 2. Join conformed dimensions and compute billing values.
@@ -82,5 +82,4 @@ select
     , included_value
     , overage_value
     , overage_share
-
 from enriched_usage

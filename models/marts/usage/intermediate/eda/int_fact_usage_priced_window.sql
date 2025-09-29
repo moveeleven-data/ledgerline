@@ -4,7 +4,7 @@
 ) }}
 
 /**
- * int__fact_usage_priced_window.sql
+ * int_fact_usage_priced_window.sql
  * ---------------------------------
  * Prepare priced daily usage for a given date window at the grain:
  *   customer_code × product_code × plan_code × report_date.
