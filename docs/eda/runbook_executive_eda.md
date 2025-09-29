@@ -52,7 +52,8 @@ Produce an EDA and report that identifies which customers should receive plan re
           Spot check shows values between 0 and 1, consistent with expectations.
           (0 = never over, 1 = always over)
      - `utilization` metric calculated, NULL where `included_units = 0`.  
-       Spot check confirms expected behavior: < 1.0 = under limit, 1.0 = at limit, > 1.0 = over.
+          Spot check confirms expected behavior: < 1.0 = under limit, 1.0 = at limit, > 1.0 = over.
+     - streak_days_over_limit validated. Confirmed always less than or equal to days_over_limit.
 
 5. **Action:** Export visuals (overage CDF, limit streaks, fairness heatmap).  
    **Result:** Figures are saved with short captions and added to the report.  

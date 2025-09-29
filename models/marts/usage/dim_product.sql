@@ -45,7 +45,6 @@ select
   , base.product_code
   , coalesce(ref.product_name, base.product_name) as product_name
   , coalesce(ref.category,     base.category)     as category
-  
 from dim_product_base as base
 left join {{ ref('ref_product_atlas') }} as ref
   on ref.product_code = base.product_code

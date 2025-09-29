@@ -7,5 +7,6 @@
     (included_units = 0), utilization is set to NULL and excluded from averages.
 - **Current notes:**  
   - Window contained 13 active subscriptions, each with 30 active days. All subscriptions satisfied the ≥30-day rule in this run.  
-  - `days_over_limit` = count of days with `overage_units > 0`. Confirmed with a customer-level spot check. 
-  - `limit_hit_ratio` = days_over_limit / active_days. Verified via spot check, always between 0 and 1.
+  - `days_over_limit`        = count of days with `overage_units > 0`. Confirmed with a customer-level spot check. 
+  - `limit_hit_ratio`        = days_over_limit / active_days. Verified via spot check, always between 0 and 1.
+  - `streak_days_over_limit` = longest consecutive run of over-limit days
