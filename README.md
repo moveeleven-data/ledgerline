@@ -68,9 +68,9 @@ The analysis is framed by a single question:
 
 **Which customers should receive a plan recommendation next quarter?**
 
-The intent is to right-size plans so they match actual use. That means giving customers a better fit while keeping the business healthy.
+The intent is to right-size plans so they match actual use. The aim is to give customers a better fit while keeping the business healthy.
 
-### Resources  
+### Further Reading
 
 [Recommendations report](reports/executive_report_plan_change_recommendations.md)  
 
