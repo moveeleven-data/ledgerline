@@ -60,15 +60,21 @@ From raw usage to revenue, nothing gets lost in translation.
 
 ---
 
-## Executive EDA
+## Case Study: Plan Recommendations
 
-**Guiding question:**  
-Which customers would clearly benefit from a plan recommendation next quarter, either an upgrade or an adjustment to included units, to improve 90-day revenue and customer value while keeping pricing fair, based on limit-hitting patterns and the daily price book?
+Real impact lies in translating usage into answers.
 
-Start here:
-- Read the full report: `reports/executive_report_plan_change_recommendations.md`
-- Explore lineage in dbt docs: `models/exposures/exposure_eda_plan_change_recommendations.yml`
-- Reproduce the analysis with the saved SQL queries in: `analyses/eda/`
+The analysis is framed by a single question:
+
+**Which customers should receive a plan recommendation next quarter?**
+
+The intent is to right-size plans so they match actual use. That means giving customers a better fit while keeping the business healthy.
+
+### Resources  
+
+[Recommendations report](reports/executive_report_plan_change_recommendations.md)  
+
+[Supporting SQL](analyses/eda/usage_limit_behavior_profile.sql)  
 
 ---
 
