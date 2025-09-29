@@ -1,4 +1,4 @@
-# Methods & Limitations (Executive EDA)
+# Methods & Limitations (Plan Change Recommendation EDA)
 
 - **Window definition:** Analysis window set by environment variables `DBT_EDA_START_DATE` and `DBT_EDA_END_DATE` (UTC).  
 - **Grain:** One row per subscription × date in `fact_usage_window`.  
