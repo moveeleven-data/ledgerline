@@ -157,7 +157,7 @@ subscriptions_daily as (
         , day_counts.active_days
         , day_counts.days_over_limit
         , day_counts.limit_hit_ratio
-        , coalesce(util.utilization, 0) as utilization
+        , util.utilization as utilization
         , coalesce(streaks.streak_days_over_limit, 0) as streak_days_over_limit
         , totals.units_used_90d
         , totals.included_units_90d
@@ -182,5 +182,10 @@ subscriptions_daily as (
 )
 
 select
-    * 
+    plan_key
+  , customer_key
+  , streak_days_over_limit
 from subscription_usage_profile
+order by
+    plan_key
+  , customer_key
