@@ -1,12 +1,12 @@
-# Executive EDA Runbook
+# Plan Change Recommendation EDA Runbook
 
 **Goal** 
-Produce an EDA and executive report that identifies which customers should receive plan recommendations next quarter to increase 90-day revenue while keeping pricing fair.
+Produce an EDA and report that identifies which customers should receive plan recommendations next quarter to increase 90-day revenue while keeping pricing fair.
 
 ## Scope
 - **Timeframe:** last 90 calendar days (UTC billing day)  
 - **Data:** `fact_usage` with `dim_customer`, `dim_product`, `dim_plan`, `dim_currency`, and `dim_country`, using daily price book
-- **Outputs:** 4 figures, 1 recommendations CSV, 1 executive report  
+- **Outputs:** 4 figures, 1 recommendations CSV, 1 report  
 
 ## Outputs
 - **Figures:**  
