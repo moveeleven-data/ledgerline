@@ -25,26 +25,47 @@ Produce an EDA and executive report that identifies which customers should recei
 
 ## Steps
 
-1. **Action:** Run `dbt build`.  
-   **Result:** Models run successfully and all tests pass.  
+## Steps 
 
-2. **Action:** Set the window to the last 90 days (UTC).  
-   **Result:** Start and end dates are clearly recorded.  
+1. **Action:** Run `dbt build --select marts.usage --exclude marts.usage.eda`.  
+   **Result:** Dimensions and the canonical `fact_usage` build and all tests pass.  
+   *Note: `fact_usage` only keeps the latest day (finance-friendly). For time-series EDA, use the windowed models below.*   
 
-3. **Action:** Run `eda_usage_limit_behavior_profile.sql`.  
-   **Result:** Counts by product and plan check out and metrics are populated.  
+2. **Action:** Set the EDA date window (UTC).  
+   **Result:** Start and end dates are recorded for reproducibility.  
+   - Use environment variables:  
+     - `DBT_EDA_START_DATE` = 2025-09-22  
+     - `DBT_EDA_END_DATE`   = 2025-09-28  
 
-4. **Action:** Export visuals (overage CDF, limit streaks, fairness heatmap).  
+3. **Action:** Build the windowed EDA models.  
+   **Command:** `dbt build --select +marts.usage.eda`  
+   **Result:** `int__fact_usage_priced_window` and `fact_usage_window` materialize for the chosen range.  
+
+4. **Action:** Run `eda_usage_limit_behavior_profile.sql`.  
+   **Expected Result:** Counts by product and plan check out and metrics are populated.  
+   **Actual Result:**
+     - 13 subscriptions were active between 2025-09-22 and 2025-09-28 (stable at 13 rows per day)
+     - Total: 91 rows across 7-day window
+     - days_over_limit metric validated: subscriptions show expected variation (0, partial, 30).
+          Spot check on customer_key '8a12...' confirmed 30/30 over-limit days.
+     - limit_hit_ratio values calculated for all 13 subscriptions.
+          Spot check shows values between 0 and 1, consistent with expectations.
+          (0 = never over, 1 = always over)
+     - `utilization` metric calculated, NULL where `included_units = 0`.  
+       Spot check confirms expected behavior: < 1.0 = under limit, 1.0 = at limit, > 1.0 = over.
+
+5. **Action:** Export visuals (overage CDF, limit streaks, fairness heatmap).  
    **Result:** Figures are saved with short captions and added to the report.  
 
-5. **Action:** Run `eda_billed_amount_price_sensitivity.sql` and `eda_fairness_by_country_and_plan.sql`.  
+6. **Action:** Run `eda_billed_amount_price_sensitivity.sql` and `eda_fairness_by_country_and_plan.sql`.  
    **Result:** Price sensitivity figure is saved and fairness notes are captured, with small-sample regions flagged.  
 
-6. **Action:** Run `eda_plan_change_recommendations_90d.sql`.  
+7. **Action:** Run `eda_plan_change_recommendations_90d.sql`.  
    **Result:** Recommendations CSV is saved and linked in the report.  
 
-7. **Action:** Draft report sections (highlights, recommendations, limitations).  
+8. **Action:** Draft report sections (highlights, recommendations, limitations).  
    **Result:** Initial version of the executive report is ready for review.  
+   
 
 ## Acceptance Checks
 - Figures can be reproduced and filenames match.  

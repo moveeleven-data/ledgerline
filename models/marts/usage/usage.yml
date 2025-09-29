@@ -4,6 +4,9 @@
 #
 # This layer publishes conformed dimensions (customer, product, plan,
 # currency, country) and the daily fact_usage table.
+#
+# See EDA models documented in marts/intermediate/eda/*.yml
+# and marts/usage/eda/*.yml.
 # ----------------------------------------------------------------------
 
 version: 2
