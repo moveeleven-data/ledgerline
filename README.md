@@ -72,7 +72,7 @@ The intent is to right-size plans so they match actual use. The aim is to give c
 
 ### Further Reading
 
-[Recommendations report](reports/executive_report_plan_change_recommendations.md)  
+[Recommendations report](reports/plan_change_recommendations.md)  
 
 [Supporting SQL](analyses/eda/usage_limit_behavior_profile.sql)  
 
