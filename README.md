@@ -7,7 +7,9 @@
 
 ## Business Story
 
-Ledgerline simulates the financial heartbeat of a B2B SaaS platform called **Atlas**. 
+Ledgerline models the commercial core of **Atlas**, a B2B SaaS company.
+
+It turns product usage into revenue and margin that finance and product can trust.
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
