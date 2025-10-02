@@ -63,14 +63,14 @@ These tests are intentionally strict. If staging has to “fix” too much bad d
 ## Grains & Keys (Facts)
 
 ### Usage feed
-- **Logical Grain:** customer x product x plan (subscription)
-- **Physical Grain:** customer × product × plan × date 
+- **Entity Grain:** customer x product x plan (subscription)
+- **Row Grain:** customer × product × plan × date 
 - **Key:** usage_hkey = subscription + date  
 - **Diff:** adds units + included_units to capture metric changes
 
 ### Daily price book
-- **Logical Grain:** product x plan
-- **Physical Grain:** product × plan × price_date  
+- **Entity Grain:** product x plan
+- **Row Grain:** product × plan × price_date  
 - **Key:** price_book_hkey = product + plan + date  
 - **Diff:** adds unit_price to capture changes
 
