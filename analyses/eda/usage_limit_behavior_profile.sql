@@ -1,5 +1,5 @@
 /**
-eda_usage_limit_behavior_profile.sql
+usage_limit_behavior_profile.sql
 ------------------------------------
 Summarize subscription usage and overages from the past 90 days to help guide plan recommendations.
 

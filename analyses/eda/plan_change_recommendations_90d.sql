@@ -1,5 +1,5 @@
 /**
-eda__plan_change_recommendations_90d.sql
+plan_change_recommendations_90d.sql
 ----------------------------------------
 Build a ranked list of customer–product pairs for plan
 recommendations over the next quarter. The aim is to

@@ -29,7 +29,9 @@ priced_usage as (
     select
           dim_customer.customer_key                                             as customer_key
         , dim_product.product_key                                               as product_key
+        , dim_product.product_name                                              as product_name
         , dim_plan.plan_key                                                     as plan_key
+        , dim_plan.plan_name                                                    as plan_name
         , dim_currency.currency_key                                             as currency_key
         , priced_usage.report_date                                              as report_date
         , priced_usage.units_used                                               as units_used
@@ -71,7 +73,9 @@ priced_usage as (
 select
       customer_key
     , product_key
+    , product_name
     , plan_key
+    , plan_name
     , currency_key
     , report_date
     , units_used
