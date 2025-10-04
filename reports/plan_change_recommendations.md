@@ -12,12 +12,12 @@ Sample sizes: Starter n=2, Growth n=2, Pro n=6, Enterprise n=3.
 
 ---
 
-## Top targets to action
+## Recommended actions
 
 | customer_name       | product_name | plan_name         | overage_share | overage_rate | avg_utilization | recommendation |
 |---------------------|--------------|-------------------|---------------|--------------|-----------------|----------------|
-| Horizon Media       | Alerting     | Alerting Standard | 1.05          | 1.0          |                 | upsell         |
-| Delta Manufacturing | Alerting     | Alerting Standard | 0.97          | 0.87         |                 | upsell         |
+| Horizon Media       | Alerting     | Alerting Standard | 1.05          | 1.0          | N/A                | upsell         |
+| Delta Manufacturing | Alerting     | Alerting Standard | 0.97          | 0.87         | N/A                | upsell         |
 | Nimbus Cloud        | Core API     | Basic             | 0.45          | 1.0          | 1.83            | upsell         |
 | Global Insights     | ETL Engine   | ETL 100k rows     | 0.43          | 1.0          | 1.76            | upsell         |
 | Crescent Health     | ETL Engine   | ETL 100k rows     | 0.38          | 1.0          | 1.60            | upsell         |
@@ -32,23 +32,23 @@ Sample sizes: Starter n=2, Growth n=2, Pro n=6, Enterprise n=3.
 
 Full table export: [assets/tables/action_table_2025-09-28.csv](assets/tables/action_table_2025-09-28.csv)
 
-Note: avg_utilization is blank for Alerting Standard customers (e.g. Horizon Media, Delta Manufacturing) because their plan does not define included_units.
+_Note: avg_utilization is shown as N/A for Alerting Standard customers since their plan has no included_units._
 
 ---
 
-## Fairness check, country and plan
+## Fairness by country and plan
 
-Shown only for country–plan groups with at least two customers and an over-limit rate differing from the plan average by 0.10 or more.
+Shown only where groups have at least two customers and their over-limit rate is 0.10+ above the plan average.
 
 | country       | plan_name | sample_size | days_over_limit_rate | plan_days_over_limit_rate | delta | severity |
 |---------------|-----------|-------------|----------------------|----------------------------|-------|----------|
 | United States | Basic     | 2           | 1.00                 | 0.74                       | 0.26  | alert    |
 
-All other country–plan groups are either within tolerance or too small to evaluate.
+All other groups are within tolerance or too small to assess.
 
 ---
 
-## Price volatility snapshot, billed amount vs unit price
+## Price volatility by plan
 
 | product_name | plan_name         | distinct_unit_prices | volatility_level | total_billed_value |
 |--------------|-------------------|----------------------|------------------|--------------------|
@@ -63,7 +63,4 @@ All other country–plan groups are either within tolerance or too small to eval
 
 ## SQL reference
 
-`analyses/usage_limit_behavior_profile.sql`  
-`analyses/action_table.sql`  
-`analyses/fairness_by_country_and_plan.sql`  
-`analyses/billed_amount_price_volatility.sql`
+[analyses/eda/](../analyses/eda/)

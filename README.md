@@ -76,7 +76,7 @@ The intent is to right-size plans so they match actual use. The aim is to give c
 
 [Recommendations report](reports/plan_change_recommendations.md)  
 
-[Supporting SQL](analyses/eda/usage_limit_behavior_profile.sql)  
+[Supporting SQL](analyses/eda/plan_change_recommendations_90d.sql)  
 
 ---
 
