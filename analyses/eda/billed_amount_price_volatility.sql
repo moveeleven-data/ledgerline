@@ -20,7 +20,7 @@ window_price_stats as (
             when count(distinct unit_price) > 3 then 'volatile'
             when count(distinct unit_price) > 1 then 'moderate'
             else 'stable'
-        end as price_volatility
+        end as volatility_level
       , round(
             sum(billed_value)
           , 2

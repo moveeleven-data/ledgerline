@@ -111,10 +111,10 @@ rollup_90d as (
         , recommendation
 
         , case recommendation
-              when 'upsell'        then 1
-              when 'adjust units'  then 2
-              when 'down tier'     then 3
-              else                      4
+              when 'upsell'       then 1
+              when 'adjust units' then 2
+              when 'down tier'    then 3
+              else                     4
           end as recommendation_priority
     from recommendations
 )
