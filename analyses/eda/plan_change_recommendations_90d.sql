@@ -1,5 +1,5 @@
 /**
-eda__plan_change_recommendations_90d.sql
+plan_change_recommendations_90d.sql
 ----------------------------------------
 Build a ranked list of customer–product pairs for plan
 recommendations over the next quarter. The aim is to
@@ -19,8 +19,4 @@ Approach:
 - Identify candidates for upsell, adjustment, or down-tier based on usage
 - Estimate revenue impact from simple plan changes
 - Prioritize actions (upsell first, then adjust, then down-tier, else hold)
-
-Downstream Usage
-- table_plan_change_recommendations_90d.csv
-- Report: Recommendations section links to the table and summarizes the criteria
 */

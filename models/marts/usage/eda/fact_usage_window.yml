@@ -53,12 +53,20 @@ models:
           - relationships:
               arguments: {to: ref('dim_product'), field: product_key}
 
+      - name: product_name
+        data_type: string
+        description: Human-readable product name from dim_product.
+
       - name: plan_key
         data_type: string
         tests:
           - not_null
           - relationships:
               arguments: {to: ref('dim_plan'), field: plan_key}
+
+      - name: plan_name
+        data_type: string
+        description: Human-readable plan name from dim_plan.
 
       - name: currency_key
         data_type: string
