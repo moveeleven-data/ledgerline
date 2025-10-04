@@ -30,7 +30,7 @@ Sample sizes: Starter n=2, Growth n=2, Pro n=6, Enterprise n=3.
 | Jade Foods          | Core API     | Basic             | 0.00          | 0.00         | 0.81            | hold           |
 | Sunrise Telecom     | Core API     | Pro               | 0.00          | 0.00         | 0.68            | hold           |
 
-Full table export: [assets/tables/action_table_2025-09-28.csv](assets/tables/action_table_2025-09-28.csv)
+Full table export: [plan_change_recommendations_90d.csv](assets/tables/plan_change_recommendations_90d.csv)
 
 _Note: avg_utilization is shown as N/A for Alerting Standard customers since their plan has no included_units._
 
@@ -63,4 +63,11 @@ All other groups are within tolerance or too small to assess.
 
 ## SQL reference
 
-[analyses/eda/](../analyses/eda/)
+The full set of queries is available here:  
+📂 [analyses/eda/](../analyses/eda/)
+
+Key scripts used in this analysis:
+- [`usage_limit_behavior_profile.sql`](../analyses/eda/usage_limit_behavior_profile.sql) – Usage limit behavior profile  
+- [`plan_change_recommendations_90d.sql`](../analyses/eda/plan_change_recommendations_90d.sql) – Plan change recommendations (90 days)  
+- [`fairness_by_country_and_plan.sql`](../analyses/eda/fairness_by_country_and_plan.sql) – Fairness by country and plan  
+- [`billed_amount_price_volatility.sql`](../analyses/eda/billed_amount_price_volatility.sql) – Billed amount price volatility

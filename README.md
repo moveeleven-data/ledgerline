@@ -76,8 +76,6 @@ The intent is to right-size plans so they match actual use. The aim is to give c
 
 [Recommendations report](reports/plan_change_recommendations.md)  
 
-[Supporting SQL](analyses/eda/plan_change_recommendations_90d.sql)  
-
 ---
 
 ## Codebase Overview
