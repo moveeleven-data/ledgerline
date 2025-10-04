@@ -14,4 +14,4 @@ Sample sizes: Starter n=2, Growth n=2, Pro n=6, Enterprise n=3.
 - Growth: Split between medium and long streaks.  
 - Pro: Mixed Spread (some short, some long).  
 - Enterprise: Many none (possible oversizing).
-
+- Fairness: Only one alert—US (Basic is +0.26 over the plan average); all other country–plan cells are either within tolerance or too small (n<2) to judge.
