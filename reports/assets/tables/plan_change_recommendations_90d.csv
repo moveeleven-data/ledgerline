@@ -1,0 +1,14 @@
+customer_name,product_name,plan_name,overage_share,overage_rate,avg_utilization,recommendation,priority_rank
+Horizon Media,Alerting,Alerting Standard,1.05,1.0,,upsell,1
+Delta Manufacturing,Alerting,Alerting Standard,0.97,0.87,,upsell,1
+Nimbus Cloud,Core API,Basic,0.45,1.0,1.83,upsell,1
+Global Insights,ETL Engine,ETL 100k rows,0.43,1.0,1.76,upsell,1
+Crescent Health,ETL Engine,ETL 100k rows,0.38,1.0,1.6,upsell,1
+River City Bank,Core API,Basic,0.35,1.0,1.55,upsell,1
+Acme Analytics,Core API,Basic,0.33,1.0,1.49,upsell,1
+Falcon Labs,Core API,Pro,0.19,1.0,1.23,upsell,1
+Evergreen Retail,Core API,Basic,0.06,0.43,1.03,adjust units,2
+Ivy Systems,Core API,Basic,0.01,0.43,1.0,adjust units,2
+Blue Rocket,Core API,Pro,0.0,0.0,0.9,hold,4
+Jade Foods,Core API,Basic,0.0,0.0,0.81,hold,4
+Sunrise Telecom,Core API,Pro,0.0,0.0,0.68,hold,4

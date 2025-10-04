@@ -106,27 +106,33 @@ usage_by_country_plan as (
     group by plan_name
 )
 
+, fairness_by_country_and_plan as (
+    select
+        country_name
+        , plan_name
+        , customers_active
+        , utilization_avg
+        , effective_unit_price_avg
+        , days_over_limit_rate
+        , plan_days_over_limit_rate
+        , (days_over_limit_rate - plan_days_over_limit_rate) as delta
+        , case
+            when customers_active >= 2
+            and days_over_limit_rate > plan_days_over_limit_rate + 0.10
+            then true
+            else false
+        end as fairness_flag
+        , case
+            when customers_active < 2 then 'small_sample'
+            when days_over_limit_rate >= plan_days_over_limit_rate + 0.10 then 'alert'
+            when days_over_limit_rate >= plan_days_over_limit_rate + 0.05 then 'warn'
+            else 'ok'
+        end as severity
+    from country_plan
+    inner join plan_benchmark
+        using (plan_name)
+)
+
 select
-      country_name
-    , plan_name
-    , customers_active
-    , utilization_avg
-    , effective_unit_price_avg
-    , days_over_limit_rate
-    , plan_days_over_limit_rate
-    , (days_over_limit_rate - plan_days_over_limit_rate) as delta
-    , case
-          when customers_active >= 2
-           and days_over_limit_rate > plan_days_over_limit_rate + 0.10
-          then true
-          else false
-      end as fairness_flag
-    , case
-          when customers_active < 2 then 'small_sample'
-          when days_over_limit_rate >= plan_days_over_limit_rate + 0.10 then 'alert'
-          when days_over_limit_rate >= plan_days_over_limit_rate + 0.05 then 'warn'
-          else 'ok'
-      end as severity
-from country_plan
-inner join plan_benchmark
-    using (plan_name)
+    *
+from fairness_by_country_and_plan
