@@ -63,11 +63,13 @@ All other groups are within tolerance or too small to assess.
 
 ## SQL reference
 
-The full set of queries is available here:  
+The full set of queries is available here: 
+
 📂 [analyses/eda/](../analyses/eda/)
 
 Key scripts used in this analysis:
-- [`usage_limit_behavior_profile.sql`](../analyses/eda/usage_limit_behavior_profile.sql) – Usage limit behavior profile  
-- [`plan_change_recommendations_90d.sql`](../analyses/eda/plan_change_recommendations_90d.sql) – Plan change recommendations (90 days)  
-- [`fairness_by_country_and_plan.sql`](../analyses/eda/fairness_by_country_and_plan.sql) – Fairness by country and plan  
-- [`billed_amount_price_volatility.sql`](../analyses/eda/billed_amount_price_volatility.sql) – Billed amount price volatility
+
+[`usage_limit_behavior_profile.sql`](../analyses/eda/usage_limit_behavior_profile.sql) – Usage limit behavior profile  
+[`plan_change_recommendations_90d.sql`](../analyses/eda/plan_change_recommendations_90d.sql) – Plan change recommendations (90 days)  
+[`fairness_by_country_and_plan.sql`](../analyses/eda/fairness_by_country_and_plan.sql) – Fairness by country and plan  
+[`billed_amount_price_volatility.sql`](../analyses/eda/billed_amount_price_volatility.sql) – Billed amount price volatility
