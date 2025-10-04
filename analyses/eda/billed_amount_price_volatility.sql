@@ -1,17 +1,12 @@
 /**
-billed_amount_price_sensitivity.sql
+billed_amount_price_volatility.sql
 ----------------------------------------
 Purpose:
-- Measure sensitivity of billed amounts to price shifts.
+- Measure volatility of billed amounts to price shifts.
 - Flag products and plans as stable, moderate, or volatile
-- Compare actual spend with what-if scenarios
 
 Grain:
 - One row per product–plan, aggregated over 90 days
-
-Downstream Usage
-- fig_price_sensitivity_by_product.png: Shows products grouped by plan with stability flagged
-- Report: Includes a note on whether price changes may bias recommendations
 */
 
 with
@@ -36,12 +31,12 @@ window_price_stats as (
       , plan_key
 )
 
-, price_sensitivity as (
+, price_volatility_stats as (
     select
         product_name
       , plan_name
       , distinct_unit_prices
-      , price_volatility
+      , volatility_level
       , total_billed_value
     from window_price_stats
     inner join {{ ref('dim_product') }}
@@ -54,6 +49,6 @@ select
     product_name
   , plan_name
   , distinct_unit_prices
-  , price_volatility
+  , volatility_level
   , total_billed_value
-from price_sensitivity
+from price_volatility_stats

@@ -3,24 +3,11 @@ usage_limit_behavior_profile.sql
 ------------------------------------
 Summarize subscription usage and overages from the past 90 days to help guide plan recommendations.
 
-grain:
+Grain:
 - one row per customer_key × product_key × plan_key
 
-start date:
+Start date:
 - window_start_date = 2025-08-30, window_end_date = 2025-09-28
-
-metrics:
-- active_days, days_over_limit, limit_hit_ratio
-- utilization (avg units_used / included_units, null when included_units = 0)
-- streak_days_over_limit (longest consecutive run of over-limit days)
-- 90d totals for units and overages
-- window_start_date, window_end_date
-
-downstream usage
-figures:
-- fig_overage_distribution_cdf.png: shows overage patterns by product
-- fig_limit_streaks_by_plan.png: shows longest overage streaks by plan
-- fig_fairness_by_country.png: compares usage fairness across countries
 */
 
 with

@@ -19,8 +19,4 @@ Approach:
 - Identify candidates for upsell, adjustment, or down-tier based on usage
 - Estimate revenue impact from simple plan changes
 - Prioritize actions (upsell first, then adjust, then down-tier, else hold)
-
-Downstream Usage
-- table_plan_change_recommendations_90d.csv
-- Report: Recommendations section links to the table and summarizes the criteria
 */
