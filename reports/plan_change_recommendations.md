@@ -1,8 +1,10 @@
 # Plan Change Recommendations
 
 **Scope:** 90 day subscription usage analysis  
+
 **Goal:** Identify customers for plan adjustments that balance fairness and revenue  
-**Window:** 2025-08-30 to 2025-09-28
+
+**Window:** 2025-06-30 to 2025-09-28
 
 ![Over limit streaks by plan](assets/figures/fig_limit_streaks_by_plan.png)
 
@@ -44,7 +46,7 @@ Shown only where groups have at least two customers and their over-limit rate is
 |---------------|-----------|-------------|----------------------|----------------------------|-------|----------|
 | United States | Basic     | 2           | 1.00                 | 0.74                       | 0.26  | alert    |
 
-All other groups are within tolerance or too small to assess.
+_All other groups are within tolerance or too small to assess._
 
 ---
 
@@ -69,7 +71,10 @@ The full set of queries is available here:
 
 Key scripts used in this analysis:
 
-[`usage_limit_behavior_profile.sql`](../analyses/eda/usage_limit_behavior_profile.sql) – Usage limit behavior profile  
-[`plan_change_recommendations_90d.sql`](../analyses/eda/plan_change_recommendations_90d.sql) – Plan change recommendations (90 days)  
-[`fairness_by_country_and_plan.sql`](../analyses/eda/fairness_by_country_and_plan.sql) – Fairness by country and plan  
-[`billed_amount_price_volatility.sql`](../analyses/eda/billed_amount_price_volatility.sql) – Billed amount price volatility
+[`usage_limit_behavior_profile.sql`](../analyses/eda/usage_limit_behavior_profile.sql) - Usage limit behavior profile  
+
+[`plan_change_recommendations_90d.sql`](../analyses/eda/plan_change_recommendations_90d.sql) - Plan change recommendations (90 days)  
+
+[`fairness_by_country_and_plan.sql`](../analyses/eda/fairness_by_country_and_plan.sql) - Fairness by country and plan  
+
+[`billed_amount_price_volatility.sql`](../analyses/eda/billed_amount_price_volatility.sql) - Billed amount price volatility
