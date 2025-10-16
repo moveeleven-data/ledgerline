@@ -7,22 +7,23 @@
  * - Normalize codes to uppercase.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
+ * - Keep only the latest version per country_code by ingestion_ts.
  */
 
 with
 
 country_source as (
     select
-          upper(country_code)           as country_code2
+          upper(country_code)            as country_code
         , country_name
-        , to_timestamp_ntz(load_ts)     as ingestion_ts
-        , 'SEED.atlas_ref_country_info' as record_source
+        , to_timestamp_ntz(load_ts)      as ingestion_ts
+        , 'SEED.atlas_country_info'      as record_source
     from {{ ref('atlas_country_info') }}
 )
 
 , country_default_row as (
     select
-          '-1'                           as country_code2
+          '-1'                           as country_code
         , 'Missing'                      as country_name
         , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
@@ -34,26 +35,35 @@ country_source as (
     from country_source
 
     union all
-    
+
     select
         *
     from country_default_row
 )
 
+, country_latest as (
+    select
+        *
+    from country_combined
+
+    qualify row_number() over (
+        partition by
+            country_code
+        order by
+            ingestion_ts desc
+    ) = 1
+)
+
 , country_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key([
-               'country_code2'
-          ]) }} as country_hkey
-
+          {{ dbt_utils.generate_surrogate_key(['country_code']) }} as country_hkey
         , {{ dbt_utils.generate_surrogate_key([
-               'country_code2'
-              ,'country_name'
+                'country_code'
+              , 'country_name'
           ]) }} as country_hdiff
-
+          
         , *
-        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
-    from country_combined
+    from country_latest
 )
 
 select

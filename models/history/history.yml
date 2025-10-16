@@ -15,32 +15,22 @@ models:
   # Tracks full change history for usage. Surrogate keys and version hashes
   # guarantee stability and detect changes. Row types enforce SCD contract.
   # --------------------------------------------------------------------------
-  
+
   - name: hist_atlas_meter_usage_daily
+
     description: >
-      SCD usage history. 'OPEN' rows come from the source for each report_date;
-      'CLOSE_SYNTHETIC' rows are zero-outs created when a previously OPEN usage
-      combo is absent on the latest report_date (one close per key and date).
+      Append only usage history. Stores what arrived and when.
+      REF selects the latest per key and date for reporting.
 
     columns:
       - name: usage_hkey
-        description: Surrogate key for (customer_code, product_code, plan_code, report_date bucket).
         tests: [not_null]
-
       - name: usage_hdiff
-        description: Version hash over identifying fields and units (includes report_date).
-        tests:
-          - not_null
-          - unique
-
+        tests: [not_null]
       - name: report_date
         tests: [not_null]
-
-      - name: usage_row_type
-        tests:
-          - accepted_values:
-              arguments:
-                values: ['OPEN','CLOSE_SYNTHETIC']
+      - name: ingestion_ts
+        tests: [not_null]
 
 
     # ----------------------------------------------------------------------

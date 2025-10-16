@@ -7,17 +7,18 @@
  * - Normalize codes to uppercase.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
+ * - Keep only the latest version per currency_code by ingestion_ts.
  */
 
 with
 
 currency_source as (
     select
-          upper(currency_code)           as currency_code
+          upper(currency_code)        as currency_code
         , currency_name
         , decimal_digits
-        , to_timestamp_ntz(load_ts)      as ingestion_ts
-        , 'SEED.atlas_ref_currency_info' as record_source
+        , to_timestamp_ntz(load_ts)   as ingestion_ts
+        , 'SEED.atlas_currency_info'  as record_source
     from {{ ref('atlas_currency_info') }}
 )
 
@@ -42,21 +43,30 @@ currency_source as (
     from currency_default_row
 )
 
+, currency_latest as (
+    select
+        *
+    from currency_combined
+
+    qualify row_number() over (
+        partition by
+            currency_code
+        order by
+            ingestion_ts desc
+    ) = 1
+)
+
 , currency_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key([
-               'currency_code'
-          ]) }} as currency_hkey
-
+          {{ dbt_utils.generate_surrogate_key(['currency_code']) }} as currency_hkey
         , {{ dbt_utils.generate_surrogate_key([
-               'currency_code'
-              ,'currency_name'
-              ,'decimal_digits'
-          ]) }} as currency_hdiff
-
+                'currency_code'
+              , 'currency_name'
+              , 'decimal_digits'
+           ]) }} as currency_hdiff
+        
         , *
-        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
-    from currency_combined
+    from currency_latest
 )
 
 select

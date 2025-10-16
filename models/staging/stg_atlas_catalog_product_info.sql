@@ -7,6 +7,7 @@
  * - Normalize product_code to uppercase.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
+ * - Keep only the latest version per product_code by ingestion_ts.
  */
 
 with
@@ -42,21 +43,30 @@ product_source as (
     from product_default_row
 )
 
+, product_latest as (
+    select
+        *
+    from product_combined
+
+    qualify row_number() over (
+        partition by
+            product_code
+        order by
+            ingestion_ts desc
+    ) = 1
+)
+
 , product_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key([
-               'product_code'
-          ]) }} as product_hkey
-
+          {{ dbt_utils.generate_surrogate_key(['product_code']) }} as product_hkey
         , {{ dbt_utils.generate_surrogate_key([
                'product_code'
-              ,'product_name'
-              ,'category'
-          ]) }} as product_hdiff
-
+             , 'product_name'
+             , 'category'
+           ]) }} as product_hdiff
+           
         , *
-        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
-    from product_combined
+    from product_latest
 )
 
 select

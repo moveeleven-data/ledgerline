@@ -234,14 +234,14 @@ seeds:
 
 
   # --------------------------------------------------------------------------
-  # atlas_meter_usage_daily_seed
+  # atlas_meter_usage_daily
   # --------------------------------------------------------------------------
   # Metered usage rows per customer + product + plan + date.
   # Tests intentionally live on the real source (atlas_meter_usage_daily),
   # not here, so they persist when this seed is replaced by the live feed.
   # --------------------------------------------------------------------------
 
-  - name: atlas_meter_usage_daily_seed
+  - name: atlas_meter_usage_daily
 
     columns:
       - name: customer_code

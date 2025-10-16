@@ -7,6 +7,7 @@
  * - Normalize product_code and plan_code.
  * - Ensure price_date is valid and coerced into 21st century.
  * - Remove ghost rows (completely empty).
+ * - Keep only the latest row per (product_code, plan_code, price_date).
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
  */
@@ -20,7 +21,7 @@ source_prices as (
         , {{ to_21st_century_date('price_date') }}  as price_date
         , unit_price                                as unit_price
         , to_timestamp_ntz(load_ts)                 as ingestion_ts
-        , 'SEED.atlas_price_book_daily'             as record_source
+        , 'price_book'                              as record_source
     from {{ ref('atlas_price_book_daily') }}
 )
 
@@ -57,24 +58,38 @@ source_prices as (
     from default_row
 )
 
+, latest_prices as (
+    select
+        *
+    from combined_prices
+
+    qualify row_number() over (
+        partition by
+            product_code
+          , plan_code
+          , price_date
+        order by
+            ingestion_ts desc
+    ) = 1
+)
+
 , hashed_prices as (
     select
           {{ dbt_utils.generate_surrogate_key([
-                'product_code'
-              , 'plan_code'
-              , 'price_date'
+               'product_code'
+             , 'plan_code'
+             , 'price_date'
           ]) }} as price_book_hkey
 
         , {{ dbt_utils.generate_surrogate_key([
-                'product_code'
-              , 'plan_code'
-              , 'price_date'
-              , 'unit_price'
+               'product_code'
+             , 'plan_code'
+             , 'price_date'
+             , 'unit_price'
           ]) }} as price_book_hdiff
-
+        
         , *
-        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
-    from combined_prices
+    from latest_prices
 )
 
 select
