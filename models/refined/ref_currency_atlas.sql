@@ -11,18 +11,21 @@
  * - One row per currency_hkey.
  */
 
-with current_from_history as (
+with
+
+current_from_history as (
     {{ current_from_history(
-          history_relation = ref('hist_atlas_currency_info')
-        , key_column       = 'currency_hkey'
+          history_relation      = ref('hist_atlas_currency_info')
+        , key_column            = 'currency_hkey'
+        , load_timestamp_column = 'ingestion_ts'
     ) }}
 )
 
 select
-    currency_hkey
-  , currency_code
-  , currency_name
-  , decimal_digits
-  , record_source
-  , load_ts_utc
+      currency_hkey
+    , currency_code
+    , currency_name
+    , decimal_digits
+    , record_source
+    , ingestion_ts
 from current_from_history
