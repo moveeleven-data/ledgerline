@@ -3,8 +3,9 @@
 # Schema definitions for the Staging layer.
 #
 # Staging adapts raw sources/seeds into normalized, deduplicated tables.
-# It enforces uniqueness, adds default rows, and prepares clean inputs
-# for history.
+# It enforces uniqueness, adds defaults, and prepares clean inputs for history.
+#
+# Note: staging models expose an `ingestion_ts` column (rename from load_ts).
 # ---------------------------------------------------------------------------
 
 version: 2
@@ -18,17 +19,56 @@ models:
   # - Year must be >= 2000
   # - One row per (customer_code, product_code, plan_code, report_date)
   # ----------------------------------------------------------------------
-  
+
   - name: stg_atlas_meter_usage_daily
+
     tests:
-      - dbt_utils.expression_is_true:
-          name: extract_year_from_report_date_2000
-          arguments:
-            expression: "extract(year from report_date) >= 2000"
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [customer_code, product_code, plan_code, report_date]
 
+      - dbt_utils.expression_is_true:
+          name: report_date_year_gte_2000
+          arguments:
+            expression: "extract(year from report_date) >= 2000"
+
+    columns:
+      - name: customer_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_crm_customer_info')
+              field: customer_code
+
+      - name: product_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_catalog_product_info')
+              field: product_code
+
+      - name: plan_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_catalog_plan_info')
+              field: plan_code
+
+      - name: report_date
+        tests: [not_null]
+
+      - name: units_used
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: included_units
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_price_book_daily
@@ -37,17 +77,43 @@ models:
   # - Year must be >= 2000
   # - One row per (product_code, plan_code, price_date)
   # ----------------------------------------------------------------------
-  
   - name: stg_atlas_price_book_daily
+
     tests:
-      - dbt_utils.expression_is_true:
-          arguments:
-            expression: "extract(year from price_date) >= 2000"
-          config: {severity: warn}
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [product_code, plan_code, price_date]
 
+      - dbt_utils.expression_is_true:
+          name: price_date_year_gte_2000
+          arguments:
+            expression: "extract(year from price_date) >= 2000"
+
+    columns:
+      - name: product_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_catalog_product_info')
+              field: product_code
+
+      - name: plan_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_catalog_plan_info')
+              field: plan_code
+
+      - name: price_date
+        tests: [not_null]
+
+      - name: unit_price
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_crm_customer_info
@@ -55,14 +121,24 @@ models:
   # Staging table for CRM customer info.
   # - customer_code must be unique and not null
   # ----------------------------------------------------------------------
-
   - name: stg_atlas_crm_customer_info
-    tests:
-      - unique:
-          column_name: customer_code
-      - not_null:
-          column_name: customer_code
 
+    columns:
+      - name: customer_code
+        tests: [unique, not_null]
+
+      - name: customer_name
+        tests: [not_null]
+
+      - name: country_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_country_info')
+              field: country_code
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_catalog_product_info
@@ -70,14 +146,17 @@ models:
   # Staging table for product catalog info.
   # - product_code must be unique and not null
   # ----------------------------------------------------------------------
-
   - name: stg_atlas_catalog_product_info
-    tests:
-      - unique:
-          column_name: product_code
-      - not_null:
-          column_name: product_code
 
+    columns:
+      - name: product_code
+        tests: [unique, not_null]
+
+      - name: product_name
+        tests: [not_null]
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_catalog_plan_info
@@ -87,12 +166,25 @@ models:
   # ----------------------------------------------------------------------
 
   - name: stg_atlas_catalog_plan_info
-    tests:
-      - unique:
-          column_name: plan_code
-      - not_null:
-          column_name: plan_code
 
+    columns:
+      - name: plan_code
+        tests: [unique, not_null]
+
+      - name: product_code
+        tests:
+          - not_null
+          - relationships:
+              to: ref('atlas_catalog_product_info')
+              field: product_code
+
+      - name: billing_period
+        tests:
+          - accepted_values:
+              values: ['monthly','annual']
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_currency_info
@@ -102,23 +194,39 @@ models:
   # ----------------------------------------------------------------------
 
   - name: stg_atlas_currency_info
-    tests:
-      - unique:
-          column_name: currency_code
-      - not_null:
-          column_name: currency_code
 
+    columns:
+      - name: currency_code
+        tests: [unique, not_null]
+
+      - name: currency_name
+        tests: [not_null]
+
+      - name: decimal_digits
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+          - dbt_utils.expression_is_true:
+              expression: "decimal_digits = floor(decimal_digits)"
+
+      - name: ingestion_ts
+        tests: [not_null]
 
   # ----------------------------------------------------------------------
   # stg_atlas_country_info
   # ----------------------------------------------------------------------
   # Staging table for country reference data.
-  # - country_code2 must be unique and not null
+  # - country_code must be unique and not null
   # ----------------------------------------------------------------------
 
   - name: stg_atlas_country_info
-    tests:
-      - unique:
-          column_name: country_code2
-      - not_null:
-          column_name: country_code2
+
+    columns:
+      - name: country_code
+        tests: [unique, not_null]
+
+      - name: country_name
+        tests: [not_null]
+
+      - name: ingestion_ts
+        tests: [not_null]
