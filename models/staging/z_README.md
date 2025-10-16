@@ -17,7 +17,7 @@ Staging bridges the gap between raw inputs and historical tracking. Its responsi
 
 2. **Remove ghost rows and deduplicate**  
    - Drop rows that are completely empty placeholders.  
-   - Deduplicate on the natural business grain, keeping the latest record by `load_ts` and using tie-breakers where needed.  
+   - Deduplicate on the natural business grain, keeping the latest record by `ingestion_ts` and using tie-breakers where needed.  
 
 3. **Inject a default member**  
    - Every staging model appends one synthetic record with key `'-1'`.  
@@ -27,7 +27,7 @@ This ensures joins never drop rows, even if upstream data is late or incomplete.
 
 4. **Generate deterministic keys and version hashes**  
    - Surrogate keys (e.g., `customer_hkey = hash(customer_code)`).  
-   - Version hashes (e.g., `customer_hdiff = hash(customer_code, customer_name, country_code2)`) to detect attribute changes.  
+   - Version hashes (e.g., `customer_hdiff = hash(customer_code, customer_name, country_code)`) to detect attribute changes.  
    - Dates are always cast to `YYYY-MM-DD` strings before hashing.  
    - The generic test `hash_collision_free` ensures no two different inputs generate the same hash.  
 

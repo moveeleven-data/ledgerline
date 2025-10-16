@@ -16,7 +16,7 @@ product_source as (
           upper(product_code)               as product_code
         , product_name
         , category
-        , to_timestamp_ntz(load_ts)         as load_ts
+        , to_timestamp_ntz(load_ts)         as ingestion_ts
         , 'SEED.atlas_catalog_product_info' as record_source
     from {{ ref('atlas_catalog_product_info') }}
 )
@@ -26,7 +26,7 @@ product_source as (
           '-1'                           as product_code
         , 'Missing'                      as product_name
         , 'Missing'                      as category
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
 )
 
@@ -54,8 +54,8 @@ product_source as (
               ,'category'
           ]) }} as product_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
     from product_combined
 )
 

@@ -16,7 +16,7 @@ customer_source as (
           upper(customer_code)           as customer_code
         , customer_name
         , upper(country_code)            as country_code2
-        , to_timestamp_ntz(load_ts)      as load_ts
+        , to_timestamp_ntz(load_ts)      as ingestion_ts
         , 'SEED.atlas_crm_customer_info' as record_source
     from {{ ref('atlas_crm_customer_info') }}
 )
@@ -26,7 +26,7 @@ customer_source as (
           '-1'                           as customer_code
         , 'Missing'                      as customer_name
         , '-1'                           as country_code2
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
 )
 
@@ -54,8 +54,8 @@ customer_source as (
               ,'country_code2'
           ]) }} as customer_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
     from customer_combined
 )
 

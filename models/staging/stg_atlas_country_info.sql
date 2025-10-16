@@ -15,7 +15,7 @@ country_source as (
     select
           upper(country_code)           as country_code2
         , country_name
-        , to_timestamp_ntz(load_ts)     as load_ts
+        , to_timestamp_ntz(load_ts)     as ingestion_ts
         , 'SEED.atlas_ref_country_info' as record_source
     from {{ ref('atlas_country_info') }}
 )
@@ -24,7 +24,7 @@ country_source as (
     select
           '-1'                           as country_code2
         , 'Missing'                      as country_name
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
 )
 
@@ -51,8 +51,8 @@ country_source as (
               ,'country_name'
           ]) }} as country_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
     from country_combined
 )
 

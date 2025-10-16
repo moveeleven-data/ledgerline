@@ -30,7 +30,7 @@ source_usage as (
         , {{ to_21st_century_date('report_date') }}  as report_date
         , units_used                                 as units_used
         , included_units                             as included_units
-        , to_timestamp_ntz(load_ts)                  as load_ts
+        , to_timestamp_ntz(load_ts)                  as ingestion_ts
         , '{{ record_source_label }}'                as record_source
     from {{ resolve_atlas_usage_relation() }}
 )
@@ -56,7 +56,7 @@ source_usage as (
 
     qualify row_number() over (
         partition by customer_code, product_code, plan_code, report_date
-        order by load_ts desc, units_used desc
+        order by ingestion_ts desc, units_used desc
     ) = 1
 )
 
@@ -68,7 +68,7 @@ source_usage as (
         , to_date('2020-01-01')          as report_date
         , 0::number                      as units_used
         , 0::number                      as included_units
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
 )
 
@@ -102,8 +102,8 @@ source_usage as (
               , 'included_units'
           ]) }} as usage_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
     from combined_usage
 )
 

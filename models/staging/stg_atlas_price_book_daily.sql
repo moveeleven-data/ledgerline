@@ -19,7 +19,7 @@ source_prices as (
         , upper(plan_code)                          as plan_code
         , {{ to_21st_century_date('price_date') }}  as price_date
         , unit_price                                as unit_price
-        , to_timestamp_ntz(load_ts)                 as load_ts
+        , to_timestamp_ntz(load_ts)                 as ingestion_ts
         , 'SEED.atlas_price_book_daily'             as record_source
     from {{ ref('atlas_price_book_daily') }}
 )
@@ -41,7 +41,7 @@ source_prices as (
         , '-1'                           as plan_code
         , to_date('2020-01-01')          as price_date
         , 0::number                      as unit_price
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as ingestion_ts
         , 'System.DefaultKey'            as record_source
 )
 
@@ -72,8 +72,8 @@ source_prices as (
               , 'unit_price'
           ]) }} as price_book_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
+        , to_timestamp_ntz('{{ run_started_at }}') as pipeline_ts
     from combined_prices
 )
 
