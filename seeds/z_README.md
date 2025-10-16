@@ -3,7 +3,7 @@
 Seeds are versioned CSVs that provide Atlas reference data and sample source feeds.  
 
 - In **development and CI**, seeds provide both reference data and sample feeds (CRM, catalog, usage, pricing). This lets the full pipeline run end-to-end without relying on live upstream systems.  
-- In **production**, dynamic feeds such as usage and pricing are replaced by true sources, while stable reference lists (countries, currencies, products, plans) may remain seeded.  
+- In **production**, seeds are disabled. Dynamic feeds come from true sources. Stable reference lists can remain seeds if the business wants that.
 
 This approach keeps contracts consistent across environments, accelerates local iteration, and ensures that problems are caught early before real data arrives.
 
@@ -13,8 +13,8 @@ This approach keeps contracts consistent across environments, accelerates local 
 
 1. **Seeds** are loaded into the warehouse as static tables via `dbt seed`.  
 2. **Sources** resolve runtime inputs.  
-   - In dev/CI, seeds act as the `_seeds` schema.  
-   - In prod, sources point to raw ingestion schemas.  
+- In dev and CI, seeds land in <target.schema>_seeds and sources read from that schema.
+- In prod, sources read the raw ingestion schema and seeds are disabled.
 3. **Staging** normalizes inputs before history.  
    - In dev, staging queries seeds.  
    - In prod, staging queries live ingestion tables.  
@@ -41,7 +41,7 @@ Ledgerline ships seven seed datasets.
 
 ## Materialization and Lifecycle
 
-Seeds are materialized as Snowflake tables in the `seeds` schema. A few rules apply:
+Seeds are materialized as tables in <target.schema>_seeds in dev and CI. Seeds are disabled in prod. A few rules apply:
 
 - **Typing**: Each CSV specifies `+column_types` so Snowflake doesn’t guess. This keeps the schema predictable.  
 - **Lineage**: A post-hook sets `load_ts` if it’s null, giving every row a load timestamp.  
@@ -50,33 +50,35 @@ Seeds are materialized as Snowflake tables in the `seeds` schema. A few rules ap
 
 ## Contracts and Constraints
 
-Seeds serve as the first contract layer of the pipeline. Each one declares basic uniqueness or combination tests in `seeds.yml`. This ensures that invalid shapes are caught early.
+Seeds are the first contract layer. Tests fail by default with no warning severities.
 
-Key constraints:
+**Key constraints**
 
-- `atlas_crm_customer_info`: `customer_code` must be unique.  
-- `atlas_catalog_product_info`: `product_code` must be unique.  
-- `atlas_catalog_plan_info`: `plan_code` must be unique.  
-- `atlas_currency_info`: `currency_code` must be unique.  
-- `atlas_country_info`: `country_code` must be unique.  
-- `atlas_price_book_daily`: unique combination `(product_code, plan_code, price_date)`.  
-- `atlas_meter_usage_daily`: unique combination `(customer_code, product_code, plan_code, report_date)`.
+- `atlas_crm_customer_info`: `customer_code` unique and not null. `country_code` not null and must exist in `atlas_country_info`.
+- `atlas_catalog_product_info`: `product_code` unique and not null.
+- `atlas_catalog_plan_info`: `plan_code` unique and not null. `product_code` must exist in `atlas_catalog_product_info`. `billing_period` must be `monthly` or `annual`.
+- `atlas_currency_info`: `currency_code` unique and not null. `decimal_digits` must be a nonnegative integer.
+- `atlas_country_info`: `country_code` unique and not null.
+- `atlas_price_book_daily`: unique combination `(product_code, plan_code, price_date)`. `unit_price` nonnegative. `product_code` and `plan_code` must exist in their catalog seeds.
+- **Source, not seed** `atlas_meter_usage_daily`: unique combination `(customer_code, product_code, plan_code, report_date)` and freshness on `load_ts`.
 
-These constraints mimic reality (customers must have one identity, usage must not double-count) and protect staging from broken inputs.
+These checks mirror real rules and keep bad shapes out before data moves downstream.
 
 ---
 
 ## Testing Strategy
 
-Testing happens at two levels:
+Testing happens in three places:
 
 1. **Seeds** (`seeds.yml`)  
-   - Uniqueness and combination constraints  
-   - Enforce business key stability  
-   - Keep reference tables internally consistent  
+   - Uniqueness on keys, not nulls, foreign keys where applicable, simple value checks  
+   - Fail by default, no warning severities
 
-2. **Staging** (later in the pipeline)  
-   - Stronger validations (nonnegative amounts, year >= 2000, not nulls)  
-   - Deduplication at natural grain  
+2. **Sources**  
+   - Enforce true grain for usage and freshness on `load_ts`  
+   - Stop the build on failure
 
-This two-tier strategy means cheap, broad tests at the seed stage and stricter, domain-aware tests in staging.
+3. **Staging**  
+   - Remaining domain checks, light dedupe only when unavoidable, sanity rules not feasible earlier
+
+This keeps early checks cheap and strict, and pushes domain logic to staging where it belongs.
