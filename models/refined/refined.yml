@@ -1,10 +1,6 @@
 # refined.yml
 # ---------------------------------------------------------------------------
 # Schema definitions for the Refined layer.
-#
-# This layer collapses SCD history into current views and standardizes
-# fact inputs. It provides clean, reusable tables that serve as the
-# contract for marts and other downstream consumers.
 # ---------------------------------------------------------------------------
 
 version: 2
@@ -28,3 +24,6 @@ models:
 
   - name: ref_country_atlas
     description: Current country record per surrogate key.
+
+  - name: ref_price_book_daily
+    description: REF wrapper for the daily price book.

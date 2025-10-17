@@ -14,8 +14,7 @@
  *   customer_code × product_code × plan_code × report_date.
  *
  * Inputs:
- *   - Usage from REF (ref_usage_atlas)
- *   - Price book from STG for now (stg_atlas_price_book_daily)
+ *   - Usage and Pricing from REF
  */
 
 with normalized_usage as (
@@ -37,7 +36,8 @@ with normalized_usage as (
         , price_date
         , unit_price
         , '{{ var("default_billing_currency","USD") }}'::string as currency_code
-    from {{ ref('stg_atlas_price_book_daily') }}
+    from {{ ref('ref_price_book_daily') }}
+)
 )
 
 , usage_priced as (

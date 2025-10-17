@@ -72,7 +72,7 @@ models:
   # -------------------------
 
   - name: int_fact_usage_priced
-    description: Usage priced at NK grain (REF usage + price book).
+    description: Usage priced at NK grain (REF usage + REF price book wrapper).
     columns:
       - name: report_date
         tests: [not_null]
