@@ -66,7 +66,7 @@ latest_history_versions as (
 
 , filtered_staging as (
     select
-    *
+        *
     from {{ staging_relation }} as staging_row
     where
          {{ staging_filter_condition }}

@@ -17,7 +17,7 @@ current_from_history as (
     {{ current_from_history(
           history_relation      = ref('hist_atlas_currency_info')
         , key_column            = 'currency_hkey'
-        , load_timestamp_column = 'ingestion_ts'
+        , load_timestamp_column = 'load_ts_utc'
     ) }}
 )
 
@@ -27,5 +27,5 @@ select
     , currency_name
     , decimal_digits
     , record_source
-    , ingestion_ts
+    , load_ts_utc
 from current_from_history

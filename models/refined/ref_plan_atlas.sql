@@ -17,7 +17,7 @@ current_from_history as (
     {{ current_from_history(
           history_relation      = ref('hist_atlas_catalog_plan_info')
         , key_column            = 'plan_hkey'
-        , load_timestamp_column = 'ingestion_ts'
+        , load_timestamp_column = 'load_ts_utc'
     ) }}
 )
 
@@ -28,5 +28,5 @@ select
     , product_code
     , billing_period
     , record_source
-    , ingestion_ts
+    , load_ts_utc
 from current_from_history
