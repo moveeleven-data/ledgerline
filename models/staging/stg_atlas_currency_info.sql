@@ -7,7 +7,7 @@
  * - Normalize codes to uppercase.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
- * - Keep only the latest version per currency_code by ingestion_ts.
+ * - Keep only the latest version per currency_code by load_ts_utc.
  */
 
 with
@@ -17,7 +17,7 @@ currency_source as (
           upper(currency_code)        as currency_code
         , currency_name
         , decimal_digits
-        , to_timestamp_ntz(load_ts)   as ingestion_ts
+        , to_timestamp_ntz(load_ts)   as load_ts_utc
         , 'SEED.atlas_currency_info'  as record_source
     from {{ ref('atlas_currency_info') }}
 )
@@ -27,7 +27,7 @@ currency_source as (
           '-1'                           as currency_code
         , 'Missing'                      as currency_name
         , 2                              as decimal_digits
-        , to_timestamp_ntz('2020-01-01') as ingestion_ts
+        , to_timestamp_ntz('2020-01-01') as load_ts_utc
         , 'System.DefaultKey'            as record_source
 )
 
@@ -52,7 +52,7 @@ currency_source as (
         partition by
             currency_code
         order by
-            ingestion_ts desc
+            load_ts_utc desc
     ) = 1
 )
 

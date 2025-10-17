@@ -7,7 +7,7 @@
  * - Normalize codes to uppercase.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
- * - Keep only the latest version per country_code by ingestion_ts.
+ * - Keep only the latest version per country_code by load_ts_utc.
  */
 
 with
@@ -16,7 +16,7 @@ country_source as (
     select
           upper(country_code)            as country_code
         , country_name
-        , to_timestamp_ntz(load_ts)      as ingestion_ts
+        , to_timestamp_ntz(load_ts)      as load_ts_utc
         , 'SEED.atlas_country_info'      as record_source
     from {{ ref('atlas_country_info') }}
 )
@@ -25,7 +25,7 @@ country_source as (
     select
           '-1'                           as country_code
         , 'Missing'                      as country_name
-        , to_timestamp_ntz('2020-01-01') as ingestion_ts
+        , to_timestamp_ntz('2020-01-01') as load_ts_utc
         , 'System.DefaultKey'            as record_source
 )
 
@@ -50,7 +50,7 @@ country_source as (
         partition by
             country_code
         order by
-            ingestion_ts desc
+            load_ts_utc desc
     ) = 1
 )
 
@@ -61,7 +61,7 @@ country_source as (
                 'country_code'
               , 'country_name'
           ]) }} as country_hdiff
-          
+
         , *
     from country_latest
 )

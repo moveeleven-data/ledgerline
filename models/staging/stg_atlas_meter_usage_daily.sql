@@ -20,7 +20,7 @@ source_usage as (
         , {{ to_21st_century_date('report_date') }}  as report_date
         , units_used                                 as units_used
         , included_units                             as included_units
-        , to_timestamp_ntz(load_ts)                  as ingestion_ts
+        , to_timestamp_ntz(load_ts)                  as load_ts_utc
         , 'atlas_meter'                              as record_source
     from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
 )
@@ -50,7 +50,7 @@ source_usage as (
             , plan_code
             , report_date
         order by
-              ingestion_ts desc
+              load_ts_utc desc
             , units_used desc
     ) = 1
 )
@@ -63,7 +63,7 @@ source_usage as (
         , to_date('2020-01-01')          as report_date
         , 0::number                      as units_used
         , 0::number                      as included_units
-        , to_timestamp_ntz('2020-01-01') as ingestion_ts
+        , to_timestamp_ntz('2020-01-01') as load_ts_utc
         , 'System.DefaultKey'            as record_source
 )
 

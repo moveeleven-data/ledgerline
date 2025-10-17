@@ -7,7 +7,7 @@
  * - Normalize customer and country codes.
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
- * - Keep only the latest version per customer_code by ingestion_ts.
+ * - Keep only the latest version per customer_code by load_ts_utc.
  */
 
 with
@@ -17,7 +17,7 @@ customer_source as (
           upper(customer_code)           as customer_code
         , customer_name
         , upper(country_code)            as country_code
-        , to_timestamp_ntz(load_ts)      as ingestion_ts
+        , to_timestamp_ntz(load_ts)      as load_ts_utc
         , 'SEED.atlas_crm_customer_info' as record_source
     from {{ ref('atlas_crm_customer_info') }}
 )
@@ -27,7 +27,7 @@ customer_source as (
           '-1'                           as customer_code
         , 'Missing'                      as customer_name
         , '-1'                           as country_code
-        , to_timestamp_ntz('2020-01-01') as ingestion_ts
+        , to_timestamp_ntz('2020-01-01') as load_ts_utc
         , 'System.DefaultKey'            as record_source
 )
 
@@ -52,7 +52,7 @@ customer_source as (
         partition by
             customer_code
         order by
-            ingestion_ts desc
+            load_ts_utc desc
     ) = 1
 )
 

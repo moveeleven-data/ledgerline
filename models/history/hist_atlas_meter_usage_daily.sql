@@ -28,10 +28,15 @@
   {% set as_of_date_literal = "(select coalesce(max(report_date), to_date('" ~ fallback_date_default ~ "')) from " ~ ref('stg_atlas_meter_usage_daily') ~ ")" %}
 {% endif %}
 
-with stg_today as (
+with
+
+stg_today as (
     select
           usage_hkey
         , usage_hdiff
+        , customer_hkey
+        , product_hkey
+        , plan_hkey
         , customer_code
         , product_code
         , plan_code
@@ -39,9 +44,10 @@ with stg_today as (
         , report_date
         , units_used
         , included_units
-        , ingestion_ts as load_ts_utc
+        , load_ts_utc
         , 'OPEN'::string as usage_row_type
     from {{ ref('stg_atlas_meter_usage_daily') }}
+    
     where
         report_date = {{ as_of_date_literal }}
 )
@@ -49,3 +55,4 @@ with stg_today as (
 select
     *
 from stg_today
+
