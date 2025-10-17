@@ -81,20 +81,24 @@ source_usage as (
 
 , hashed_usage as (
     select
-          {{ dbt_utils.generate_surrogate_key([
+          {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
+        , {{ dbt_utils.generate_surrogate_key(['product_code'])  }} as product_hkey
+        , {{ dbt_utils.generate_surrogate_key(['plan_code'])     }} as plan_hkey
+
+        , {{ dbt_utils.generate_surrogate_key([
                'customer_code'
-              ,'product_code'
-              ,'plan_code'
-              ,'report_date'
+             , 'product_code'
+             , 'plan_code'
+             , 'report_date'
           ]) }} as usage_hkey
 
         , {{ dbt_utils.generate_surrogate_key([
                'customer_code'
-              ,'product_code'
-              ,'plan_code'
-              ,"to_varchar(report_date,'YYYY-MM-DD')"
-              ,'units_used'
-              ,'included_units'
+             , 'product_code'
+             , 'plan_code'
+             , "to_varchar(report_date,'YYYY-MM-DD')"
+             , 'units_used'
+             , 'included_units'
           ]) }} as usage_hdiff
 
         , *

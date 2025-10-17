@@ -1,84 +1,95 @@
 {{ config(
      materialized = 'view'
    , tags = [
-        'mart:usage'
-      , 'intermediate'
-      , 'domain:usage_billing'
+         'mart:usage'
+       , 'intermediate'
+       , 'domain:usage_billing'
      ]
 ) }}
 
 /**
  * int_fact_usage_priced.sql
  * -------------------------
- * Price latest usage at NK grain:
- *   customer_code × product_code × plan_code × report_date.
- *
- * Inputs:
- *   - Usage and Pricing from REF
+ * Price latest usage at NK grain.
+ * - Keys for customer/product/plan flow from REF usage (created in STG).
+ * - Currency appears here for the first time; compute currency_key now.
+ * - Also compute billed/included/overage values so the FACT can be a pure SELECT.
  */
 
-with normalized_usage as (
+with
+
+-- Normalize base usage
+normalized_usage as (
     select
-          report_date::date                         as report_date
-        , cast(units_used as number(38,0))          as units_used
-        , cast(included_units as number(38,0))      as included_units
-        , greatest(units_used - included_units, 0)  as overage_units
-        , customer_code                             as customer_code_nk
-        , product_code                              as product_code_nk
-        , plan_code                                 as plan_code_nk
+          report_date::date                        as report_date
+        , cast(units_used as number(38, 0))        as units_used
+        , cast(included_units as number(38, 0))    as included_units
+        , greatest(units_used - included_units, 0) as overage_units
+        , customer_hkey                            as customer_key
+        , product_hkey                             as product_key
+        , plan_hkey                                as plan_key
+        , product_code                             as product_code_nk
+        , plan_code                                as plan_code_nk
     from {{ ref('ref_usage_atlas') }}
 )
 
-, price_book as (
+-- Bring in pricing and currency
+, usage_with_price as (
     select
-          product_code
-        , plan_code
-        , price_date
-        , unit_price
-        , '{{ var("default_billing_currency","USD") }}'::string as currency_code
-    from {{ ref('ref_price_book_daily') }}
-)
-)
+          usage.report_date
+        , usage.customer_key
+        , usage.product_key
+        , usage.plan_key
+        , usage.units_used
+        , usage.included_units
+        , usage.overage_units
 
-, usage_priced as (
-    select
-          normalized_usage_data.report_date
-        , normalized_usage_data.customer_code_nk
-        , normalized_usage_data.product_code_nk
-        , normalized_usage_data.plan_code_nk
-        , normalized_usage_data.units_used
-        , normalized_usage_data.included_units
-        , normalized_usage_data.overage_units
-        , price_book_data.unit_price
-        , coalesce(
-              price_book_data.currency_code
-            , '{{ var("default_billing_currency","USD") }}'
-          ) as currency_code_nk
+        , coalesce(price.unit_price, 0)                as unit_price
+        , price.currency_code_nk                       as currency_code_nk
+        , {{ dbt_utils.generate_surrogate_key(["upper(currency_code_nk)"]) }} as currency_key
     
-    from normalized_usage as normalized_usage_data
-    left join price_book as price_book_data
-           on price_book_data.product_code = normalized_usage_data.product_code_nk
-          and price_book_data.plan_code    = normalized_usage_data.plan_code_nk
-          and price_book_data.price_date  <= normalized_usage_data.report_date
+    from normalized_usage as usage
+    left join {{ ref('ref_price_book_daily') }} as price
+          on price.product_code = usage.product_code_nk
+         and price.plan_code    = usage.plan_code_nk
+         and price.price_date  <= usage.report_date
 
     qualify row_number() over (
         partition by
-             normalized_usage_data.report_date
-           , normalized_usage_data.product_code_nk
-           , normalized_usage_data.plan_code_nk
+              usage.report_date
+            , usage.product_code_nk
+            , usage.plan_code_nk
         order by
-             price_book_data.price_date desc nulls last
+            price.price_date desc nulls last
     ) = 1
+)
+
+, usage_with_value_metrics as (
+    select
+          usage_with_price.*
+        , (units_used     * unit_price) as billed_value
+        , (included_units * unit_price) as included_value
+        , (overage_units  * unit_price) as overage_value
+        , case when (units_used * unit_price) > 0
+             then (overage_units * unit_price)
+                  / (units_used * unit_price)
+             else 0
+          end as overage_share
+    from usage_with_price
 )
 
 select
       report_date
-    , customer_code_nk
-    , product_code_nk
-    , plan_code_nk
+    , customer_key
+    , product_key
+    , plan_key
+    , currency_key
     , units_used
     , included_units
     , overage_units
     , unit_price
-    , currency_code_nk
-from usage_priced
+    , billed_value
+    , included_value
+    , overage_value
+    , overage_share
+from usage_with_value_metrics

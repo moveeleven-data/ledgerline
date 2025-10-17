@@ -1,7 +1,7 @@
 /**
  * dim_currency.sql
  * ----------------
- * Pass-through of the refined currency dimension (closed domain).
+ * Pass-through of the refined currency dimension.
  * Grain: one row per currency_key.
  */
 

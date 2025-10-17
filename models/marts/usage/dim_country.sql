@@ -1,7 +1,7 @@
 /**
  * dim_country.sql
  * ---------------
- * Pass-through of the refined country dimension (closed domain).
+ * Pass-through of the refined country dimension.
  * Grain: one row per country_key.
  */
 

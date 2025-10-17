@@ -12,29 +12,40 @@
  * - One row per usage_hkey (latest OPEN record).
  */
 
-with latest_per_key as (
+with latest_any as (
     select
         *
     from {{ ref('hist_atlas_meter_usage_daily') }}
 
     qualify row_number() over (
         partition by
-             usage_hkey
+            usage_hkey
         order by
-             report_date desc
-           , ingestion_ts desc
+            report_date desc
+          , load_ts_utc desc
     ) = 1
+)
+
+, latest_open as (
+    select
+        *
+    from latest_any
+    where
+        usage_row_type = 'OPEN'
 )
 
 select
       usage_hkey
+    , usage_hdiff
+    , customer_hkey
+    , product_hkey
+    , plan_hkey
     , customer_code
     , product_code
     , plan_code
-    , record_source
     , report_date
     , units_used
     , included_units
-    , greatest(units_used - included_units, 0) as overage_units
-    , ingestion_ts
-from latest_per_key
+    , record_source
+    , load_ts_utc
+from latest_open
