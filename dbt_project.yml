@@ -56,8 +56,7 @@ models:
 
     staging:
       +schema: staging
-      +materialized: ephemeral
-      # inherits +meta from ledgerline
+      +materialized: view
 
 
     # --------------------------------------------------------------------------
@@ -74,7 +73,6 @@ models:
       +materialized: incremental
       +incremental_strategy: append
       +on_schema_change: ignore
-      # inherits +meta from ledgerline
 
 
     # --------------------------------------------------------------------------
@@ -87,7 +85,6 @@ models:
     refined:
       +schema: refined
       +materialized: table
-      # inherits +meta from ledgerline
 
 
     # --------------------------------------------------------------------------
@@ -99,12 +96,10 @@ models:
 
     marts:
       +materialized: table
-      # inherits +meta from ledgerline
 
       usage:
         +schema: marts_usage
         +contract: {enforced: true}
-        # inherits +meta from ledgerline
           
         intermediate:
           +schema: marts_usage_int
@@ -242,8 +237,6 @@ seeds:
         units_used:     number
         included_units: number
         load_ts:        timestamp_ntz
-
-
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"

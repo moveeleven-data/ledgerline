@@ -1,7 +1,11 @@
 {{ config(
      materialized = 'incremental'
-   , incremental_strategy = 'append'
-   , on_schema_change = 'ignore'
+   , incremental_strategy = 'merge'
+   , unique_key = [
+         'usage_hkey'
+       , 'report_date'
+       , 'usage_row_type'
+     ]
 ) }}
 
 /**

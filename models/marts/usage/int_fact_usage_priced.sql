@@ -1,19 +1,8 @@
-{{ config(
-     materialized = 'view'
-   , tags = [
-         'mart:usage'
-       , 'intermediate'
-       , 'domain:usage_billing'
-     ]
-) }}
-
 /**
  * int_fact_usage_priced.sql
  * -------------------------
  * Price latest usage at NK grain.
- * - Keys for customer/product/plan flow from REF usage (created in STG).
- * - Currency appears here for the first time; compute currency_key now.
- * - Also compute billed/included/overage values so the FACT can be a pure SELECT.
+ * - Compute billed/included/overage values so the FACT can be a pure SELECT.
  */
 
 with
@@ -36,31 +25,29 @@ normalized_usage as (
 -- Bring in pricing and currency
 , usage_with_price as (
     select
-          usage.report_date
-        , usage.customer_key
-        , usage.product_key
-        , usage.plan_key
-        , usage.units_used
-        , usage.included_units
-        , usage.overage_units
+          u.report_date
+        , u.customer_key
+        , u.product_key
+        , u.plan_key
+        , u.units_used
+        , u.included_units
+        , u.overage_units
+        , coalesce(p.unit_price, 0) as unit_price
+        , p.currency_key as currency_key
 
-        , coalesce(price.unit_price, 0)                as unit_price
-        , price.currency_code_nk                       as currency_code_nk
-        , {{ dbt_utils.generate_surrogate_key(["upper(currency_code_nk)"]) }} as currency_key
-    
-    from normalized_usage as usage
-    left join {{ ref('ref_price_book_daily') }} as price
-          on price.product_code = usage.product_code_nk
-         and price.plan_code    = usage.plan_code_nk
-         and price.price_date  <= usage.report_date
+    from normalized_usage as u
+    left join {{ ref('ref_price_book_daily') }} as p
+           on p.product_code = u.product_code_nk
+          and p.plan_code    = u.plan_code_nk
+          and p.price_date  <= u.report_date
 
     qualify row_number() over (
         partition by
-              usage.report_date
-            , usage.product_code_nk
-            , usage.plan_code_nk
+            u.report_date
+          , u.product_code_nk
+          , u.plan_code_nk
         order by
-            price.price_date desc nulls last
+            p.price_date desc nulls last
     ) = 1
 )
 
@@ -71,9 +58,9 @@ normalized_usage as (
         , (included_units * unit_price) as included_value
         , (overage_units  * unit_price) as overage_value
         , case when (units_used * unit_price) > 0
-             then (overage_units * unit_price)
-                  / (units_used * unit_price)
-             else 0
+            then (overage_units * unit_price)
+                 / (units_used * unit_price)
+            else 0
           end as overage_share
     from usage_with_price
 )

@@ -2,7 +2,7 @@
 
 Staging is the adaptation layer. It takes raw inputs and transforms them into normalized, deduplicated relations. These relations are then consumed by the history layer to build durable SCDs and usage spans.
 
-All staging models are ephemeral. dbt inlines them as CTEs into downstream SQL, so they never persist in Snowflake. This keeps warehouse cost down and avoids clutter.
+All staging models are **views**. dbt materializes them as lightweight relations in Snowflake so tests and debugging run against real objects with minimal cost.
 
 ---
 
@@ -23,7 +23,7 @@ Staging bridges the gap between raw inputs and historical tracking. Its responsi
    - Every staging model appends one synthetic record with key `'-1'`.  
    - Attributes are placeholders (`'Missing'`, `0`, or `'unknown'`) with `record_source = 'System.DefaultKey'`.  
    
-This ensures joins never drop rows, even if upstream data is late or incomplete.  
+   This ensures joins never drop rows, even if upstream data is late or incomplete.  
 
 4. **Generate deterministic keys and version hashes**  
    - Surrogate keys (e.g., `customer_hkey = hash(customer_code)`).  
@@ -50,7 +50,7 @@ The same staging SQL works in both environments. Only the schema resolution chan
 
 ## Testing Strategy
 
-Tests are declared in `staging.yml`. They include:
+Tests are declared in `staging.yml` and run against the **view** relations:
 
 - **Uniqueness** at each staging grain (e.g., one row per `(customer, product, plan, date)` in usage).  
 - **Not null** and **uniqueness** on codes for reference entities.  
@@ -63,16 +63,16 @@ These tests are intentionally strict. If staging has to “fix” too much bad d
 ## Grains & Keys (Facts)
 
 ### Usage feed
-- **Entity Grain:** customer x product x plan (subscription)
-- **Row Grain:** customer × product × plan × date 
-- **Key:** usage_hkey = subscription + date  
-- **Diff:** adds units + included_units to capture metric changes
+- **Entity Grain:** customer × product × plan (subscription)  
+- **Row Grain:** customer × product × plan × date  
+- **Key:** `usage_hkey = hash(subscription, date)`  
+- **Diff:** adds `units_used` + `included_units` to capture metric changes
 
 ### Daily price book
-- **Entity Grain:** product x plan
+- **Entity Grain:** product × plan  
 - **Row Grain:** product × plan × price_date  
-- **Key:** price_book_hkey = product + plan + date  
-- **Diff:** adds unit_price to capture changes
+- **Key:** `price_book_hkey = hash(product, plan, date)`  
+- **Diff:** adds `unit_price` to capture changes
 
 ---
 
@@ -82,5 +82,4 @@ Staging stores all dates and timestamps in UTC.
 - Business dates are treated as simple UTC calendar days.  
 - Load timestamps are stamped in UTC when the pipeline runs.  
 
-No time zone conversions are applied in staging. Standardizing everything to UTC avoids regional discrepencies and makes metrics like usage, billing, and churn globally comparable.
-
+No time zone conversions are applied in staging. Standardizing everything to UTC avoids regional discrepancies and makes metrics like usage, billing, and churn globally comparable.

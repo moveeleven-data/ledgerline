@@ -1,15 +1,12 @@
-/**
- * fact_usage.sql
- * --------------
- * Grain: customer_key × product_key × plan_key × report_date.
- */
+-- fact_usage.sql
+-- Grain: customer_key × product_key × plan_key × report_date.
 
 select
-      report_date
-    , customer_key
+      customer_key
     , product_key
     , plan_key
     , currency_key
+    , report_date
     , units_used
     , included_units
     , overage_units
