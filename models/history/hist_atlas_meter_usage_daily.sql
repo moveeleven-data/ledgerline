@@ -33,7 +33,7 @@ with stg_today as (
         , report_date
         , units_used
         , included_units
-        , ingestion_ts
+        , ingestion_ts as load_ts_utc
     from {{ ref('stg_atlas_meter_usage_daily') }}
     where report_date = {{ as_of_date_literal }}
 )
