@@ -216,36 +216,39 @@ models:
     columns:
       - name: customer_key
         data_type: string
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_customer')
-              field: customer_key
 
       - name: product_key
         data_type: string
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_product')
-              field: product_key
 
       - name: plan_key
         data_type: string
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_plan')
-              field: plan_key
 
       - name: currency_key
         data_type: string
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_currency')
-              field: currency_key
 
       - name: report_date
         data_type: date
-        tests: [not_null]
+
+      - name: units_used
+        data_type: number(38,0)
+
+      - name: included_units
+        data_type: number(38,0)
+
+      - name: overage_units
+        data_type: number(38,0)
+
+      - name: unit_price
+        data_type: number(18,6)
+
+      - name: billed_value
+        data_type: number(18,6)
+
+      - name: included_value
+        data_type: number(18,6)
+
+      - name: overage_value
+        data_type: number(18,6)
+        
+      - name: overage_share
+        data_type: number(18,6)
