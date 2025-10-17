@@ -1,367 +1,135 @@
 # usage.yml
 # ----------------------------------------------------------------------
 # Schema definitions for the Usage Mart.
-#
-# This layer publishes conformed dimensions (customer, product, plan,
-# currency, country) and the daily fact_usage table.
-#
-# See EDA models documented in marts/intermediate/eda/*.yml
-# and marts/usage/eda/*.yml.
 # ----------------------------------------------------------------------
 
 version: 2
 
 models:
 
-  # --------------------------------------------------------------------------
-  # dim_customer
-  # --------------------------------------------------------------------------
-  # Dimension: Customer attributes for the usage mart.
-  # One row per natural customer_code.
-  # --------------------------------------------------------------------------
+  # ---------------
+  # Dimensions
+  # ---------------
 
   - name: dim_customer
-    description: Customer attributes for the usage mart. One row per natural customer_code.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','dimension','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      pii: false
-
+    description: Customer dimension (pass-through from REF).
     columns:
       - name: customer_key
-        data_type: string
         tests: [not_null, unique]
-
       - name: customer_code
-        data_type: string
-        tests: [not_null, unique]
-
-      - name: customer_name
-        data_type: string
         tests: [not_null]
-
+      - name: customer_name
+        tests: [not_null]
       - name: country_code
-        data_type: string
-
-
-  # --------------------------------------------------------------------------
-  # dim_product
-  # --------------------------------------------------------------------------
-  # Dimension: Product master used by the usage mart.
-  # Self-completes missing codes with a default member.
-  # --------------------------------------------------------------------------
 
   - name: dim_product
-    description: Product master used by the usage mart. Self completes missing codes from facts using the default member.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','dimension','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      pii: false
-
+    description: Product dimension (pass-through from REF).
     columns:
       - name: product_key
-        data_type: string
         tests: [not_null, unique]
-
       - name: product_code
-        data_type: string
-        tests: [not_null, unique]
-
-      - name: product_name
-        data_type: string
         tests: [not_null]
-
+      - name: product_name
+        tests: [not_null]
       - name: category
-        data_type: string
-
-
-  # --------------------------------------------------------------------------
-  # dim_plan
-  # --------------------------------------------------------------------------
-  # Dimension: Subscription plans offered under each product.
-  # Drives billing logic (billing_period, included units, pricing).
-  # --------------------------------------------------------------------------
 
   - name: dim_plan
-    description: Subscription plan catalog for the usage mart.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','dimension','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      pii: false
-
+    description: Plan dimension (pass-through from REF).
     columns:
       - name: plan_key
-        data_type: string
         tests: [not_null, unique]
-
       - name: plan_code
-        data_type: string
-        tests: [not_null, unique]
-
+        tests: [not_null]
       - name: plan_name
-        data_type: string
         tests: [not_null]
-
       - name: product_code
-        data_type: string
         tests: [not_null]
-
       - name: billing_period
-        data_type: string
-
-
-  # --------------------------------------------------------------------------
-  # dim_currency
-  # --------------------------------------------------------------------------
-  # Dimension: Currency reference data.
-  # Joined to facts when pricing is currency specific.
-  # --------------------------------------------------------------------------
 
   - name: dim_currency
-    description: Currency reference data joined to facts when pricing is currency specific.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','dimension','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      pii: false
-
+    description: Currency dimension (pass-through from REF, closed domain).
     columns:
       - name: currency_key
-        data_type: string
         tests: [not_null, unique]
-
       - name: currency_code
-        data_type: string
-        tests: [not_null, unique]
-
-      - name: decimal_digits
-        data_type: number(38,0)
-
-      - name: currency_name
-        data_type: string
         tests: [not_null]
-
-
-  # --------------------------------------------------------------------------
-  # dim_country
-  # --------------------------------------------------------------------------
-  # Dimension: Country reference data.
-  # Used for enrichment and rollups.
-  # --------------------------------------------------------------------------
+      - name: decimal_digits
+      - name: currency_name
+        tests: [not_null]
 
   - name: dim_country
-    description: Country reference data for enrichment and rollups.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','dimension','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      pii: false
-
+    description: Country dimension (pass-through from REF, closed domain).
     columns:
       - name: country_key
-        data_type: string
         tests: [not_null, unique]
-
       - name: country_code
-        data_type: string
-        tests: [not_null, unique]
-
+        tests: [not_null]
       - name: country_name
-        data_type: string
         tests: [not_null]
 
-
-  # --------------------------------------------------------------------------
-  # int_fact_usage_priced
-  # --------------------------------------------------------------------------
-  # Intermediate model: Applies pricing logic at natural-key grain
-  # (customer_code × product_code × plan_code × report_date).
-  # Feeds fact_usage. Not intended for direct analyst use.
-  # --------------------------------------------------------------------------
+  # -------------------------
+  # Intermediate (pricing)
+  # -------------------------
 
   - name: int_fact_usage_priced
-    description: >
-      Intermediate model that applies pricing logic at the natural-key grain
-      (customer_code × product_code × plan_code × report_date).
-      Feeds fact_usage. Not intended for direct analyst use.
-    config:
-      tags: ['mart:usage','intermediate','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'intermediate'
-      pii: false
-
+    description: Usage priced at NK grain (REF usage + price book).
     columns:
       - name: report_date
-        data_type: date
         tests: [not_null]
-
       - name: customer_code_nk
-        data_type: string
         tests: [not_null]
-
       - name: product_code_nk
-        data_type: string
         tests: [not_null]
-
       - name: plan_code_nk
-        data_type: string
         tests: [not_null]
-
       - name: currency_code_nk
-        data_type: string
         tests: [not_null]
 
-      - name: units_used
-        data_type: number(38,0)
-
-      - name: included_units
-        data_type: number(38,0)
-
-      - name: overage_units
-        data_type: number(38,0)
-
-      - name: unit_price
-        data_type: number(18,6)
-
-
-  # --------------------------------------------------------------------------
-  # fact_usage
-  # --------------------------------------------------------------------------
-  # Fact table: Daily usage by customer, product, plan, per report_date.
-  # One row per (customer_key, product_key, plan_key, report_date).
-  # --------------------------------------------------------------------------
+  # -------------
+  # Facts
+  # -------------
 
   - name: fact_usage
-    description: Daily usage by customer, product, plan, per report_date.
-    config:
-      contract:
-        enforced: true
-      tags: ['mart:usage','fact','domain:usage_billing']
-    meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'marts'
-      mart: 'usage'
-      tier: 'gold'
-      sla_hours: 24
-      pii: false
-    
+    description: Daily usage fact; keys hashed from NKs (no dim joins).
     tests:
       - dbt_utils.unique_combination_of_columns:
-          name: fact_usage_unique_combo
           arguments:
             combination_of_columns:
               - customer_key
               - product_key
               - plan_key
               - report_date
-
     columns:
       - name: customer_key
-        data_type: string
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('dim_customer')
-                field: customer_key
-
+              arguments: {to: ref('dim_customer'), field: customer_key}
       - name: product_key
-        data_type: string
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('dim_product')
-                field: product_key
-
-      - name: product_name
-        data_type: string
-        description: Human-readable product name from dim_product.
-
+              arguments: {to: ref('dim_product'), field: product_key}
       - name: plan_key
-        data_type: string
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('dim_plan')
-                field: plan_key
-                
-      - name: plan_name
-        data_type: string
-        description: Human-readable plan name from dim_plan.
-
+              arguments: {to: ref('dim_plan'), field: plan_key}
       - name: currency_key
-        data_type: string
         tests:
           - not_null
           - relationships:
-              arguments:
-                to: ref('dim_currency')
-                field: currency_key
-
+              arguments: {to: ref('dim_currency'), field: currency_key}
       - name: report_date
-        data_type: date
         tests: [not_null]
 
-      - name: units_used
-        data_type: number(38,0)
-
-      - name: included_units
-        data_type: number(38,0)
-
-      - name: overage_units
-        data_type: number(38,0)
-
-      - name: unit_price
-        data_type: number(38,6)
-
-      - name: billed_value
-        data_type: number(38,6)
-
-      - name: included_value
-        data_type: number(38,6)
-
-      - name: overage_value
-        data_type: number(38,6)
-
-      - name: overage_share
-        data_type: number(38,6)
+  - name: fact_usage_window
+    description: EDA windowed fact; keys hashed from NKs.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - customer_key
+              - product_key
+              - plan_key
+              - report_date
