@@ -99,10 +99,6 @@ models:
         +schema: marts_usage
         +contract: {enforced: true}
 
-        intermediate:
-          +schema: marts_usage_int
-          +materialized: view
-
         eda:
           +contract: {enforced: false}
 
@@ -243,5 +239,6 @@ seeds:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
       +tags: ['usage']
+      
 flags:
   require_generic_test_arguments_property: true

@@ -1,3 +1,5 @@
+{{ config(materialized='view') }}
+
 /**
  * int_fact_usage_priced.sql
  * -------------------------

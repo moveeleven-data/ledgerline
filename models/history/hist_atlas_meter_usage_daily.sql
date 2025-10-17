@@ -19,8 +19,14 @@
  * - Append only.
  */
 
-{% set as_of_date         = get_latest_usage_report_date() %}
-{% set as_of_date_literal = "to_date('" ~ as_of_date ~ "')" %}
+{% set fallback_date_default = var('fallback_date_default', '2000-01-01') %}
+{% set as_of_date_override   = var('as_of_date', none) %}
+
+{% if as_of_date_override is not none %}
+  {% set as_of_date_literal = "to_date('" ~ as_of_date_override ~ "')" %}
+{% else %}
+  {% set as_of_date_literal = "(select coalesce(max(report_date), to_date('" ~ fallback_date_default ~ "')) from " ~ ref('stg_atlas_meter_usage_daily') ~ ")" %}
+{% endif %}
 
 with stg_today as (
     select
@@ -34,8 +40,12 @@ with stg_today as (
         , units_used
         , included_units
         , ingestion_ts as load_ts_utc
+        , 'OPEN'::string as usage_row_type
     from {{ ref('stg_atlas_meter_usage_daily') }}
-    where report_date = {{ as_of_date_literal }}
+    where
+        report_date = {{ as_of_date_literal }}
 )
 
-select * from stg_today
+select
+    *
+from stg_today
