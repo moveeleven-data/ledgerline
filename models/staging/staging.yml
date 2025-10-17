@@ -37,36 +37,36 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_crm_customer_info')
-              field: customer_code
-
+              arguments:
+                to: ref('atlas_crm_customer_info')
+                field: customer_code
       - name: product_code
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_product_info')
-              field: product_code
-
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: plan_code
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_plan_info')
-              field: plan_code
-
+              arguments:
+                to: ref('atlas_catalog_plan_info')
+                field: plan_code
       - name: report_date
         tests: [not_null]
 
       - name: units_used
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-
+              arguments:
+                min_value: 0
       - name: included_units
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-
+              arguments:
+                min_value: 0
       - name: ingestion_ts
         tests: [not_null]
 
@@ -94,24 +94,24 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_product_info')
-              field: product_code
-
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: plan_code
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_plan_info')
-              field: plan_code
-
+              arguments:
+                to: ref('atlas_catalog_plan_info')
+                field: plan_code
       - name: price_date
         tests: [not_null]
 
       - name: unit_price
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-
+              arguments:
+                min_value: 0
       - name: ingestion_ts
         tests: [not_null]
 
@@ -134,9 +134,9 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_country_info')
-              field: country_code
-
+              arguments:
+                to: ref('atlas_country_info')
+                field: country_code
       - name: ingestion_ts
         tests: [not_null]
 
@@ -175,13 +175,14 @@ models:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_product_info')
-              field: product_code
-
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: billing_period
         tests:
           - accepted_values:
-              values: ['monthly','annual']
+              arguments:
+                values: ['monthly', 'annual']
 
       - name: ingestion_ts
         tests: [not_null]
@@ -205,10 +206,11 @@ models:
       - name: decimal_digits
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
+              arguments:
+                min_value: 0
           - dbt_utils.expression_is_true:
-              expression: "decimal_digits = floor(decimal_digits)"
-
+              arguments:
+                expression: "decimal_digits = floor(decimal_digits)"
       - name: ingestion_ts
         tests: [not_null]
 

@@ -1,4 +1,4 @@
-# usage.yml
+# models/marts/usage/usage.yml
 # ----------------------------------------------------------------------
 # Schema definitions for the Usage Mart.
 # ----------------------------------------------------------------------
@@ -7,129 +7,157 @@ version: 2
 
 models:
 
-  # ---------------
-  # Dimensions
-  # ---------------
+# --------------- Dimensions ---------------
 
   - name: dim_customer
     description: Customer dimension (pass-through from REF).
+
     columns:
       - name: customer_key
         tests: [not_null, unique]
+
       - name: customer_code
         tests: [not_null]
+
       - name: customer_name
         tests: [not_null]
+
       - name: country_code
+
+
+# -------- Product --------
 
   - name: dim_product
     description: Product dimension (pass-through from REF).
+
     columns:
       - name: product_key
         tests: [not_null, unique]
+
       - name: product_code
         tests: [not_null]
+
       - name: product_name
         tests: [not_null]
+
       - name: category
+
+# -------- Plan --------
 
   - name: dim_plan
     description: Plan dimension (pass-through from REF).
+
     columns:
       - name: plan_key
         tests: [not_null, unique]
+
       - name: plan_code
         tests: [not_null]
+
       - name: plan_name
         tests: [not_null]
+
       - name: product_code
         tests: [not_null]
+
       - name: billing_period
+
+
+# -------- Currency --------
 
   - name: dim_currency
     description: Currency dimension (pass-through from REF, closed domain).
+
     columns:
       - name: currency_key
         tests: [not_null, unique]
+
       - name: currency_code
         tests: [not_null]
+
       - name: decimal_digits
+
       - name: currency_name
         tests: [not_null]
 
+
+# -------- Country --------
+
   - name: dim_country
     description: Country dimension (pass-through from REF, closed domain).
+
     columns:
       - name: country_key
         tests: [not_null, unique]
+
       - name: country_code
         tests: [not_null]
+
       - name: country_name
         tests: [not_null]
 
-  # -------------------------
-  # Intermediate (pricing)
-  # -------------------------
+  # -------------------- Intermediate (pricing) -----------------------
 
   - name: int_fact_usage_priced
     description: Usage priced at NK grain (REF usage + REF price book wrapper).
+
     columns:
       - name: report_date
         tests: [not_null]
-      - name: customer_code_nk
-        tests: [not_null]
-      - name: product_code_nk
-        tests: [not_null]
-      - name: plan_code_nk
-        tests: [not_null]
-      - name: currency_code_nk
+
+      - name: customer_key
         tests: [not_null]
 
-  # -------------
-  # Facts
-  # -------------
+      - name: product_key
+        tests: [not_null]
+
+      - name: plan_key
+        tests: [not_null]
+
+      - name: currency_key
+        tests: [not_null]
+
+  # ------------------------- Fact (daily) ----------------------------
 
   - name: fact_usage
-    description: Daily usage fact; keys hashed from NKs (no dim joins).
+    description: Daily usage fact; no dim joins; keys flow from REF or pricing step.
+
     tests:
       - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - customer_key
-              - product_key
-              - plan_key
-              - report_date
+          combination_of_columns:
+            - customer_key
+            - product_key
+            - plan_key
+            - report_date
+
     columns:
       - name: customer_key
         tests:
           - not_null
           - relationships:
-              arguments: {to: ref('dim_customer'), field: customer_key}
+              to: ref('dim_customer')
+              field: customer_key
+
       - name: product_key
         tests:
           - not_null
           - relationships:
-              arguments: {to: ref('dim_product'), field: product_key}
+              to: ref('dim_product')
+              field: product_key
+
       - name: plan_key
         tests:
           - not_null
           - relationships:
-              arguments: {to: ref('dim_plan'), field: plan_key}
+              to: ref('dim_plan')
+              field: plan_key
+
       - name: currency_key
         tests:
           - not_null
           - relationships:
-              arguments: {to: ref('dim_currency'), field: currency_key}
+              to: ref('dim_currency')
+              field: currency_key
+
       - name: report_date
         tests: [not_null]
-
-  - name: fact_usage_window
-    description: EDA windowed fact; keys hashed from NKs.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - customer_key
-              - product_key
-              - plan_key
-              - report_date

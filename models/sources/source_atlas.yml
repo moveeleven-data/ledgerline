@@ -11,7 +11,7 @@ version: 2
 
 sources:
   - name: atlas_meter
-  
+
     database: "{{ target.database }}"   # Portable across dev, CI, prod
 
     # -------------------------------------------------------------------------
@@ -27,9 +27,6 @@ sources:
     # --------------------------------------------------------------------------
 
     schema: "{{ 'source_data' if target.name == 'prod' else target.schema ~ '_seeds' }}"
-    meta:
-      owner: 'Matthew Tripodi'
-
     tables:
       - name: atlas_meter_usage_daily
 
@@ -45,11 +42,6 @@ sources:
         # Warn if data is more than 36 hours old.
         # Error if more than 72 hours old.
         # ----------------------------------------------------------------------
-          
-        loaded_at_field: load_ts
-        freshness:
-          warn_after: {count: 36, period: hour}
-          error_after: {count: 72, period: hour}
 
         # ---------------------------------------------------------------------------
         # Tests
@@ -62,39 +54,33 @@ sources:
               arguments:
                 combination_of_columns: [customer_code, product_code, plan_code, report_date]
           - dbt_utils.expression_is_true:
-              expression: "load_ts <= current_timestamp"
-
-        # ------------------------------------------------------------------------
-        # Columns
-        # ------------------------------------------------------------------------
-        # Keys must be present and must exist in the reference lookups.
-        # ------------------------------------------------------------------------
-
+              arguments:
+                expression: "load_ts <= current_timestamp"
         columns:
           - name: customer_code  # External identity of a customer.
             description: Customer code from CRM, joins to dim_customer.
             tests:
               - not_null
               - relationships:
-                  to: ref('atlas_crm_customer_info')
-                  field: customer_code
-
+                  arguments:
+                    to: ref('atlas_crm_customer_info')
+                    field: customer_code
           - name: product_code   # Identifier for which product the customer actually used.
             description: Product or feature code, joins to dim_product.
             tests:
               - not_null
               - relationships:
-                  to: ref('atlas_catalog_product_info')
-                  field: product_code
-
+                  arguments:
+                    to: ref('atlas_catalog_product_info')
+                    field: product_code
           - name: plan_code      # Decides how a customer is billed.
             description: Subscription plan code, joins to dim_plan.
             tests:
               - not_null
               - relationships:
-                  to: ref('atlas_catalog_plan_info')
-                  field: plan_code
-
+                  arguments:
+                    to: ref('atlas_catalog_plan_info')
+                    field: plan_code
           - name: report_date    # True business date the usage happened on, not ingestion timestamp.
             description: Usage as of date, daily UTC calendar grain.
             tests:
@@ -104,3 +90,11 @@ sources:
             description: Timestamp when the row landed in the warehouse.
             tests:
               - not_null
+        config:
+          loaded_at_field: load_ts
+          freshness:
+            warn_after: {count: 36, period: hour}
+            error_after: {count: 72, period: hour}
+    config:
+      meta:
+        owner: 'Matthew Tripodi'

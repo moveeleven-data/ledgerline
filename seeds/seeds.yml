@@ -38,9 +38,9 @@ seeds:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_country_info')
-              field: country_code
-
+              arguments:
+                to: ref('atlas_country_info')
+                field: country_code
       - name: load_ts
         description: Ingestion timestamp (set via post-hook if blank)
         tests:
@@ -104,14 +104,15 @@ seeds:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_product_info')
-              field: product_code
-
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: billing_period
         description: Monthly or annual cadence
         tests:
           - accepted_values:
-              values: ['monthly','annual']
+              arguments:
+                values: ['monthly', 'annual']
 
       - name: load_ts
         tests:
@@ -143,14 +144,14 @@ seeds:
 
       - name: decimal_digits
         description: >
-          Number of decimal places used for this currency. 
-          Must be a nonnegative whole number (for example, 2 for USD, 0 for JPY).
+          Number of decimal places used for this currency.  Must be a nonnegative whole number (for example, 2 for USD, 0 for JPY).
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
+              arguments:
+                min_value: 0
           - dbt_utils.expression_is_true:
-              expression: "decimal_digits = floor(decimal_digits)"
-
+              arguments:
+                expression: "decimal_digits = floor(decimal_digits)"
       - name: load_ts
         tests:
           - not_null
@@ -205,17 +206,17 @@ seeds:
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_product_info')
-              field: product_code
-
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: plan_code
         description: FK to plan
         tests:
           - not_null
           - relationships:
-              to: ref('atlas_catalog_plan_info')
-              field: plan_code
-
+              arguments:
+                to: ref('atlas_catalog_plan_info')
+                field: plan_code
       - name: price_date
         description: Effective date of rate
         tests:
@@ -226,8 +227,8 @@ seeds:
         tests:
           - not_null
           - dbt_utils.accepted_range:
-              min_value: 0
-
+              arguments:
+                min_value: 0
       - name: load_ts
         tests:
           - not_null

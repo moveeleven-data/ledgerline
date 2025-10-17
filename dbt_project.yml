@@ -16,23 +16,21 @@ config-version: 2
 vars:
   default_billing_currency: 'USD'
 
-profile: 'ledgerline'  # dbt Cloud ignores this for jobs/IDE
+profile: 'ledgerline'
 
-model-paths:    ['models']
+model-paths: ['models']
 analysis-paths: ['analyses']
-test-paths:     ['tests']
-seed-paths:     ['seeds']
-macro-paths:    ['macros']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
 snapshot-paths: ['snapshots']
-
-target-path: 'target'  # dbt's scratch pad. This is where dbt puts compiled SQL and artifacts during a run.
-clean-targets:   # List of directories dbt wipes when you run dbt clean.
+clean-targets:
   - 'target'
   - 'dbt_packages'
 
-quoting:   # Don't force quotation, allowing Snowflake to handle names case-insensitively.
-  database:   false
-  schema:     false
+quoting:
+  database: false
+  schema: false
   identifier: false
 
 
@@ -43,7 +41,7 @@ quoting:   # Don't force quotation, allowing Snowflake to handle names case-inse
 models:
   ledgerline:
     +persist_docs: {relation: true, columns: true}  # Keeps column and model descriptions visible in dbt docs.
-    +meta:                      # Minimal, high-ROI defaults (used by SLA tests, ownership routing, etc.)
+    +meta:
       owner: 'Matthew Tripodi'
       sla_hours: 24
 
@@ -100,10 +98,13 @@ models:
       usage:
         +schema: marts_usage
         +contract: {enforced: true}
-          
+
         intermediate:
           +schema: marts_usage_int
           +materialized: view
+
+        eda:
+          +contract: {enforced: false}
 
 
 # ==================================================================================
@@ -127,10 +128,10 @@ seeds:
 
     atlas_crm_customer_info:
       +column_types:
-        customer_code:  varchar
-        customer_name:  varchar
-        country_code:   varchar
-        load_ts:        timestamp_ntz
+        customer_code: varchar
+        customer_name: varchar
+        country_code: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -144,10 +145,10 @@ seeds:
 
     atlas_catalog_product_info:
       +column_types:
-        product_code:   varchar
-        product_name:   varchar
-        category:       varchar
-        load_ts:        timestamp_ntz
+        product_code: varchar
+        product_name: varchar
+        category: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -161,11 +162,11 @@ seeds:
 
     atlas_catalog_plan_info:
       +column_types:
-        plan_code:      varchar
-        plan_name:      varchar
-        product_code:   varchar
+        plan_code: varchar
+        plan_name: varchar
+        product_code: varchar
         billing_period: varchar
-        load_ts:        timestamp_ntz
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -179,10 +180,10 @@ seeds:
 
     atlas_currency_info:
       +column_types:
-        currency_code:  varchar
-        currency_name:  varchar
+        currency_code: varchar
+        currency_name: varchar
         decimal_digits: number
-        load_ts:        timestamp_ntz
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -196,9 +197,9 @@ seeds:
 
     atlas_country_info:
       +column_types:
-        country_code:   varchar
-        country_name:   varchar
-        load_ts:        timestamp_ntz
+        country_code: varchar
+        country_name: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -212,11 +213,11 @@ seeds:
 
     atlas_price_book_daily:
       +column_types:
-        product_code:   varchar
-        plan_code:      varchar
-        price_date:     date
-        unit_price:     number(18,6)
-        load_ts:        timestamp_ntz
+        product_code: varchar
+        plan_code: varchar
+        price_date: date
+        unit_price: number(18,6)
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
@@ -230,15 +231,17 @@ seeds:
 
     atlas_meter_usage_daily:
       +column_types:
-        customer_code:  varchar
-        product_code:   varchar
-        plan_code:      varchar
-        report_date:    date
-        units_used:     number
+        customer_code: varchar
+        product_code: varchar
+        plan_code: varchar
+        report_date: date
+        units_used: number
         included_units: number
-        load_ts:        timestamp_ntz
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
       +tags: ['usage']
+flags:
+  require_generic_test_arguments_property: true
