@@ -11,18 +11,21 @@
  * - One row per customer_hkey.
  */
 
-with current_from_history as (
+with
+
+current_from_history as (
     {{ current_from_history(
-          history_relation = ref('hist_atlas_crm_customer_info')
-        , key_column       = 'customer_hkey'
+          history_relation      = ref('hist_atlas_crm_customer_info')
+        , key_column            = 'customer_hkey'
+        , load_timestamp_column = 'load_ts_utc'
     ) }}
 )
 
 select
-    customer_hkey
-  , customer_code
-  , customer_name
-  , country_code2
-  , record_source
-  , load_ts_utc
+      customer_hkey
+    , customer_code
+    , customer_name
+    , country_code 
+    , record_source
+    , load_ts_utc
 from current_from_history

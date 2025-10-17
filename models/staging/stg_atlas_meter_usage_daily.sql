@@ -1,24 +1,14 @@
-{{ declare_usage_lineage_dependencies() }}
-
 /**
  * stg_atlas_meter_usage_daily.sql
- * -------------------------------
  * Staging model for daily metered usage feed.
  *
  * Purpose:
  * - Normalize codes and dates.
  * - Remove ghost rows (fully empty records).
- * - Deduplicate at the natural grain (cust × prod × plan × date).
+ * - Deduplicate at the natural grain (cust x prod x plan x date).
  * - Add a default row for safe joins.
  * - Generate surrogate keys for uniqueness and change tracking.
  */
-
-{% set record_source_label =
-    'SOURCE.atlas_meter_usage_daily'
-    if (target.name | lower == 'prod'
-        or env_var('DBT_ATLAS_USAGE_MODE', 'seed') | lower == 'source')
-    else 'SEED.atlas_meter_usage_daily_seed'
-%}
 
 with
 
@@ -30,22 +20,21 @@ source_usage as (
         , {{ to_21st_century_date('report_date') }}  as report_date
         , units_used                                 as units_used
         , included_units                             as included_units
-        , to_timestamp_ntz(load_ts)                  as load_ts
-        , '{{ record_source_label }}'                as record_source
-    from {{ resolve_atlas_usage_relation() }}
+        , to_timestamp_ntz(load_ts)                  as load_ts_utc
+        , 'atlas_meter'                              as record_source
+    from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
 )
 
 , ghost_rows_removed as (
-    select
-        *
+    select *
     from source_usage
     where not (
-               nullif(trim(customer_code),  '') is null
-           and nullif(trim(product_code),   '') is null
-           and nullif(trim(plan_code),      '') is null
-           and report_date                      is null
-           and units_used                       is null
-           and included_units                   is null
+           nullif(trim(customer_code),  '') is null
+       and nullif(trim(product_code),   '') is null
+       and nullif(trim(plan_code),      '') is null
+       and report_date                      is null
+       and units_used                       is null
+       and included_units                   is null
     )
 )
 
@@ -55,8 +44,14 @@ source_usage as (
     from ghost_rows_removed
 
     qualify row_number() over (
-        partition by customer_code, product_code, plan_code, report_date
-        order by load_ts desc, units_used desc
+        partition by
+              customer_code
+            , product_code
+            , plan_code
+            , report_date
+        order by
+              load_ts_utc desc
+            , units_used desc
     ) = 1
 )
 
@@ -68,7 +63,7 @@ source_usage as (
         , to_date('2020-01-01')          as report_date
         , 0::number                      as units_used
         , 0::number                      as included_units
-        , to_timestamp_ntz('2020-01-01') as load_ts
+        , to_timestamp_ntz('2020-01-01') as load_ts_utc
         , 'System.DefaultKey'            as record_source
 )
 
@@ -86,24 +81,27 @@ source_usage as (
 
 , hashed_usage as (
     select
-          {{ dbt_utils.generate_surrogate_key([
-                'customer_code'
-              , 'product_code'
-              , 'plan_code'
-              , 'report_date'
+          {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
+        , {{ dbt_utils.generate_surrogate_key(['product_code'])  }} as product_hkey
+        , {{ dbt_utils.generate_surrogate_key(['plan_code'])     }} as plan_hkey
+
+        , {{ dbt_utils.generate_surrogate_key([
+               'customer_code'
+             , 'product_code'
+             , 'plan_code'
+             , 'report_date'
           ]) }} as usage_hkey
 
         , {{ dbt_utils.generate_surrogate_key([
-                'customer_code'
-              , 'product_code'
-              , 'plan_code'
-              , "to_varchar(report_date,'YYYY-MM-DD')"
-              , 'units_used'
-              , 'included_units'
+               'customer_code'
+             , 'product_code'
+             , 'plan_code'
+             , "to_varchar(report_date,'YYYY-MM-DD')"
+             , 'units_used'
+             , 'included_units'
           ]) }} as usage_hdiff
 
-        , * exclude (load_ts)
-        , to_timestamp_ntz('{{ run_started_at }}') as load_ts_utc
+        , *
     from combined_usage
 )
 

@@ -16,23 +16,21 @@ config-version: 2
 vars:
   default_billing_currency: 'USD'
 
-profile: 'ledgerline'  # dbt Cloud ignores this for jobs/IDE
+profile: 'ledgerline'
 
-model-paths:    ['models']
+model-paths: ['models']
 analysis-paths: ['analyses']
-test-paths:     ['tests']
-seed-paths:     ['seeds']
-macro-paths:    ['macros']
+test-paths: ['tests']
+seed-paths: ['seeds']
+macro-paths: ['macros']
 snapshot-paths: ['snapshots']
-
-target-path: 'target'  # dbt's scratch pad. This is where dbt puts compiled SQL and artifacts during a run.
-clean-targets:   # List of directories dbt wipes when you run dbt clean.
+clean-targets:
   - 'target'
   - 'dbt_packages'
 
-quoting:   # Don't force quotation, allowing Snowflake to handle names case-insensitively.
-  database:   false
-  schema:     false
+quoting:
+  database: false
+  schema: false
   identifier: false
 
 
@@ -43,6 +41,9 @@ quoting:   # Don't force quotation, allowing Snowflake to handle names case-inse
 models:
   ledgerline:
     +persist_docs: {relation: true, columns: true}  # Keeps column and model descriptions visible in dbt docs.
+    +meta:
+      owner: 'Matthew Tripodi'
+      sla_hours: 24
 
     # ---------------------------------------------------------------------------------
     # Staging
@@ -53,17 +54,8 @@ models:
 
     staging:
       +schema: staging
-      +materialized: ephemeral
+      +materialized: view
 
-      +tags: ['layer:staging','domain:usage_billing','data_product:ledgerline']
-      +meta:                         # Metadata fields for ownership and governance.
-        owner: 'Matthew Tripodi'     # Data owner for escalation and stewardship.
-        domain: 'usage_billing'      # Business domain this data belongs to.
-        layer: 'staging'             # Pipeline layer (staging/history/refined/mart).
-        data_product: 'ledgerline'   # Logical data product grouping for docs/lineage.
-        sla_hours: 24                # Expected freshness SLA in hours.
-        pii: false                   # Contains personally identifiable information.
- 
 
     # --------------------------------------------------------------------------
     # History
@@ -80,15 +72,6 @@ models:
       +incremental_strategy: append
       +on_schema_change: ignore
 
-      +tags: ['layer:history','domain:usage_billing','data_product:ledgerline']
-      +meta:
-        owner: 'Matthew Tripodi'
-        domain: 'usage_billing'
-        layer: 'history'
-        data_product: 'ledgerline'
-        sla_hours: 24
-        pii: false
-
 
     # --------------------------------------------------------------------------
     # Refined
@@ -100,14 +83,6 @@ models:
     refined:
       +schema: refined
       +materialized: table
-      +tags: ['layer:refined','domain:usage_billing','data_product:ledgerline']
-      +meta:
-        owner: 'Matthew Tripodi'
-        domain: 'usage_billing'
-        layer: 'refined'
-        data_product: 'ledgerline'
-        sla_hours: 24
-        pii: false
 
 
     # --------------------------------------------------------------------------
@@ -119,57 +94,29 @@ models:
 
     marts:
       +materialized: table
-      +tags: ['layer:marts','domain:usage_billing','data_product:ledgerline']
-      +meta:
-        owner: 'Matthew Tripodi'
-        domain: 'usage_billing'
-        layer: 'marts'
-        data_product: 'ledgerline'
-        sla_hours: 24
-        pii: false
 
       usage:
         +schema: marts_usage
         +contract: {enforced: true}
-        +tags: ['mart:usage','domain:usage_billing','data_product:ledgerline']
-        +meta:
-          owner: 'Matthew Tripodi'
-          domain: 'usage_billing'
-          layer: 'marts'
-          mart: 'usage'
-          data_product: 'ledgerline'
-          sla_hours: 24
-          pii: false
-          
-        intermediate:
-          +schema: marts_usage_int
-          +materialized: view
+
+        eda:
+          +contract: {enforced: false}
 
 
 # ==================================================================================
 # Seeds
 # ==================================================================================
-# Static CSVs versioned in Git, best for small lookups (codes, catalogs, countries).
-#
-# In LedgerLine, price_book_daily and meter_usage_daily are seeded intentionally.
-# In production these would come from sources. Each seed declares its schema and
-# uses a post-hook to fill load_ts for lineage.
+# Static CSVs for small lookups.
+# In dev and CI, seeds land in <target.schema>_seeds (default dbt naming).
+# In prod, seeds are disabled via target.name so they do not exist.
 # ==================================================================================
 
 seeds:
-  +schema: seeds
+  +enabled: "{{ target.name != 'prod' }}"   # no seeds in prod
+  +schema: seeds                            # dev/ci - <target.schema>_seeds
 
   ledgerline:
     +quote_columns: false
-    +tags: ['layer:seeds','domain:usage_billing','data_product:ledgerline']
-    +meta:
-      owner: 'Matthew Tripodi'
-      domain: 'usage_billing'
-      layer: 'seeds'
-      data_product: 'ledgerline'
-      sla_hours: 24
-      pii: false
-
 
     # --------------------------------------------------------------------------
     # atlas_crm_customer_info
@@ -177,19 +124,15 @@ seeds:
 
     atlas_crm_customer_info:
       +column_types:
-        customer_code:  varchar
-        customer_name:  varchar
-        country_code:   varchar
-        load_ts:        timestamp_ntz
+        customer_code: varchar
+        customer_name: varchar
+        country_code: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:crm','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_crm'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
@@ -198,19 +141,15 @@ seeds:
 
     atlas_catalog_product_info:
       +column_types:
-        product_code:   varchar
-        product_name:   varchar
-        category:       varchar
-        load_ts:        timestamp_ntz
+        product_code: varchar
+        product_name: varchar
+        category: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:catalog_product','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_catalog'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
@@ -219,20 +158,16 @@ seeds:
 
     atlas_catalog_plan_info:
       +column_types:
-        plan_code:      varchar
-        plan_name:      varchar
-        product_code:   varchar
+        plan_code: varchar
+        plan_name: varchar
+        product_code: varchar
         billing_period: varchar
-        load_ts:        timestamp_ntz
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:catalog_plan','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_catalog'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
@@ -241,19 +176,15 @@ seeds:
 
     atlas_currency_info:
       +column_types:
-        currency_code:  varchar
-        currency_name:  varchar
+        currency_code: varchar
+        currency_name: varchar
         decimal_digits: number
-        load_ts:        timestamp_ntz
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:currency','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_reference'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
@@ -262,18 +193,14 @@ seeds:
 
     atlas_country_info:
       +column_types:
-        country_code:   varchar
-        country_name:   varchar
-        load_ts:        timestamp_ntz
+        country_code: varchar
+        country_name: varchar
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:country','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_reference'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
@@ -282,43 +209,36 @@ seeds:
 
     atlas_price_book_daily:
       +column_types:
-        product_code:   varchar
-        plan_code:      varchar
-        price_date:     date
-        unit_price:     number(18,6)
-        load_ts:        timestamp_ntz
+        product_code: varchar
+        plan_code: varchar
+        price_date: date
+        unit_price: number(18,6)
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:price_book','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_price_book'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['catalog']
 
 
     # --------------------------------------------------------------------------
-    # atlas_meter_usage_daily_seed
+    # atlas_meter_usage_daily
     # --------------------------------------------------------------------------
 
-    atlas_meter_usage_daily_seed:
+    atlas_meter_usage_daily:
       +column_types:
-        customer_code:  varchar
-        product_code:   varchar
-        plan_code:      varchar
-        report_date:    date
-        units_used:     number
+        customer_code: varchar
+        product_code: varchar
+        plan_code: varchar
+        report_date: date
+        units_used: number
         included_units: number
-        load_ts:        timestamp_ntz
-
-
+        load_ts: timestamp_ntz
 
       +post-hook:
         - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
 
-      +tags: ['seed:usage','domain:usage_billing']
-      +meta:
-        source_system: 'atlas_meter'
-        owner: 'Matthew Tripodi'
-        pii: false
+      +tags: ['usage']
+      
+flags:
+  require_generic_test_arguments_property: true

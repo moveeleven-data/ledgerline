@@ -18,19 +18,33 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_crm_customer_info
+
     tests:
       - unique:
           column_name: customer_code
-          config:
-            severity: warn
+
     columns:
       - name: customer_code
         description: Business key (later becomes dim_customer surrogate key)
+        tests:
+          - not_null
+
       - name: customer_name
+        tests:
+          - not_null
+
       - name: country_code
         description: FK to country seed
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('atlas_country_info')
+                field: country_code
       - name: load_ts
         description: Ingestion timestamp (set via post-hook if blank)
+        tests:
+          - not_null
 
 
   # --------------------------------------------------------------------------
@@ -40,18 +54,26 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_catalog_product_info
+
     tests:
       - unique:
           column_name: product_code
-          config:
-            severity: warn
+
     columns:
       - name: product_code
         description: Business key (hashed into product_key in staging)
+        tests:
+          - not_null
+
       - name: product_name
+        tests:
+          - not_null
+
       - name: category
-        description: Grouping/rollup (platform, data, etc.)
+
       - name: load_ts
+        tests:
+          - not_null
 
 
   # --------------------------------------------------------------------------
@@ -62,20 +84,39 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_catalog_plan_info
+
     tests:
       - unique:
           column_name: plan_code
-          config:
-            severity: warn
+
     columns:
       - name: plan_code
         description: Business key (hashed into plan_key)
+        tests:
+          - not_null
+
       - name: plan_name
+        tests:
+          - not_null
+
       - name: product_code
         description: FK to product
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: billing_period
-        description: Monthly/annual cadence (informs revenue recognition)
+        description: Monthly or annual cadence
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['monthly', 'annual']
+
       - name: load_ts
+        tests:
+          - not_null
 
 
   # --------------------------------------------------------------------------
@@ -86,18 +127,34 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_currency_info
+
     tests:
       - unique:
           column_name: currency_code
-          config:
-            severity: warn
+
     columns:
       - name: currency_code
         description: Business key (hashed into currency_key)
+        tests:
+          - not_null
+
       - name: currency_name
+        tests:
+          - not_null
+
       - name: decimal_digits
-        description: Precision for amounts
+        description: >
+          Number of decimal places used for this currency.  Must be a nonnegative whole number (for example, 2 for USD, 0 for JPY).
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "decimal_digits = floor(decimal_digits)"
       - name: load_ts
+        tests:
+          - not_null
 
 
 
@@ -109,16 +166,24 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_country_info
+
     tests:
       - unique:
           column_name: country_code
-          config:
-            severity: warn
+
     columns:
       - name: country_code
         description: Business key (hashed into country_key)
+        tests:
+          - not_null
+
       - name: country_name
+        tests:
+          - not_null
+
       - name: load_ts
+        tests:
+          - not_null
 
 
   # --------------------------------------------------------------------------
@@ -129,50 +194,74 @@ seeds:
   # --------------------------------------------------------------------------
 
   - name: atlas_price_book_daily
+
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [product_code, plan_code, price_date]
-          config:
-            severity: warn
 
     columns:
       - name: product_code
         description: FK to product
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('atlas_catalog_product_info')
+                field: product_code
       - name: plan_code
         description: FK to plan
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('atlas_catalog_plan_info')
+                field: plan_code
       - name: price_date
         description: Effective date of rate
+        tests:
+          - not_null
+
       - name: unit_price
         description: Price per unit that day
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
       - name: load_ts
+        tests:
+          - not_null
 
 
   # --------------------------------------------------------------------------
-  # atlas_meter_usage_daily_seed
+  # atlas_meter_usage_daily
   # --------------------------------------------------------------------------
   # Metered usage rows per customer + product + plan + date.
+  # Tests intentionally live on the real source (atlas_meter_usage_daily),
+  # not here, so they persist when this seed is replaced by the live feed.
   # --------------------------------------------------------------------------
 
-  - name: atlas_meter_usage_daily_seed
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns: [customer_code, product_code, plan_code, report_date]
-          config:
-            severity: warn
+  - name: atlas_meter_usage_daily
 
     columns:
       - name: customer_code
         description: Business key from CRM
+
       - name: product_code
         description: Business key for product
+
       - name: plan_code
         description: Business key for subscription plan
+
       - name: report_date
         description: Calendar date of usage (UTC)
+
       - name: units_used
         description: Actual consumption for this customer/product/plan on that date
+
       - name: included_units
         description: Plan allowance for that date (baseline before overages)
+
       - name: load_ts
+        description: Timestamp when the row was loaded into the warehouse.
