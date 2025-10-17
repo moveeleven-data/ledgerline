@@ -1,126 +1,209 @@
-# models/marts/usage/usage.yml
-# ----------------------------------------------------------------------
-# Schema definitions for the Usage Mart.
-# ----------------------------------------------------------------------
+# usage.yml
+# ---------------------------------------------------------------------------
+# Schema definitions for all models in marts/usage.
+# ---------------------------------------------------------------------------
 
 version: 2
 
+# ==============================================================================
+# Models
+# ==============================================================================
+
 models:
 
-# --------------- Dimensions ---------------
+  # ---------------------------------------------------------------------------
+  # dim_customer
+  # ---------------------------------------------------------------------------
 
   - name: dim_customer
     description: Customer dimension (pass-through from REF).
+    contract:
+      enforced: true
 
     columns:
       - name: customer_key
+        data_type: string
         tests: [not_null, unique]
 
       - name: customer_code
+        data_type: string
         tests: [not_null]
 
       - name: customer_name
+        data_type: string
         tests: [not_null]
 
       - name: country_code
+        data_type: string
 
 
-# -------- Product --------
+  # ---------------------------------------------------------------------------
+  # dim_product
+  # ---------------------------------------------------------------------------
 
   - name: dim_product
     description: Product dimension (pass-through from REF).
+    contract:
+      enforced: true
 
     columns:
       - name: product_key
+        data_type: string
         tests: [not_null, unique]
 
       - name: product_code
+        data_type: string
         tests: [not_null]
 
       - name: product_name
+        data_type: string
         tests: [not_null]
 
       - name: category
+        data_type: string
 
-# -------- Plan --------
+
+  # ---------------------------------------------------------------------------
+  # dim_plan
+  # ---------------------------------------------------------------------------
 
   - name: dim_plan
     description: Plan dimension (pass-through from REF).
+    contract:
+      enforced: true
 
     columns:
       - name: plan_key
+        data_type: string
         tests: [not_null, unique]
 
       - name: plan_code
+        data_type: string
         tests: [not_null]
 
       - name: plan_name
+        data_type: string
         tests: [not_null]
 
       - name: product_code
+        data_type: string
         tests: [not_null]
 
       - name: billing_period
+        data_type: string
 
 
-# -------- Currency --------
+  # ---------------------------------------------------------------------------
+  # dim_currency
+  # ---------------------------------------------------------------------------
 
   - name: dim_currency
     description: Currency dimension (pass-through from REF, closed domain).
+    contract:
+      enforced: true
 
     columns:
       - name: currency_key
+        data_type: string
         tests: [not_null, unique]
 
       - name: currency_code
+        data_type: string
         tests: [not_null]
 
       - name: decimal_digits
+        data_type: number
 
       - name: currency_name
+        data_type: string
         tests: [not_null]
 
 
-# -------- Country --------
+  # ---------------------------------------------------------------------------
+  # dim_country
+  # ---------------------------------------------------------------------------
 
   - name: dim_country
     description: Country dimension (pass-through from REF, closed domain).
+    contract:
+      enforced: true
 
     columns:
       - name: country_key
+        data_type: string
         tests: [not_null, unique]
 
       - name: country_code
+        data_type: string
         tests: [not_null]
 
       - name: country_name
+        data_type: string
         tests: [not_null]
 
-  # -------------------- Intermediate (pricing) -----------------------
+
+  # ---------------------------------------------------------------------------
+  # int_fact_usage_priced
+  # ---------------------------------------------------------------------------
 
   - name: int_fact_usage_priced
     description: Usage priced at NK grain (REF usage + REF price book wrapper).
+    contract:
+      enforced: true
 
     columns:
       - name: report_date
+        data_type: date
         tests: [not_null]
 
       - name: customer_key
+        data_type: string
         tests: [not_null]
 
       - name: product_key
+        data_type: string
         tests: [not_null]
 
       - name: plan_key
+        data_type: string
         tests: [not_null]
 
       - name: currency_key
+        data_type: string
         tests: [not_null]
 
-  # ------------------------- Fact (daily) ----------------------------
+      - name: units_used
+        data_type: number(38,0)
+
+      - name: included_units
+        data_type: number(38,0)
+
+      - name: overage_units
+        data_type: number(38,0)
+
+      - name: unit_price
+        data_type: number(18,6)
+
+      - name: billed_value
+        data_type: number(18,6)
+
+      - name: included_value
+        data_type: number(18,6)
+
+      - name: overage_value
+        data_type: number(18,6)
+
+      - name: overage_share
+        data_type: number(18,6)
+
+  # ---------------------------------------------------------------------------
+  # fact_usage
+  # ---------------------------------------------------------------------------
 
   - name: fact_usage
     description: Daily usage fact; no dim joins; keys flow from REF or pricing step.
+    contract:
+      enforced: true
 
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -132,6 +215,7 @@ models:
 
     columns:
       - name: customer_key
+        data_type: string
         tests:
           - not_null
           - relationships:
@@ -139,6 +223,7 @@ models:
               field: customer_key
 
       - name: product_key
+        data_type: string
         tests:
           - not_null
           - relationships:
@@ -146,6 +231,7 @@ models:
               field: product_key
 
       - name: plan_key
+        data_type: string
         tests:
           - not_null
           - relationships:
@@ -153,6 +239,7 @@ models:
               field: plan_key
 
       - name: currency_key
+        data_type: string
         tests:
           - not_null
           - relationships:
@@ -160,4 +247,5 @@ models:
               field: currency_key
 
       - name: report_date
+        data_type: date
         tests: [not_null]
