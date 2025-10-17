@@ -25,6 +25,7 @@ select
       customer_hkey
     , customer_code
     , customer_name
+    , country_code 
     , record_source
     , load_ts_utc
 from current_from_history
