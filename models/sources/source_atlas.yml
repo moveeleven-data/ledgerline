@@ -27,6 +27,7 @@ sources:
     # --------------------------------------------------------------------------
 
     schema: "{{ 'source_data' if target.name == 'prod' else target.schema ~ '_seeds' }}"
+    
     tables:
       - name: atlas_meter_usage_daily
 
