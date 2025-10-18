@@ -29,7 +29,7 @@ models:
         tests: [not_null]
       - name: report_date
         tests: [not_null]
-      - name: ingestion_ts
+      - name: load_ts_utc
         tests: [not_null]
 
 

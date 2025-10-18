@@ -61,14 +61,20 @@ plan_source as (
 , plan_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['plan_code']) }} as plan_hkey
+          
         , {{ dbt_utils.generate_surrogate_key([
                  'plan_code'
                , 'plan_name'
                , 'product_code'
-               , 'billing_period'
+               , 'lower(billing_period)'
            ]) }} as plan_hdiff
 
-        , *
+        , plan_code
+        , plan_name
+        , product_code
+        , lower(billing_period) as billing_period
+        , load_ts_utc
+        , record_source
     from plan_latest
 )
 
