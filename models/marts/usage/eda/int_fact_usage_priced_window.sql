@@ -1,10 +1,6 @@
 {{ config(
      materialized = 'table'
-   , tags = [
-         'mart:usage'
-       , 'fact'
-       , 'domain:usage_billing'
-       , 'eda']
+   , tags = ['eda']
 ) }}
 
 -- int_fact_usage_priced_window.sql
