@@ -28,9 +28,9 @@ source_usage as (
 , ghost_rows_removed as (
     select *
     from source_usage
-    where customer_code   is not null and trim(customer_code) <> ''
-      and product_code    is not null and trim(product_code)  <> ''
-      and plan_code       is not null and trim(plan_code)     <> ''
+    where customer_code   is not null
+      and product_code    is not null
+      and plan_code       is not null
       and report_date     is not null
       and units_used      is not null
       and included_units  is not null

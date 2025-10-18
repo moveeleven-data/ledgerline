@@ -57,6 +57,7 @@ country_source as (
 , country_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['country_code']) }} as country_hkey
+          
         , {{ dbt_utils.generate_surrogate_key([
                 'country_code'
               , 'country_name'

@@ -59,6 +59,7 @@ customer_source as (
 , customer_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
+          
         , {{ dbt_utils.generate_surrogate_key([
                 'customer_code'
               , 'customer_name'
