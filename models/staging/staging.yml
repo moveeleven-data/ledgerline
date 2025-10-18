@@ -75,7 +75,7 @@ models:
               arguments:
                 min_value: 0
 
-      - name: ingestion_ts
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -124,7 +124,8 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
-      - name: ingestion_ts
+
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -151,7 +152,8 @@ models:
                 to: ref('atlas_country_info')
                 field: country_code
                 where: "country_code <> '-1'"
-      - name: ingestion_ts
+
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -170,7 +172,7 @@ models:
       - name: product_name
         tests: [not_null]
 
-      - name: ingestion_ts
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -201,7 +203,7 @@ models:
               values: ['monthly', 'annual']
               where: "plan_code <> '-1' and billing_period is not null"
 
-      - name: ingestion_ts
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -228,7 +230,8 @@ models:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: "= floor(decimal_digits)"
-      - name: ingestion_ts
+
+      - name: load_ts_utc
         tests: [not_null]
 
   # ----------------------------------------------------------------------
@@ -247,5 +250,5 @@ models:
       - name: country_name
         tests: [not_null]
 
-      - name: ingestion_ts
+      - name: load_ts_utc
         tests: [not_null]
