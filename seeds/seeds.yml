@@ -1,4 +1,4 @@
-# seeds.yml
+# seeds.yml 
 # ---------------------------------------------------------------------------
 # Schema definitions for Ledgerline seed datasets.
 #
@@ -151,7 +151,7 @@ seeds:
                 min_value: 0
           - dbt_utils.expression_is_true:
               arguments:
-                expression: "decimal_digits = floor(decimal_digits)"
+                expression: "= floor(decimal_digits)"
       - name: load_ts
         tests:
           - not_null

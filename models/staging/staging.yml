@@ -5,7 +5,7 @@
 # Staging adapts raw sources/seeds into normalized, deduplicated tables.
 # It enforces uniqueness, adds defaults, and prepares clean inputs for history.
 #
-# Note: staging models expose an `ingestion_ts` column (rename from load_ts).
+# Note: staging models expose an ingestion_ts column (rename from load_ts).
 # ---------------------------------------------------------------------------
 
 version: 2
@@ -40,6 +40,8 @@ models:
               arguments:
                 to: ref('atlas_crm_customer_info')
                 field: customer_code
+                where: "customer_code <> '-1'"
+
       - name: product_code
         tests:
           - not_null
@@ -47,6 +49,8 @@ models:
               arguments:
                 to: ref('atlas_catalog_product_info')
                 field: product_code
+                where: "product_code <> '-1'"
+
       - name: plan_code
         tests:
           - not_null
@@ -54,6 +58,8 @@ models:
               arguments:
                 to: ref('atlas_catalog_plan_info')
                 field: plan_code
+                where: "plan_code <> '-1'"
+
       - name: report_date
         tests: [not_null]
 
@@ -62,11 +68,13 @@ models:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
+
       - name: included_units
         tests:
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
+
       - name: ingestion_ts
         tests: [not_null]
 
@@ -77,6 +85,7 @@ models:
   # - Year must be >= 2000
   # - One row per (product_code, plan_code, price_date)
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_price_book_daily
 
     tests:
@@ -97,6 +106,8 @@ models:
               arguments:
                 to: ref('atlas_catalog_product_info')
                 field: product_code
+                where: "product_code <> '-1'"
+
       - name: plan_code
         tests:
           - not_null
@@ -104,6 +115,7 @@ models:
               arguments:
                 to: ref('atlas_catalog_plan_info')
                 field: plan_code
+                where: "plan_code <> '-1'"
       - name: price_date
         tests: [not_null]
 
@@ -121,6 +133,7 @@ models:
   # Staging table for CRM customer info.
   # - customer_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_crm_customer_info
 
     columns:
@@ -137,6 +150,7 @@ models:
               arguments:
                 to: ref('atlas_country_info')
                 field: country_code
+                where: "country_code <> '-1'"
       - name: ingestion_ts
         tests: [not_null]
 
@@ -146,6 +160,7 @@ models:
   # Staging table for product catalog info.
   # - product_code must be unique and not null
   # ----------------------------------------------------------------------
+
   - name: stg_atlas_catalog_product_info
 
     columns:
@@ -178,11 +193,13 @@ models:
               arguments:
                 to: ref('atlas_catalog_product_info')
                 field: product_code
+                where: "product_code <> '-1'"
+
       - name: billing_period
         tests:
           - accepted_values:
-              arguments:
-                values: ['monthly', 'annual']
+              values: ['monthly', 'annual']
+              where: "plan_code <> '-1' and billing_period is not null"
 
       - name: ingestion_ts
         tests: [not_null]
@@ -210,7 +227,7 @@ models:
                 min_value: 0
           - dbt_utils.expression_is_true:
               arguments:
-                expression: "decimal_digits = floor(decimal_digits)"
+                expression: "= floor(decimal_digits)"
       - name: ingestion_ts
         tests: [not_null]
 

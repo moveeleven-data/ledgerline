@@ -207,11 +207,12 @@ models:
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - customer_key
-            - product_key
-            - plan_key
-            - report_date
+          arguments:
+            combination_of_columns:
+              - customer_key
+              - product_key
+              - plan_key
+              - report_date
 
     columns:
       - name: customer_key

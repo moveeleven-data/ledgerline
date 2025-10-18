@@ -18,8 +18,8 @@ source_usage as (
         , upper(product_code)                        as product_code
         , upper(plan_code)                           as plan_code
         , {{ to_21st_century_date('report_date') }}  as report_date
-        , units_used                                 as units_used
-        , included_units                             as included_units
+        , try_to_number(units_used)                  as units_used
+        , try_to_number(included_units)              as included_units
         , to_timestamp_ntz(load_ts)                  as load_ts_utc
         , 'atlas_meter'                              as record_source
     from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
@@ -28,14 +28,12 @@ source_usage as (
 , ghost_rows_removed as (
     select *
     from source_usage
-    where not (
-           nullif(trim(customer_code),  '') is null
-       and nullif(trim(product_code),   '') is null
-       and nullif(trim(plan_code),      '') is null
-       and report_date                      is null
-       and units_used                       is null
-       and included_units                   is null
-    )
+    where customer_code   is not null and trim(customer_code) <> ''
+      and product_code    is not null and trim(product_code)  <> ''
+      and plan_code       is not null and trim(plan_code)     <> ''
+      and report_date     is not null
+      and units_used      is not null
+      and included_units  is not null
 )
 
 , deduplicated_usage as (
