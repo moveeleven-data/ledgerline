@@ -42,7 +42,7 @@ Ledgerline transforms raw usage through five layers:
 
 Sources  →  Staging  →  History  →  Refined  →  Fact
 
-<img src="docs/assets/ledgerline_lineage_prod.png" alt="Ledgerline lineage – prod" width="900">
+<img src="docs/assets/ledgerline_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
 ### Flow Summary
 
