@@ -44,6 +44,8 @@ Sources  →  Staging  →  History  →  Refined  →  Fact
 
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
+> *Note: The Price Book doesn’t need a separate history table since `price_date` already tracks change over time.*
+
 ### Flow Summary
 
 **Sources** load metering, catalog, and customer data.  
