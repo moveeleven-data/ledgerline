@@ -16,11 +16,18 @@
  * - Append only.
  */
 
+-- Pull fallback date from environment variables
 {% set fallback_date_default = var('fallback_date_default', '2000-01-01') %}
+
+-- Optionally accept an override date
 {% set as_of_date_override   = var('as_of_date', none) %}
 
+-- Use the override date if provided
 {% if as_of_date_override is not none %}
   {% set as_of_date_literal = "to_date('" ~ as_of_date_override ~ "')" %}
+
+-- Otherwise, default to the max available report_date in staging,
+-- or fallback_date_default if staging is empty
 {% else %}
   {% set as_of_date_literal -%}
     (
