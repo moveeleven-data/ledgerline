@@ -42,3 +42,13 @@ These keep the ledger consistent without adding business logic here.
 - **Marts** apply business logic (e.g., pricing) on top of those current views.
 
 History is the memory: append snapshots for usage, append versions for references—simple, auditable, and faithful to what actually arrived.
+
+---
+
+### Why there’s no separate history table for the Price Book
+
+The price book is already a daily record. Each row shows the price for a product and plan on a specific date.  
+
+`stg_atlas_price_book_daily` keeps the latest version for each day, and `ref_price_book_daily` adds currency and supports joins in usage reports.  
+
+A separate history table would only be useful if prices for the same day could change later.
