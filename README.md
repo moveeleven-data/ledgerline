@@ -38,9 +38,9 @@ The star schema makes the business questions easy to answer:
 
 ## Data Flow and Lineage
 
-Ledgerline transforms raw usage through five layers:
+Ledgerline transforms raw usage through three layers:
 
-Sources  →  Staging  →  History  →  Refined  →  Fact
+**Storage** → **Refinement** → **Delivery**
 
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
@@ -48,13 +48,13 @@ Sources  →  Staging  →  History  →  Refined  →  Fact
 
 ### Flow Summary
 
-**Sources** load metering, catalog, and customer data.  
+**Sources** load metering, catalog, and customer data.
+  
+**Storage** (includes staging + history) stages and versions inputs for an immutable record.
 
-**History** captures daily state changes.  
+**Refinement** applies business rules to form reusable concepts.
 
-**Refined** produces stable dimensions.  
-
-**Fact** joins usage, pricing, and currency into one view.  
+**Delivery** publishes marts, including a unified usage, pricing, and currency fact.  
 
 [View interactive docs (Public)](https://moveeleven-data.github.io/ledgerline/site/index.html)
 
