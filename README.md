@@ -36,6 +36,28 @@ The star schema makes the business questions easy to answer:
 
 ---
 
+## Data Flow and Lineage
+
+Ledgerline transforms raw usage through five layers:
+
+Sources  →  Staging  →  History  →  Refined  →  Fact
+
+<img src="docs/assets/ledgerline_lineage_prod.png" alt="Ledgerline lineage – prod" width="900">
+
+### Flow Summary
+
+**Sources** load metering, catalog, and customer data.  
+
+**History** captures daily state changes.  
+
+**Refined** produces stable dimensions.  
+
+**Fact** joins usage, pricing, and currency into one view.  
+
+[View interactive docs (Public)](https://moveeleven-data.github.io/ledgerline/site/index.html)
+
+---
+
 ## Atlas Data Model
 
 Atlas runs on a **star schema**.
