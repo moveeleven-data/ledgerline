@@ -1,4 +1,11 @@
-{{ config(materialized = 'table') }}
+{{ config(
+     materialized = 'table'
+   , tags = [
+         'mart:usage'
+       , 'fact'
+       , 'domain:usage_billing'
+       , 'eda']
+) }}
 
 -- int_fact_usage_priced_window.sql
 -- EDA pricing over a date window; metrics included.

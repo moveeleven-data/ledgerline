@@ -22,7 +22,15 @@
 {% if as_of_date_override is not none %}
   {% set as_of_date_literal = "to_date('" ~ as_of_date_override ~ "')" %}
 {% else %}
-  {% set as_of_date_literal = "(select coalesce(max(report_date), to_date('" ~ fallback_date_default ~ "')) from " ~ ref('stg_atlas_meter_usage_daily') ~ ")" %}
+  {% set as_of_date_literal -%}
+    (
+      select coalesce(
+                 max(report_date)
+               , to_date('{{ fallback_date_default }}')
+             )
+      from {{ ref('stg_atlas_meter_usage_daily') }}
+    )
+  {%- endset %}
 {% endif %}
 
 with
