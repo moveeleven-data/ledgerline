@@ -48,8 +48,7 @@ models:
     # ---------------------------------------------------------------------------------
     # Staging
     # ---------------------------------------------------------------------------------
-    # Ephemeral layer.
-    # Lightly adapts raw inputs as CTEs to feed history, keeping cost and clutter down.
+    # Lightly adapts raw inputs to feed history.
     # ---------------------------------------------------------------------------------
 
     staging:
