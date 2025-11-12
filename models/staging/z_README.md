@@ -1,6 +1,7 @@
 # Staging Layer
 
-Staging is the adaptation layer. It takes raw inputs and transforms them into normalized, deduplicated relations. These relations are then consumed by the history layer to build durable SCDs and usage spans.
+Staging is the adaptation layer. It takes raw inputs and transforms them into normalized, deduplicated relations. These relations are then consumed by the history layer to build durable change history and usage spans.
+
 
 All staging models are **views**. dbt materializes them as lightweight relations in Snowflake so tests and debugging run against real objects with minimal cost.
 

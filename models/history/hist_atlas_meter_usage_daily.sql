@@ -11,16 +11,16 @@
  * History table for daily metered usage feed.
  *
  * Purpose:
- * - Stores what arrived and when, one row per key and day per load.
- * - REF models pick the latest version when needed.
- * - Append only.
+ * - Stores what arrived and when, one row per key+date per load.
+ * - REF models pick the latest version when needed (latest per key+date).
+ * - Incremental MERGE (idempotent re-runs for the same report_date).
  */
 
 -- Pull fallback date from environment variables
 {% set fallback_date_default = var('fallback_date_default', '2000-01-01') %}
 
 -- Optionally accept an override date
-{% set as_of_date_override   = var('as_of_date', none) %}
+{% set as_of_date_override = var('as_of_date', none) %}
 
 -- Use the override date if provided
 {% if as_of_date_override is not none %}
@@ -57,7 +57,6 @@ stg_today as (
         , units_used
         , included_units
         , load_ts_utc
-        , 'OPEN'::string as usage_row_type
     from {{ ref('stg_atlas_meter_usage_daily') }}
     
     where

@@ -26,9 +26,11 @@ source_usage as (
 )
 
 , ghost_rows_removed as (
-    select *
+    select
+        *
     from source_usage
-    where customer_code   is not null
+    where
+          customer_code   is not null
       and product_code    is not null
       and plan_code       is not null
       and report_date     is not null
@@ -41,15 +43,16 @@ source_usage as (
         *
     from ghost_rows_removed
 
-    qualify row_number() over (
-        partition by
-              customer_code
-            , product_code
-            , plan_code
-            , report_date
-        order by
-              load_ts_utc desc
-            , units_used desc
+    qualify
+        row_number() over (
+            partition by
+                customer_code
+                , product_code
+                , plan_code
+                , report_date
+            order by
+                load_ts_utc desc
+                , units_used desc
     ) = 1
 )
 
