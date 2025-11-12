@@ -37,7 +37,7 @@ models:
     # Tests
     # ----------------------------------------------------------------------
     # Validates uniqueness and hash integrity:
-    # - Unique combo of (usage_hkey, report_date, usage_row_type)
+    # - Unique combo of (usage_hkey, report_date)
     # - usage_hkey and usage_hdiff must be collision-free
     # ----------------------------------------------------------------------
 
@@ -47,7 +47,6 @@ models:
             combination_of_columns:
               - usage_hkey
               - report_date
-              - usage_row_type
 
       - hash_collision_free:
           arguments:

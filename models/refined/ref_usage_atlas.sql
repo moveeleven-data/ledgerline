@@ -30,8 +30,6 @@ with latest_any as (
     select
         *
     from latest_any
-    where
-        usage_row_type = 'OPEN'
 )
 
 select

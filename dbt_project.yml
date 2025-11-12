@@ -59,9 +59,8 @@ models:
     # --------------------------------------------------------------------------
     # History
     # --------------------------------------------------------------------------
-    # Change-tracking layer. Captures OPEN rows from staging, closes them when
-    # missing, and applies SCD-2 via macros. Uses append by default, with merge
-    # for usage facts. Ignores schema drift to keep history a stable contract.
+    # Change-tracking layer. Appends new versions from staging when the hash changes.
+    # “current” is derived in REF as the latest row per key.
     # --------------------------------------------------------------------------
 
     history:

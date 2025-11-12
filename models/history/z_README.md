@@ -6,8 +6,8 @@ The **History layer** is Ledgerline’s durable record of change. It stores *wha
 
 ## What we store (now)
 
-- **Usage history**: *append-only* daily snapshots. Each run writes the rows for a single `report_date` from staging—no synthetic CLOSE rows, no merges.  
-  **Grain:** one row per `(customer_code, product_code, plan_code, report_date)` per load.  
+- **Usage history**: daily snapshots written via **MERGE** (idempotent). Each run processes one `report_date` from staging—no synthetic CLOSE rows.  
+  **Grain:** one row per `(customer_code, product_code, plan_code, report_date)`.  
   **Keys:**  
   - `usage_hkey = hash(customer_code, product_code, plan_code, report_date)`  
   - `usage_hdiff = hash(customer_code, product_code, plan_code, report_date, units_used, included_units)`
