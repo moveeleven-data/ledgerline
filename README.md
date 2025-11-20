@@ -9,7 +9,7 @@
 
 Ledgerline models the commercial core of **Atlas**, a B2B SaaS company.
 
-It turns product usage into revenue and margin that finance and product can trust.
+It turns product usage into revenue and margin KPIs.
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
