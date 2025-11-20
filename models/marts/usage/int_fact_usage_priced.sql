@@ -4,7 +4,7 @@
  * int_fact_usage_priced.sql
  * -------------------------
  * Price latest usage at NK grain.
- * - Compute billed/included/overage values so the FACT can be a pure SELECT.
+ * - Compute billed/included/overage values so the fact model can be a pure SELECT.
  */
 
 with
@@ -82,3 +82,4 @@ select
     , overage_value
     , overage_share
 from usage_with_value_metrics
+
