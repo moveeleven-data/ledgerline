@@ -20,7 +20,7 @@ Atlas offers three core services:
 
 Pricing is not static. Each day, a price book sets the unit rate for each product and plan.  
 
-And, every night, the metering system emits a usage log, a running tally of what customers actually did.
+And, every night, the metering system emits a usage log, a running tally of what customers did.
 
 > *Customer X made 12,000 API calls on 2025-09-16.*  
 
