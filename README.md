@@ -56,11 +56,7 @@ Ledgerline transforms raw usage through three layers:
 
 ## Atlas Data Model
 
-Atlas runs on a **star schema**.
-
-At the core, one fact table logs daily subscription usage and billing. It captures units consumed, plan coverage, and overages.
-
-It is the system of record for turning activity into dollars.  
+Atlas runs on a **star schema**. One fact table logs daily subscription usage and billing. It captures units consumed, plan coverage, and overages.
 
 Five conformed dimensions provide context:  
 - **Customer** - identity and geography  
@@ -75,8 +71,6 @@ The diagram below shows how the fact and dimensions connect into a simple, relia
 Atlas reduces everything to one structure: daily activity measured and explained.
 
 Every team sees the **same story** in the **same numbers**.
-
-From raw usage to revenue, nothing gets lost in translation.
 
 ---
 
