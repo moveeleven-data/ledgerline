@@ -28,12 +28,6 @@ And, every night, the metering system emits a usage log, a running tally of what
 
 Ledgerline transforms that feed into a **star schema**, a daily usage fact table connected to five dimensions.  
 
-The star schema makes the business questions easy to answer:  
-- **Finance** can see recurring revenue and how much comes from overages.  
-- **Product** can see which services are growing and how pricing changes affect usage.  
-- **Customer Success** can see which accounts are hitting limits, showing upsell chances or churn risk.  
-- **Executives** can see growth by region and the impact of new products like Alerts.  
-
 ---
 
 ## Data Flow and Lineage
