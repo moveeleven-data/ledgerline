@@ -64,7 +64,7 @@ Five conformed dimensions provide context:
 - **Currency** - consistent amounts  
 - **Country** - rollups by market
 
-The diagram below shows how the fact and dimensions connect into a simple, reliable model.
+The diagram below shows how the fact and dimensions connect.
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 
