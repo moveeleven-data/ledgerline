@@ -80,5 +80,3 @@ Testing happens in three places:
 
 3. **Staging**  
    - Remaining domain checks, light dedupe only when unavoidable, sanity rules not feasible earlier
-
-This keeps early checks cheap and strict, and pushes domain logic to staging where it belongs.
