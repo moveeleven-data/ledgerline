@@ -90,6 +90,12 @@ The intent is to right-size plans so they match actual use. The aim is to give c
 
 ---
 
+## Testing and Quality
+
+Regarding test strategy, I use dbt’s built-in tests to guard the ingestion edges and marts, QuerySurge provides an external smoke suite around the Snowflake models, and a GitHub Actions workflow runs `dbt build` against dedicated CI schemas on every pull request into `main`. The overall approach is documented in more detail in [docs/testing_strategy.md](docs/testing_strategy.md).
+
+---
+
 ## Codebase Overview
 
   **[models/](models/)** - core transformation layers.  
