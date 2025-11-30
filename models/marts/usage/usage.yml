@@ -253,3 +253,71 @@ models:
         
       - name: overage_share
         data_type: number(18,6)
+
+
+
+  # ---------------------------------------------------------------------------
+  # profile_usage_daily
+  # ---------------------------------------------------------------------------
+
+  - name: profile_usage_daily
+    description: Daily profiling metrics for fact_usage (row counts, volume stats, distinct keys).
+    contract:
+      enforced: true
+
+    columns:
+      - name: report_date
+        data_type: date
+        tests: [not_null, unique]
+
+      - name: row_count
+        data_type: number
+
+      - name: sum_units
+        data_type: number
+
+      - name: avg_units
+        data_type: number
+
+      - name: stddev_units
+        data_type: number(18,6)
+
+      - name: max_units
+        data_type: number
+
+      - name: distinct_customers
+        data_type: number
+
+      - name: distinct_products
+        data_type: number
+
+      - name: distinct_plans
+        data_type: number
+
+
+
+  # ---------------------------------------------------------------------------
+  # usage_anomalies_daily
+  # ---------------------------------------------------------------------------
+
+  - name: usage_anomalies_daily
+    description: Daily usage volume anomalies vs historical row_count baseline.
+    contract:
+      enforced: true
+
+    columns:
+      - name: report_date
+        data_type: date
+        tests: [not_null]
+
+      - name: row_count
+        data_type: number(38,0)
+
+      - name: avg_daily_row_count
+        data_type: number(38,6)
+        
+      - name: stddev_daily_row_count
+        data_type: number(38,6)
+
+      - name: is_row_count_outlier
+        data_type: boolean
