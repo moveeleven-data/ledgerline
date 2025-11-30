@@ -30,3 +30,11 @@ To make results observable over time, each run writes a simple record into a `DQ
 Finally, Ledgerline includes an early **metadata-driven mapping check**: a small mapping table describes how a staging field (e.g. `units_used` in `stg_atlas_meter_usage_daily`) should roll into the mart (`FACT_USAGE`), and a dbt model uses that metadata to compare source and target aggregates. This is a first step toward automated mapping validation, complementing the hand-written QueryPairs and dbt tests.
 
 ![QuerySurge smoke suite passing](assets/querysurge_v2.jpg)
+
+---
+
+## Continuous Integration with GitHub Actions
+
+Ledgerline’s dbt tests run automatically in CI. A GitHub Actions workflow is triggered on pull requests to `main`. The workflow provisions a fresh runner, installs `dbt-snowflake`, and connects to Snowflake using a key-pair–authenticated service user defined via encrypted repository secrets.
+
+In CI, `dbt build` runs end-to-end against a set of dedicated CI schemas in `LEDGER_LINE_DEV` (for example, `DBT_MTRIPODI_CI_STAGING`, `DBT_MTRIPODI_CI_HISTORY`, `DBT_MTRIPODI_CI_REFINED`, and `DBT_MTRIPODI_CI_MARTS_USAGE`). Seeds, models, and tests are all executed there, so schema contracts, grain checks, and referential integrity tests are run on every change.
