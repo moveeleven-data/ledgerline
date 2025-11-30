@@ -76,7 +76,7 @@ Real impact lies in translating usage into answers. The analysis is framed by a 
 
 The intent is to right-size plans so they match actual use. The aim is to give customers a better fit while keeping the business healthy.
 
-Further Reading: [Recommendations report](reports/plan_change_recommendations.md)  
+[Recommendations report](reports/plan_change_recommendations.md)  
 
 ---
 
