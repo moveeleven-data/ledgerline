@@ -40,5 +40,6 @@ jobs:
 
       - name: Run dbt build (skip seeds in CI)
         run: |
-          dbt build --project-dir . --profiles-dir . --exclude seed:*
+          dbt build --project-dir . --profiles-dir . --exclude resource_type:seed
+
 
