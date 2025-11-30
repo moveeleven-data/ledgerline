@@ -1,0 +1,41 @@
+name: ledgerline-ci
+
+on:
+  pull_request:
+    paths:
+      - "models/**"
+      - "seeds/**"
+      - "tests/**"
+  push:
+    branches: [ main ]
+
+jobs:
+  dbt:
+    runs-on: ubuntu-latest
+
+    env:
+      SNOWFLAKE_ACCOUNT: fvc02725.us-east-1
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ROLE: SYSADMIN
+      SNOWFLAKE_WAREHOUSE: DBT_WH
+      SNOWFLAKE_DATABASE: LEDGER_LINE_DEV
+      SNOWFLAKE_SCHEMA: DBT_MTRIPODI_MARTS_USAGE
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt + deps
+        run: |
+          pip install dbt-snowflake
+          dbt deps
+
+      - name: Run dbt build
+        run: |
+          dbt build --target dev
