@@ -29,4 +29,4 @@ To make results observable over time, each run writes a simple record into a `DQ
 
 Finally, Ledgerline includes an early **metadata-driven mapping check**: a small mapping table describes how a staging field (e.g. `units_used` in `stg_atlas_meter_usage_daily`) should roll into the mart (`FACT_USAGE`), and a dbt model uses that metadata to compare source and target aggregates. This is a first step toward automated mapping validation, complementing the hand-written QueryPairs and dbt tests.
 
-![QuerySurge smoke suite passing](assets/querysurge.jpg)
+![QuerySurge smoke suite passing](assets/querysurge_v2.jpg)
