@@ -23,7 +23,7 @@ The **`Ledgerline_Smoke_Suite`** currently covers three main areas:
 - **Business-rule guards**  
   Additional QueryPairs enforce non-negotiable rules like “no negative usage.” These are written so that any violating rows show up directly in the QuerySurge result grid for quick inspection.
 
-In practice I exercise this suite via a small script that runs `dbt run` and `dbt test` and then triggers `Ledgerline_Smoke_Suite` through the QuerySurge CLI. That keeps external validation close to the dbt pipeline today, and it’s the same pattern I would use to plug QuerySurge into a team’s orchestrator or CI/CD system in a production setting.
+I run this suite via a small script that runs `dbt run` and `dbt test` and then triggers `Ledgerline_Smoke_Suite` through the QuerySurge CLI.
 
 ![QuerySurge smoke suite passing](assets/querysurge_v2.jpg)
 
@@ -31,6 +31,4 @@ In practice I exercise this suite via a small script that runs `dbt run` and `db
 
 ## Continuous Integration with GitHub Actions
 
-Ledgerline’s dbt tests run automatically in CI. A GitHub Actions workflow is triggered on pull requests to `main`. The workflow provisions a fresh runner, installs `dbt-snowflake`, and connects to Snowflake using a key-pair–authenticated service user defined via encrypted repository secrets.
-
-In CI, `dbt build` runs end-to-end against a set of dedicated CI schemas in `LEDGER_LINE_DEV` (for example, `DBT_MTRIPODI_CI_STAGING`, `DBT_MTRIPODI_CI_HISTORY`, `DBT_MTRIPODI_CI_REFINED`, and `DBT_MTRIPODI_CI_MARTS_USAGE`). Seeds, models, and tests are all executed there, so schema contracts, grain checks, and referential integrity tests are run on every change.
+Ledgerline’s dbt tests run automatically in CI. A GitHub Actions workflow is triggered on pull requests to `main`. The workflow connects to Snowflake using a key-pair–authenticated service user defined via encrypted repository secrets. In CI, `dbt build` runs end-to-end against a set of dedicated CI schemas in `LEDGER_LINE_DEV` (for example, `DBT_MTRIPODI_CI_STAGING`, `DBT_MTRIPODI_CI_HISTORY`, `DBT_MTRIPODI_CI_REFINED`, and `DBT_MTRIPODI_CI_MARTS_USAGE`). Seeds, models, and tests are all executed there, so schema contracts, grain checks, and referential integrity tests are run on every change.
