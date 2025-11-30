@@ -10,7 +10,7 @@ At the consumption side, I tighten validation because these models behave as dat
 
 ## External Data Testing with QuerySurge
 
-On top of dbt’s built-in tests, Ledgerline uses QuerySurge as an external test harness around the Snowflake warehouse. A dedicated, read-only Snowflake service user (key-pair authenticated, no MFA) connects QuerySurge to the `LEDGER_LINE_DEV` database and runs a focused smoke suite after each dbt run.
+On top of dbt’s built-in tests, Ledgerline uses QuerySurge as an external test harness around the Snowflake warehouse. A dedicated, read-only Snowflake service user (key-pair authenticated, no MFA) connects QuerySurge to the `LEDGER_LINE_DEV` database and runs a focused smoke suite against the core Ledgerline models.
 
 The **`Ledgerline_Smoke_Suite`** currently covers three main areas:
 
@@ -23,11 +23,7 @@ The **`Ledgerline_Smoke_Suite`** currently covers three main areas:
 - **Business-rule guards**  
   Additional QueryPairs enforce non-negotiable rules like “no negative usage.” These are written so that any violating rows show up directly in the QuerySurge result grid for quick inspection.
 
-The suite is wired **inline with the pipeline**: a script runs `dbt run` and `dbt test` and then automatically triggers `Ledgerline_Smoke_Suite` via the QuerySurge CLI. This keeps external validation tied to the same cadence as model changes instead of being a separate, ad-hoc activity.
-
-To make results observable over time, each run writes a simple record into a `DQ_EVENTS` table in Snowflake (timestamp, check name, status, optional details). This turns data-quality outcomes into first-class data, so it’s easy to see when checks started failing or which ones are noisy.
-
-Finally, Ledgerline includes an early **metadata-driven mapping check**: a small mapping table describes how a staging field (e.g. `units_used` in `stg_atlas_meter_usage_daily`) should roll into the mart (`FACT_USAGE`), and a dbt model uses that metadata to compare source and target aggregates. This is a first step toward automated mapping validation, complementing the hand-written QueryPairs and dbt tests.
+In practice I exercise this suite via a small script that runs `dbt run` and `dbt test` and then triggers `Ledgerline_Smoke_Suite` through the QuerySurge CLI. That keeps external validation close to the dbt pipeline today, and it’s the same pattern I would use to plug QuerySurge into a team’s orchestrator or CI/CD system in a production setting.
 
 ![QuerySurge smoke suite passing](assets/querysurge_v2.jpg)
 
