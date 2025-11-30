@@ -16,4 +16,3 @@ ledgerline:
       private_key_passphrase: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PASSPHRASE', '') }}"
 
       client_session_keep_alive: false
-
