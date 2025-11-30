@@ -38,6 +38,6 @@ jobs:
           pip install "dbt-snowflake"
           dbt deps --project-dir . --profiles-dir .
 
-      - name: Run dbt build (skip seeds in CI)
+      - name: Run dbt build
         run: |
-          dbt build --project-dir . --profiles-dir . --exclude resource_type:seed
+          dbt build --project-dir . --profiles-dir .
