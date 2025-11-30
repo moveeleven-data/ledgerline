@@ -7,12 +7,8 @@ ledgerline:
       user: "{{ env_var('SNOWFLAKE_USER') }}"
       role: "{{ env_var('SNOWFLAKE_ROLE') }}"
       database: "{{ env_var('SNOWFLAKE_DATABASE') }}"
-      schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
       warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE') }}"
 
-      # key-pair auth via base64-encoded PKCS8 DER
-      private_key: "{{ env_var('SNOWFLAKE_PRIVATE_KEY') }}"
-      # omit passphrase if you used -nocrypt
-      private_key_passphrase: "{{ env_var('SNOWFLAKE_PRIVATE_KEY_PASSPHRASE', '') }}"
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA') }}"
 
-      client_session_keep_alive: false
+      private_key: "{{ env_var('SNOWFLAKE_PRIVATE_KEY') }}"
