@@ -7,26 +7,24 @@
 
 ## Business Story
 
-Ledgerline models the commercial core of **Atlas**, a B2B SaaS company.
-
-It turns product usage into revenue and margin KPIs.
+Ledgerline models the commercial core of Atlas, a B2B SaaS company that turns product usage into revenue and margin KPIs.
 
 Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
 
 Atlas offers three core services: 
-- **PROD-API** - Lets customers call the Atlas API  
-- **PROD-ETL** - Lets customers process data rows  
-- **PROD-ALRT** - Lets customers send alerts and notifications  
+- PROD-API - Lets customers call the Atlas API  
+- PROD-ETL - Lets customers process data rows  
+- PROD-ALRT - Lets customers send alerts and notifications  
 
 Pricing is not static. Each day, a price book sets the unit rate for each product and plan.  
 
-And, every night, the metering system emits a usage log, a running tally of what customers did.
+Every night, the metering system emits a usage log, a running tally of what customers did.
 
 > *Customer X made 12,000 API calls on 2025-09-16.*  
 
 > *Customer Y processed 250,000 ETL rows on the same day.*  
 
-Ledgerline transforms that feed into a **star schema**, a daily usage fact table connected to five dimensions.  
+Ledgerline transforms that feed into a star schema, a daily usage fact table connected to five dimensions.  
 
 ---
 
@@ -34,7 +32,7 @@ Ledgerline transforms that feed into a **star schema**, a daily usage fact table
 
 Ledgerline transforms raw usage through three layers:
 
-**Storage** → **Refinement** → **Delivery**
+Storage → Refinement → Delivery
 
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
@@ -50,13 +48,13 @@ Ledgerline transforms raw usage through three layers:
 
 **Delivery** publishes marts, including a unified usage, pricing, and currency fact.  
 
-[View interactive docs (Public)](https://moveeleven-data.github.io/ledgerline/site/index.html)
+[View interactive docs](https://moveeleven-data.github.io/ledgerline/site/index.html)
 
 ---
 
 ## Atlas Data Model
 
-Atlas runs on a **star schema**. One fact table logs daily subscription usage and billing. It captures units consumed, plan coverage, and overages.
+Atlas runs on a star schema. One fact table logs daily subscription usage that captures units consumed, plan coverage, and overages.
 
 Five conformed dimensions provide context:  
 - **Customer** - identity and geography  
@@ -64,29 +62,21 @@ Five conformed dimensions provide context:
 - **Currency** - consistent amounts  
 - **Country** - rollups by market
 
-The diagram below shows how the fact and dimensions connect.
-
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 
 Atlas reduces everything to one structure: daily activity measured and explained.
-
-Every team sees the **same story** in the **same numbers**.
 
 ---
 
 ## Case Study: Plan Recommendations
 
-Real impact lies in translating usage into answers.
-
-The analysis is framed by a single question:
+Real impact lies in translating usage into answers. The analysis is framed by a single question:
 
 **Which customers should receive a plan recommendation next quarter?**
 
 The intent is to right-size plans so they match actual use. The aim is to give customers a better fit while keeping the business healthy.
 
-### Further Reading
-
-[Recommendations report](reports/plan_change_recommendations.md)  
+Further Reading: [Recommendations report](reports/plan_change_recommendations.md)  
 
 ---
 
