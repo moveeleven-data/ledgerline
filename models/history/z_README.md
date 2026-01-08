@@ -18,11 +18,8 @@ The **History layer** is Ledgerline’s durable record of change. It stores *wha
 
 ## Materialization
 
-- **Usage**: `incremental` with **append** (no merge). We keep a ledger of what was received on each day.  
-- **Reference**: `incremental` with **append** via `save_history`.  
-- `on_schema_change: ignore` to avoid rewriting old partitions.
-
-> Note: Because usage is append-only, re-running the same **report_date** would add another copy of that day’s rows. If you need idempotent reruns for a day, delete that day’s slice first or switch the model to a merge strategy.
+- Usage history: incremental MERGE keyed by (usage_hkey, report_date) to support idempotent reruns. We keep one row per customer/product/plan per day, and rerunning the same day updates that snapshot rather than duplicating it.
+- Reference history: SCD-style append via save_history, and Refined selects the latest version per key.
 
 ---
 
@@ -41,7 +38,7 @@ These keep the ledger consistent without adding business logic here.
 - **Refined** picks the **latest** row per key (or key+date) when a current view is needed.  
 - **Marts** apply business logic (e.g., pricing) on top of those current views.
 
-History is the memory: append snapshots for usage, append versions for references—simple, auditable, and faithful to what actually arrived.
+Lederline's history layer merges daily usage snapshots and append new reference versions, so downstream models can rely on stable keys and reproducible ‘as-of’ views.
 
 ---
 
@@ -52,3 +49,4 @@ The price book is already a daily record. Each row shows the price for a product
 `stg_atlas_price_book_daily` keeps the latest version for each day, and `ref_price_book_daily` adds currency and supports joins in usage reports.  
 
 A separate history table would only be useful if prices for the same day could change later.
+
