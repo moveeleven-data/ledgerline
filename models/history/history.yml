@@ -1,11 +1,10 @@
 # history.yml
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
 # Schema definitions for the History layer.
 #
-# This layer preserves full change history for both reference data
-# and usage spans. It makes time explicit by storing surrogate keys,
-# version hashes, and row types (OPEN / CLOSE_SYNTHETIC).
-# ---------------------------------------------------------------------------
+# This layer preserves change history for reference data and daily usage snapshots.
+# It makes time explicit by storing surrogate keys, version hashes, and load timestamps.
+# --------------------------------------------------------------------------------------
 
 models:
 
@@ -19,8 +18,7 @@ models:
   - name: hist_atlas_meter_usage_daily
 
     description: >
-      Append only usage history. Stores what arrived and when.
-      REF selects the latest per key and date for reporting.
+      Daily usage snapshot history, maintained via incremental MERGE (idempotent) keyed by (usage_hkey, report_date).
 
     columns:
       - name: usage_hkey
@@ -64,3 +62,4 @@ models:
               - customer_code
               - product_code
               - plan_code
+
