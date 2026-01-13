@@ -100,7 +100,7 @@ This is the main example output produced from Ledgerline’s star schema.
 | Jade Foods          | Core API     | Basic             | 0.00          | 0.00         | 0.81            | hold           |
 | Sunrise Telecom     | Core API     | Pro               | 0.00          | 0.00         | 0.68            | hold           |
 
-CSV export: [plan_change_recommendations_90d.csv](assets/tables/plan_change_recommendations_90d.csv)
+CSV export: [plan_change_recommendations_90d.csv](docs/eda/plan_change_recommendations_90d.csv)
 
 </details>
 
