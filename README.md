@@ -27,17 +27,13 @@ Ledgerline turns that feed into a clean, queryable star schema and uses it to an
 
 Ledgerline transforms raw usage through three layers:
 
-Storage → Refinement → Delivery
+Staging → Refined → Marts
 
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
 ### Flow Summary
-  
-**Storage** (includes staging + history) stages and versions inputs for an immutable record.
 
-**Refinement** applies business rules to form reusable concepts.
-
-**Delivery** publishes marts, including a unified usage, pricing, and currency fact.  
+Staging normalizes and deduplicates raw feeds; refined exposes clean dimensions/facts with consistent naming; marts publish contract-ready tables.
 
 [View interactive docs](https://moveeleven-data.github.io/ledgerline/site/index.html)
 
@@ -51,6 +47,16 @@ Atlas is modeled as a star schema.
 **Five conformed dimensions** provide business context (customer, product, plan, country, currency).
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
+
+---
+
+### Core tables at a glance
+
+| Model | Purpose | Grain |
+|---|---|---|
+| `stg_atlas_meter_usage_daily` | Ingest daily metered usage | one row per customer × product × plan × date (latest record) |
+| `ref_usage_atlas` | Thin wrapper for usage staging | same grain; adds `overage_units` and stable `*_key` columns |
+| `fact_usage` | Business fact table with pricing | one row per `customer_key` × `product_key` × `plan_key` × `report_date` |
 
 ---
 
@@ -161,7 +167,7 @@ dbt’s built-in tests guard the ingestion edges and marts, QuerySurge provides 
   **[models/](models/)** - core transformation layers.  
   - **sources/** - declares runtime sources (Atlas metering feed).  
   - **staging/** - normalizes seeds/sources, deduplicates, adds surrogate keys.
-  - **refined/** - collapses history into current views.  
+  - **refined/** - exposes clean dimensions/facts with consistent naming.  
   - **marts/usage/** - publishes the Usage Mart.
 
   **[macros/](macros/)** - reusable utilities.  

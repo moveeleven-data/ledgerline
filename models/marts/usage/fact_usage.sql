@@ -1,10 +1,10 @@
 {{ config(materialized='table') }}
 
 /**
- * int_fact_usage_priced.sql
- * -------------------------
- * Price latest usage at NK grain.
- * - Compute billed/included/overage values so the fact model can be a pure SELECT.
+ * fact_usage.sql
+ * ---------------
+ * Compute daily usage metrics with pricing at the customer × product × plan × date grain.
+ * Joins refined usage with the daily price book and currency to produce billed, included and overage values.
  */
 
 with
