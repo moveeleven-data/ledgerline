@@ -7,24 +7,19 @@
 
 ## Business Story
 
-Ledgerline models the commercial core of Atlas, a B2B SaaS company that turns product usage into revenue and margin KPIs.
+Ledgerline models the commercial core of **Atlas**, a developer-facing B2B SaaS platform.
 
-Customers subscribe to products, get a bundle of included usage, and pay overage once they cross that threshold.  
+Customers subscribe to products on plans that include some usage. When they exceed included usage, they pay **overages**.  
 
-Atlas offers three core services: 
-- PROD-API - Lets customers call the Atlas API  
-- PROD-ETL - Lets customers process data rows  
-- PROD-ALRT - Lets customers send alerts and notifications  
+Each day, a **price book** sets the unit rate for each product and plan.  
 
-Pricing is not static. Each day, a price book sets the unit rate for each product and plan.  
+Each night, the metering system emits a **usage log**: what customers did that day.
 
-Every night, the metering system emits a usage log, a running tally of what customers did.
+> *Customer X made 12,000 API calls on 2025-09-16.*
 
-> *Customer X made 12,000 API calls on 2025-09-16.*  
+> *Customer Y processed 250,000 ETL rows on the same day.*
 
-> *Customer Y processed 250,000 ETL rows on the same day.*  
-
-Ledgerline transforms that feed into a star schema, a daily usage fact table connected to five dimensions.  
+Ledgerline turns that feed into a clean, queryable star schema and uses it to answer real commercial questions.
 
 ---
 
@@ -35,8 +30,6 @@ Ledgerline transforms raw usage through three layers:
 Storage → Refinement → Delivery
 
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
-
-> *Note: The Price Book doesn’t need a separate history table since `price_date` already tracks change over time.*
 
 ### Flow Summary
 
@@ -54,29 +47,106 @@ Storage → Refinement → Delivery
 
 ## Atlas Data Model
 
-Atlas runs on a star schema. One fact table logs daily subscription usage that captures units consumed, plan coverage, and overages.
+Atlas is modeled as a star schema.
 
-Five conformed dimensions provide context:  
-- **Customer** - identity and geography  
-- **Product & Plan** - the commercial catalog  
-- **Currency** - consistent amounts  
-- **Country** - rollups by market
+**One fact table** captures daily subscription usage and billing.  
+**Five conformed dimensions** provide business context (customer, product, plan, country, currency).
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 
-Atlas reduces everything to one structure: daily activity measured and explained.
+---
+
+## Example deliverable: Plan change recommendations
+
+This is the main example output produced from Ledgerline’s star schema.
+
+**Question:** Which customers should change plans next quarter?  
+**Window:** 2025-06-30 to 2025-09-28 (90 days)  
+**Output:** One recommendation per customer: **upsell / adjust units / hold**
+
+<details>
+<summary><strong>View the report</strong></summary>
+
+<br/>
+
+### Over-limit behavior (by plan)
+
+![Over limit streaks by plan](docs/eda/fig_limit_streaks_by_plan.png)
+
+*Share of customers by longest over-limit streak bucket (90-day window).*
 
 ---
 
-## Case Study: Plan Recommendations
+### Recommended actions
 
-Real impact lies in translating usage into answers. The analysis is framed by a single question:
+<details>
+<summary><strong>Show recommendation table</strong></summary>
 
-**Which customers should receive a plan recommendation next quarter?**
+<br/>
 
-The intent is to right-size plans so they match actual use. The aim is to give customers a better fit while keeping the business healthy.
+| customer_name       | product_name | plan_name         | overage_share | overage_rate | avg_utilization | recommendation |
+|---------------------|--------------|-------------------|---------------|--------------|-----------------|----------------|
+| Horizon Media       | Alerting     | Alerting Standard | 1.05          | 1.0          | N/A             | upsell         |
+| Delta Manufacturing | Alerting     | Alerting Standard | 0.97          | 0.87         | N/A             | upsell         |
+| Nimbus Cloud        | Core API     | Basic             | 0.45          | 1.0          | 1.83            | upsell         |
+| Global Insights     | ETL Engine   | ETL 100k rows     | 0.43          | 1.0          | 1.76            | upsell         |
+| Crescent Health     | ETL Engine   | ETL 100k rows     | 0.38          | 1.0          | 1.60            | upsell         |
+| River City Bank     | Core API     | Basic             | 0.35          | 1.0          | 1.55            | upsell         |
+| Acme Analytics      | Core API     | Basic             | 0.33          | 1.0          | 1.49            | upsell         |
+| Falcon Labs         | Core API     | Pro               | 0.19          | 1.0          | 1.23            | upsell         |
+| Evergreen Retail    | Core API     | Basic             | 0.06          | 0.43         | 1.03            | adjust units   |
+| Ivy Systems         | Core API     | Basic             | 0.01          | 0.43         | 1.00            | adjust units   |
+| Blue Rocket         | Core API     | Pro               | 0.00          | 0.00         | 0.90            | hold           |
+| Jade Foods          | Core API     | Basic             | 0.00          | 0.00         | 0.81            | hold           |
+| Sunrise Telecom     | Core API     | Pro               | 0.00          | 0.00         | 0.68            | hold           |
 
-[Recommendations report](reports/plan_change_recommendations.md)  
+CSV export: [plan_change_recommendations_90d.csv](assets/tables/plan_change_recommendations_90d.csv)
+
+</details>
+
+---
+
+### Fairness by country and plan
+
+<details>
+<summary><strong>Show fairness table</strong></summary>
+
+<br/>
+
+| country       | plan_name | sample_size | days_over_limit_rate | plan_days_over_limit_rate | delta | severity |
+|---------------|-----------|-------------|----------------------|----------------------------|-------|----------|
+| United States | Basic     | 2           | 1.00                 | 0.74                       | 0.26  | alert    |
+
+</details>
+
+---
+
+### Price volatility by plan
+
+<details>
+<summary><strong>Show price volatility table</strong></summary>
+
+<br/>
+
+| product_name | plan_name         | distinct_unit_prices | volatility_level | total_billed_value |
+|--------------|-------------------|----------------------|------------------|--------------------|
+| Core API     | Basic             | 1                    | stable           | 1155.53            |
+| Core API     | Pro               | 1                    | stable           | 504.45             |
+| ETL Engine   | ETL 100k rows     | 1                    | stable           | 4031.2             |
+| Alerting     | Alerting Standard | 1                    | stable           | 13.95              |
+
+</details>
+
+---
+
+### SQL used
+
+- [`analyses/eda/usage_limit_behavior_profile.sql`](analyses/eda/usage_limit_behavior_profile.sql)
+- [`analyses/eda/plan_change_recommendations_90d.sql`](analyses/eda/plan_change_recommendations_90d.sql)
+- [`analyses/eda/fairness_by_country_and_plan.sql`](analyses/eda/fairness_by_country_and_plan.sql)
+- [`analyses/eda/billed_amount_price_volatility.sql`](analyses/eda/billed_amount_price_volatility.sql)
+
+</details>
 
 ---
 
