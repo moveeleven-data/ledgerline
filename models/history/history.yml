@@ -1,65 +1,58 @@
 # history.yml
-# --------------------------------------------------------------------------------------
-# Schema definitions for the History layer.
+# -----------------------------------------------------------------------------
+# History layer
 #
-# This layer preserves change history for reference data and daily usage snapshots.
-# It makes time explicit by storing surrogate keys, version hashes, and load timestamps.
-# --------------------------------------------------------------------------------------
+# Only the mutable daily usage feed keeps history. Static dimensions
+# (customers/products/plans/countries/currencies) are current-state only
+# -----------------------------------------------------------------------------
+
+version: 2
 
 models:
-
-  # --------------------------------------------------------------------------
-  # hist_atlas_meter_usage_daily
-  # --------------------------------------------------------------------------
-  # Tracks full change history for usage. Surrogate keys and version hashes
-  # guarantee stability and detect changes. Row types enforce SCD contract.
-  # --------------------------------------------------------------------------
-
   - name: hist_atlas_meter_usage_daily
-
     description: >
-      Daily usage snapshot history, maintained via incremental MERGE (idempotent) keyed by (usage_hkey, report_date).
+      Daily usage history table (append/merge by day). One row per (usage_hkey, report_date)
+      per load, used to pick the latest available record per key+date downstream.
 
     columns:
       - name: usage_hkey
+        description: Stable surrogate key for a customer+product+plan grain.
         tests: [not_null]
+
       - name: usage_hdiff
+        description: Version hash for change detection of usage attributes.
         tests: [not_null]
+
       - name: report_date
+        description: Usage date (snapshot day).
         tests: [not_null]
+
       - name: load_ts_utc
+        description: Ingestion timestamp for the record.
         tests: [not_null]
 
-
-    # ----------------------------------------------------------------------
-    # Tests
-    # ----------------------------------------------------------------------
-    # Validates uniqueness and hash integrity:
-    # - Unique combo of (usage_hkey, report_date)
-    # - usage_hkey and usage_hdiff must be collision-free
-    # ----------------------------------------------------------------------
+      # Documented because these are used by hash collision tests
+      - name: customer_code
+      - name: product_code
+      - name: plan_code
 
     tests:
       - dbt_utils.unique_combination_of_columns:
-          arguments:
-            combination_of_columns:
-              - usage_hkey
-              - report_date
+          combination_of_columns:
+            - usage_hkey
+            - report_date
 
       - hash_collision_free:
-          arguments:
-            hash_column: usage_hkey
-            source_columns:
-              - customer_code
-              - product_code
-              - plan_code
-              - "to_varchar(report_date, 'YYYY-MM-DD')"
+          hash_column: usage_hkey
+          source_columns:
+            - customer_code
+            - product_code
+            - plan_code
+            - "to_varchar(report_date, 'YYYY-MM-DD')"
 
       - hash_collision_free:
-          arguments:
-            hash_column: usage_hdiff
-            source_columns:
-              - customer_code
-              - product_code
-              - plan_code
-
+          hash_column: usage_hdiff
+          source_columns:
+            - customer_code
+            - product_code
+            - plan_code

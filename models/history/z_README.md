@@ -1,52 +1,32 @@
 # History Layer
 
-The **History layer** is Ledgerline’s durable record of change. It stores *what arrived and when* so we can trace data over time. Staging cleans inputs; History keeps them, with timestamps, for audit and replay.
+The **History layer** stores *what arrived and when* so changes can be traced over time. Staging cleans inputs; History keeps the raw arrivals with timestamps for audit and reproducibility.
 
----
+## What we store
 
-## What we store (now)
-
-- **Usage history**: daily snapshots written via **MERGE** (idempotent). Each run processes one `report_date` from staging—no synthetic CLOSE rows.  
-  **Grain:** one row per `(customer_code, product_code, plan_code, report_date)`.  
-  **Keys:**  
-  - `usage_hkey = hash(customer_code, product_code, plan_code, report_date)`  
+- **Usage history**: daily usage arrivals kept in `hist_atlas_meter_usage_daily` via incremental **MERGE** keyed by `(usage_hkey, report_date)` (idempotent reruns for the same day).  
+  **Grain:** one row per `usage_hkey × report_date`.  
+  **Keys:**
+  - `usage_hkey = hash(customer_code, product_code, plan_code, report_date)`
   - `usage_hdiff = hash(customer_code, product_code, plan_code, report_date, units_used, included_units)`
 
-- **Reference history** (customers, products, plans, countries, currencies): SCD-style append using `save_history`—each new version appends a row; Refined later collapses to the latest.
-
----
+Static reference history (customers, products, plans, countries, currencies) is no longer stored here.
 
 ## Materialization
 
-- Usage history: incremental MERGE keyed by (usage_hkey, report_date) to support idempotent reruns. We keep one row per customer/product/plan per day, and rerunning the same day updates that snapshot rather than duplicating it.
-- Reference history: SCD-style append via save_history, and Refined selects the latest version per key.
-
----
+- `hist_atlas_meter_usage_daily`: incremental MERGE on `(usage_hkey, report_date)` to support reloading a specific `report_date` without duplicating rows.
 
 ## Tests we rely on
 
-- Not-null on keys and dates.  
-- Uniqueness at the intended grain (e.g., `(usage_hkey, report_date)` for usage).  
-- Hash collision checks on `usage_hkey` and `usage_hdiff`.
-
-These keep the ledger consistent without adding business logic here.
-
----
+- `not_null` on: `usage_hkey`, `usage_hdiff`, `report_date`, `load_ts_utc`
+- Uniqueness at the intended grain: `(usage_hkey, report_date)`
+- Hash collision checks for `usage_hkey` and `usage_hdiff`
 
 ## How downstream uses it
 
-- **Refined** picks the **latest** row per key (or key+date) when a current view is needed.  
-- **Marts** apply business logic (e.g., pricing) on top of those current views.
+- **Refined** selects the latest available record per `usage_hkey` (by `report_date` and `load_ts_utc`) when a “current” usage view is needed.
+- **Marts** apply business logic like price joins and value metrics on top of refined usage.
 
-Lederline's history layer merges daily usage snapshots and append new reference versions, so downstream models can rely on stable keys and reproducible ‘as-of’ views.
+## Price book note
 
----
-
-### Why there’s no separate history table for the Price Book
-
-The price book is already a daily record. Each row shows the price for a product and plan on a specific date.  
-
-`stg_atlas_price_book_daily` keeps the latest version for each day, and `ref_price_book_daily` adds currency and supports joins in usage reports.  
-
-A separate history table would only be useful if prices for the same day could change later.
-
+The price book is modeled as a daily feed in staging and a refined wrapper (`ref_price_book_daily`) that standardizes codes and adds currency keys. A separate history table would only be needed if same-day prices were expected to be revised later and you needed to retain prior versions.
