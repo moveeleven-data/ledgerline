@@ -1,23 +1,23 @@
 # Ledgerline Seeds
 
-Seeds are versioned CSVs that provide Atlas reference data and sample source feeds.  
+Seeds are versioned CSVs that provide Atlas reference data and sample feeds.
 
-- In **development and CI**, seeds provide both reference data and sample feeds (CRM, catalog, usage, pricing). This lets the full pipeline run end-to-end without relying on live upstream systems.  
+- In **development and CI**, seeds provide both reference data and sample feeds (CRM, catalog, usage, pricing). This lets the full pipeline run end-to-end without relying on live upstream systems.
 - In **production**, seeds are disabled. Dynamic feeds come from true sources. Stable reference lists can remain seeds if the business wants that.
 
-This approach keeps contracts consistent across environments, accelerates local iteration, and ensures that problems are caught early before real data arrives.
+This approach keeps contracts consistent across environments, accelerates local iteration, and ensures problems are caught early before real data arrives.
 
 ---
 
 ## Lifecycle
 
-1. **Seeds** are loaded into the warehouse as static tables via `dbt seed`.  
-2. **Sources** resolve runtime inputs.  
-- In dev and CI, seeds land in <target.schema>_seeds and sources read from that schema.
-- In prod, sources read the raw ingestion schema and seeds are disabled.
-3. **Staging** normalizes inputs before history.  
-   - In dev, staging queries seeds.  
-   - In prod, staging queries live ingestion tables.  
+1. **Seeds** are loaded into the warehouse as static tables via `dbt seed`.
+2. **Sources** resolve runtime inputs.
+   - In dev and CI, seeds land in `<target.schema>_seeds` and sources read from that schema.
+   - In prod, sources read the raw ingestion schema and seeds are disabled.
+3. **Staging** normalizes and deduplicates inputs.
+   - In dev, staging queries seeds.
+   - In prod, staging queries live ingestion tables.
 
 ---
 
@@ -25,32 +25,35 @@ This approach keeps contracts consistent across environments, accelerates local 
 
 Ledgerline ships seven seed datasets.
 
-**CRM and Catalog**  
+**CRM and Catalog**
 - `atlas_crm_customer_info`
-- `atlas_catalog_product_info` 
+- `atlas_catalog_product_info`
 - `atlas_catalog_plan_info`
-**Reference Lists**  
-- `atlas_country_info`  
-- `atlas_currency_info`  
-**Pricing**  
-- `atlas_price_book_daily`  
-**Sample Metering Feed**  
+
+**Reference Lists**
+- `atlas_country_info`
+- `atlas_currency_info`
+
+**Pricing**
+- `atlas_price_book_daily`
+
+**Sample Metering Feed**
 - `atlas_meter_usage_daily`
 
 ---
 
 ## Materialization and Lifecycle
 
-Seeds are materialized as tables in <target.schema>_seeds in dev and CI. Seeds are disabled in prod. A few rules apply:
+Seeds are materialized as tables in `<target.schema>_seeds` in dev and CI. Seeds are disabled in prod. A few rules apply:
 
-- **Typing**: Each CSV specifies `+column_types` so Snowflake doesn’t guess. This keeps the schema predictable.  
-- **Lineage**: A post-hook sets `load_ts` if it’s null, giving every row a load timestamp.  
+- **Typing**: Each CSV specifies `+column_types` so Snowflake doesn’t guess. This keeps the schema predictable.
+- **Lineage**: A post-hook sets `load_ts` if it’s null, giving every row a load timestamp.
 
 ---
 
 ## Contracts and Constraints
 
-Seeds are the first contract layer. Tests fail by default with no warning severities.
+Seeds are the first contract layer. Tests fail by default (no warning severities).
 
 **Key constraints**
 
@@ -70,13 +73,13 @@ These checks mirror real rules and keep bad shapes out before data moves downstr
 
 Testing happens in three places:
 
-1. **Seeds** (`seeds.yml`)  
-   - Uniqueness on keys, not nulls, foreign keys where applicable, simple value checks  
+1. **Seeds** (`seeds.yml`)
+   - Uniqueness on keys, not nulls, foreign keys where applicable, simple value checks
    - Fail by default, no warning severities
 
-2. **Sources**  
-   - Enforce true grain for usage and freshness on `load_ts`  
+2. **Sources**
+   - Enforce true grain for usage and freshness on `load_ts`
    - Stop the build on failure
 
-3. **Staging**  
-   - Remaining domain checks, light dedupe only when unavoidable, sanity rules not feasible earlier
+3. **Staging**
+   - Remaining domain checks, sanity rules not feasible earlier, and dedupe where unavoidable

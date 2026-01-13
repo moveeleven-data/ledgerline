@@ -4,17 +4,16 @@
  * Refined daily usage feed.
  *
  * Purpose:
- * - Collapse history to the latest valid OPEN row per usage_hkey.
+ * - Publish a stable usage interface for marts with consistent `*_key` naming.
  * - Compute overage_units for convenience (units_used - included_units).
- * - Ensure only clean, deduped rows flow into pricing and facts.
+ * - Rely on staging for deduplication and ingestion correctness (no re-implementation here).
  *
  * Grain:
- * - One row per usage_hkey (latest OPEN record).
+ * - One row per customer_key × product_key × plan_key × report_date.
  */
 
 select
       usage_hkey      as usage_key
-    , usage_hdiff     as usage_diff_key
     , customer_hkey   as customer_key
     , product_hkey    as product_key
     , plan_hkey       as plan_key

@@ -1,6 +1,6 @@
 # Approach to Data Quality and Assurance
 
-Ledgerline focuses testing at the boundaries of the data flow and at the consumption layer. Instead of scattering tests throughout every intermediate step, the strongest checks live where data enters the system and where it is consumed.
+Ledgerline focuses testing at the boundaries: the ingestion edge (staging) and the consumption layer (marts). Rather than scattering checks across the pipeline, the strongest assertions live where data enters the system and where downstream users rely on contract-ready tables.
 
 ## Ingestion edge
 
@@ -14,13 +14,13 @@ If a source feed duplicates usage rows, drops a plan code or arrives incomplete,
 
 ## Refined layer
 
-Refined dimension models are thin wrappers over staging. They:
+Refined models are intentionally thin wrappers over staging. They:
 
-- Expose a stable set of attributes (code, name, etc.).
-- Rename surrogate keys to `*_key` for consistent star‑schema joins.
-- Keep only the columns needed downstream.
+- Expose a stable, minimal set of attributes (code, name, etc.).
+- Publish consistent key naming (`*_key`) for predictable star-schema joins.
+- Hide ingestion details that marts should not depend on.
 
-Because refined dims now perform no SCD collapse, they require only basic `not_null` and uniqueness tests on their keys.
+Because refined models are contract surfaces (not transformation playgrounds), they require only basic `not_null` and uniqueness tests on their keys.
 
 ## Consumption layer
 

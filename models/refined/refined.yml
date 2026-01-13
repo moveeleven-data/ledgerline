@@ -8,7 +8,7 @@ version: 2
 models:
 
   - name: ref_usage_atlas
-    description: Latest valid usage row per business key per day (current snapshot from history).
+    description: Daily metered usage at the feed grain (customer/product/plan/date).
 
   - name: ref_customer_atlas
     description: Current customer record per surrogate key.
@@ -26,4 +26,4 @@ models:
     description: Current country record per surrogate key.
 
   - name: ref_price_book_daily
-    description: REF wrapper for the daily price book.
+    description: Price book interface for marts (stable column names plus currency_key), selecting from staging.
