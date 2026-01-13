@@ -11,22 +11,12 @@
  * - One row per plan_hkey.
  */
 
-with
-
-current_from_history as (
-    {{ current_from_history(
-          history_relation      = ref('hist_atlas_catalog_plan_info')
-        , key_column            = 'plan_hkey'
-        , load_timestamp_column = 'load_ts_utc'
-    ) }}
-)
-
 select
-      plan_hkey
+      plan_hkey as plan_key
     , plan_code
     , plan_name
     , product_code
     , billing_period
     , record_source
     , load_ts_utc
-from current_from_history
+from {{ ref('stg_atlas_catalog_plan_info') }}

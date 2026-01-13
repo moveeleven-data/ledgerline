@@ -12,38 +12,19 @@
  * - One row per usage_hkey (latest OPEN record).
  */
 
-with latest_any as (
-    select
-        *
-    from {{ ref('hist_atlas_meter_usage_daily') }}
-
-    qualify row_number() over (
-        partition by
-            usage_hkey
-        order by
-            report_date desc
-          , load_ts_utc desc
-    ) = 1
-)
-
-, latest_open as (
-    select
-        *
-    from latest_any
-)
-
 select
-      usage_hkey
-    , usage_hdiff
-    , customer_hkey
-    , product_hkey
-    , plan_hkey
+      usage_hkey      as usage_key
+    , usage_hdiff     as usage_diff_key
+    , customer_hkey   as customer_key
+    , product_hkey    as product_key
+    , plan_hkey       as plan_key
     , customer_code
     , product_code
     , plan_code
     , report_date
     , units_used
     , included_units
+    , units_used - included_units as overage_units
     , record_source
     , load_ts_utc
-from latest_open
+from {{ ref('stg_atlas_meter_usage_daily') }}

@@ -6,7 +6,7 @@
  */
 
 select
-      plan_hkey as plan_key
+      plan_key
     , plan_code
     , plan_name
     , product_code
