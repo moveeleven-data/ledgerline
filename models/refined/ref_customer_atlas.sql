@@ -1,14 +1,14 @@
 /**
  * ref_customer_atlas.sql
  * -------------------------------
- * Refined dimension for customers.
+ * Customer dimension for the star schema.
  *
  * Purpose:
- * - Collapse SCD history to the current customer record per surrogate key.
- * - Provide stable attributes for geography and identity in marts.
+ * - Serve as a thin wrapper around the staging table, exposing stable customer attributes (code, name, country) for marts.
+ * - Rename `customer_hkey` to `customer_key` to standardize surrogate key naming across the project.
  *
  * Grain:
- * - One row per customer_hkey.
+ * - One row per customer_key (from staging).
  */
 
 select

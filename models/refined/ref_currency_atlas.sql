@@ -1,14 +1,14 @@
 /**
  * ref_currency_atlas.sql
  * ---------------------------
- * Refined dimension for currencies.
+ * Currency dimension for the star schema.
  *
  * Purpose:
- * - Collapse SCD history to the current currency record per surrogate key.
- * - Provide stable codes, names, and precision for joins in marts.
+ * - Provide a stable set of currency attributes (code, name, decimal_digits) for marts and facts.
+ * - Rename `currency_hkey` to `currency_key` to standardize key naming.
  *
  * Grain:
- * - One row per currency_hkey.
+ * - One row per currency_key (from staging).
  */
 
 select

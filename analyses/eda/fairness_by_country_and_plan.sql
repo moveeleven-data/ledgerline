@@ -38,7 +38,13 @@ usage_by_country_plan as (
                  , 0)::numeric
             , 6
           ) as effective_unit_price_avg
-    from {{ ref('fact_usage_window') }}
+    from (
+        select
+            *
+        from {{ ref('fact_usage') }}
+        where
+            report_date >= dateadd(day, -90, current_date)
+    )
     join {{ ref('dim_customer') }}
         using (customer_key)
     join {{ ref('dim_country') }}
@@ -57,7 +63,13 @@ usage_by_country_plan as (
               when sum(overage_units) > 0 then 1 
               else 0 
           end as has_overage
-    from {{ ref('fact_usage_window') }}
+    from (
+        select
+            *
+        from {{ ref('fact_usage') }}
+        where
+            report_date >= dateadd(day, -90, current_date)
+    )
     join {{ ref('dim_customer') }}
         using (customer_key)
     join {{ ref('dim_country') }}

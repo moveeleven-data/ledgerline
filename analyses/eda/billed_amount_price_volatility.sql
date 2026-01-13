@@ -25,7 +25,9 @@ window_price_stats as (
             sum(billed_value)
           , 2
         ) as total_billed_value
-    from {{ ref('fact_usage_window') }}
+    from {{ ref('fact_usage') }}
+    where
+        report_date >= dateadd(day, -90, current_date)
     group by
         product_key
       , plan_key

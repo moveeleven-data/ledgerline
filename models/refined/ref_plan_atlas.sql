@@ -1,14 +1,14 @@
 /**
  * ref_plan_atlas.sql
  * -------------------------------
- * Refined dimension for subscription plans.
+ * Plan dimension for the star schema.
  *
  * Purpose:
- * - Collapse SCD history to the current plan record per surrogate key.
- * - Provide stable attributes (plan name, product, billing period) for marts.
+ * - Provide a clean set of plan attributes (code, name, product, billing period) for downstream marts.
+ * - Alias the surrogate key from staging (`plan_hkey`) as `plan_key` to align with star-schema naming.
  *
  * Grain:
- * - One row per plan_hkey.
+ * - One row per plan_key (derived from the staging surrogate key).
  */
 
 select

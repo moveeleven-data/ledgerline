@@ -33,8 +33,14 @@ rollup_90d as (
 
         , sum(fact.overage_value)   as overage_value_90d
         , sum(fact.billed_value)    as billed_value_90d
-    from {{ ref('fact_usage_window') }} as fact
-    join {{ ref('dim_customer') }}      as dim_customer
+    from (
+        select
+            *
+        from {{ ref('fact_usage') }}
+        where
+            report_date >= dateadd(day, -90, current_date)
+    ) as fact
+    join {{ ref('dim_customer') }} as dim_customer
         using (customer_key)
     group by
           dim_customer.customer_name
@@ -109,7 +115,6 @@ rollup_90d as (
         , overage_share
         , avg_utilization
         , recommendation
-
         , case recommendation
               when 'upsell'       then 1
               when 'adjust units' then 2
