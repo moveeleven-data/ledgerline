@@ -57,21 +57,6 @@ models:
 
 
     # --------------------------------------------------------------------------
-    # History
-    # --------------------------------------------------------------------------
-    # Change-tracking layer. Appends new versions from staging when the hash changes.
-    # “current” is derived in REF as the latest row per key.
-    # --------------------------------------------------------------------------
-
-    history:
-      +schema: history
-
-      +materialized: incremental
-      +incremental_strategy: append
-      +on_schema_change: ignore
-
-
-    # --------------------------------------------------------------------------
     # Refined
     # --------------------------------------------------------------------------
     # Cleaned and enriched layer.
