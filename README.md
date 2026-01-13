@@ -32,8 +32,6 @@ Storage → Refinement → Delivery
 <img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
 
 ### Flow Summary
-
-**Sources** load metering, catalog, and customer data.
   
 **Storage** (includes staging + history) stages and versions inputs for an immutable record.
 
@@ -162,16 +160,13 @@ dbt’s built-in tests guard the ingestion edges and marts, QuerySurge provides 
 
   **[models/](models/)** - core transformation layers.  
   - **sources/** - declares runtime sources (Atlas metering feed).  
-  - **staging/** - normalizes seeds/sources, deduplicates, adds surrogate keys.  
-  - **history/** - persists full change logs (SCD2 reference history).  
+  - **staging/** - normalizes seeds/sources, deduplicates, adds surrogate keys.
   - **refined/** - collapses history into current views.  
   - **marts/usage/** - publishes the Usage Mart.
 
   **[macros/](macros/)** - reusable utilities.  
-  - **core/** - pure helpers (date normalization, string cleanup).  
-  - **delivery/** - presentation utilities (self-completing dimensions).  
-  - **dev_utils/** - local iteration helpers (insert/delete test rows).  
-  - **history/** - toolkit for state persistence.  
+  - **core/** - pure helpers (date normalization, string cleanup).
+  - **dev_utils/** - local iteration helpers (insert/delete test rows).
   - **migrations/** - versioned DDL.  
   - **tests/** - generic test definitions.
 
