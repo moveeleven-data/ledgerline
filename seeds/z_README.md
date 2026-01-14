@@ -1,23 +1,17 @@
 # Ledgerline Seeds
 
-Seeds are versioned CSVs that provide Atlas reference data and sample feeds.
+This repo is intentionally **seeds-only** for portability: every input (CRM, catalog, country, pricing, and usage) is provided as a dbt seed so anyone can run `dbt build` end-to-end.
 
-- In **development and CI**, seeds provide both reference data and sample feeds (CRM, catalog, usage, pricing). This lets the full pipeline run end-to-end without relying on live upstream systems.
-- In **production**, seeds are disabled. Dynamic feeds come from true sources. Stable reference lists can remain seeds if the business wants that.
-
-This approach keeps contracts consistent across environments, accelerates local iteration, and ensures problems are caught early before real data arrives.
+In a production system, the **metering feed** would typically be a dbt **source** (raw ingestion table with freshness + grain checks), while stable reference lists could remain seeds if desired.
 
 ---
 
-## Lifecycle
+## Lifecycle (portfolio)
 
 1. **Seeds** are loaded into the warehouse as static tables via `dbt seed`.
-2. **Sources** resolve runtime inputs.
-   - In dev and CI, seeds land in `<target.schema>_seeds` and sources read from that schema.
-   - In prod, sources read the raw ingestion schema and seeds are disabled.
-3. **Staging** normalizes and deduplicates inputs.
-   - In dev, staging queries seeds.
-   - In prod, staging queries live ingestion tables.
+2. **Staging** normalizes, casts, and deduplicates seeded inputs.
+3. **Refined** publishes stable interfaces for marts.
+4. **Marts** build contract-ready facts/dimensions.
 
 ---
 
@@ -61,7 +55,7 @@ Seeds are the first contract layer. Tests fail by default (no warning severities
 - `atlas_catalog_plan_info`: `plan_code` unique and not null. `product_code` must exist in `atlas_catalog_product_info`. `billing_period` must be `monthly` or `annual`.
 - `atlas_country_info`: `country_code` unique and not null.
 - `atlas_price_book_daily`: unique combination `(product_code, plan_code, price_date)`. `unit_price` nonnegative. `product_code` and `plan_code` must exist in their catalog seeds.
-- **Source, not seed** `atlas_meter_usage_daily`: unique combination `(customer_code, product_code, plan_code, report_date)` and freshness on `load_ts`.
+- `atlas_meter_usage_daily` (seed in this repo): unique combination `(customer_code, product_code, plan_code, report_date)` enforced in staging.
 
 These checks mirror real rules and keep bad shapes out before data moves downstream.
 
@@ -69,15 +63,13 @@ These checks mirror real rules and keep bad shapes out before data moves downstr
 
 ## Testing Strategy
 
-Testing happens in three places:
+Testing happens in two places:
 
 1. **Seeds** (`seeds.yml`)
-   - Uniqueness on keys, not nulls, foreign keys where applicable, simple value checks
-   - Fail by default, no warning severities
+   - Types are pinned via `+column_types`
+   - Basic shape checks where meaningful
 
-2. **Sources**
-   - Enforce true grain for usage and freshness on `load_ts`
-   - Stop the build on failure
-
-3. **Staging**
-   - Remaining domain checks, sanity rules not feasible earlier, and dedupe where unavoidable
+2. **Staging** (`staging.yml`)
+   - Grain uniqueness (e.g., one row per customer × product × plan × date)
+   - Not nulls and relationships to seed reference tables
+   - Range / accepted-values checks

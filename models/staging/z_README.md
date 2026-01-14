@@ -15,19 +15,11 @@ Staging exists to make the raw feeds safe and consistent. Its responsibilities i
    - Enforce sane date ranges using `to_21st_century_date`.
    - Cast numerics into explicit types (e.g., quantities as `number(38,0)`).
 
-2. **Remove ghost rows and deduplicate**
-   - Drop rows that are completely empty placeholders.
+2. **Deduplicate**
    - Deduplicate on the natural business grain, keeping the latest record by `load_ts_utc` (with tie-breakers where needed).
-
-3. **Inject a default member**
-   - Each staging model appends one synthetic record with key `'-1'`.
-   - Attributes are placeholders (`'Missing'`, `0`, or `'unknown'`) with `record_source = 'System.DefaultKey'`.
-
-   This ensures joins never drop rows, even if upstream data is late or incomplete.
 
 4. **Generate deterministic keys (and change hashes where needed)**
    - Surrogate keys (e.g., `customer_hkey = hash(customer_code)`).
-   - Optional version hashes (e.g., `customer_hdiff = hash(customer_code, customer_name, country_code)`) when useful for detecting attribute changes.
    - Dates are cast to `YYYY-MM-DD` strings before hashing.
 
 5. **Add lineage and timing**
@@ -38,11 +30,9 @@ Staging exists to make the raw feeds safe and consistent. Its responsibilities i
 
 ## Inputs
 
-**Seeds**: CRM customers, product catalog, plan catalog, countries, and price book. In dev/CI these simulate external systems.
+**Seeds**: CRM customers, product catalog, plan catalog, countries, price book, and the metering usage feed. In this portfolio repo, seeds simulate upstream systems so the pipeline is fully reproducible.
 
-**Source**: `atlas_meter_usage_daily`, declared in `sources.yml`. In dev/CI it points at `_seeds`, in prod it points at raw ingestion tables.
-
-The same staging SQL works in both environments. Only schema resolution changes.
+**Production note**: In a real deployment, the metering feed would typically be a dbt source (raw ingestion table) and staging would read from that source instead of a seed.
 
 ---
 
@@ -64,7 +54,6 @@ These tests are intentionally strict. If staging has to “fix” too much bad d
 - **Entity Grain:** customer × product × plan (subscription)
 - **Row Grain:** customer × product × plan × date
 - **Key:** `usage_hkey = hash(subscription, date)`
-- **(Optional) Diff Hash:** include metrics (e.g., `units_used`, `included_units`) only if you genuinely use it downstream
 
 ### Daily price book
 - **Entity Grain:** product × plan

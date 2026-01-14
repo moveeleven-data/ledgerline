@@ -6,22 +6,23 @@
  * Purpose:
  * - Normalize product_code and plan_code.
  * - Ensure price_date is valid and coerced into 21st century.
- * - Remove ghost rows (completely empty).
+ * - Enforce numeric precision for unit_price.
  * - Keep only the latest row per (product_code, plan_code, price_date).
- * - Add a default row for safe joins.
- * - Generate surrogate keys for uniqueness and change tracking.
+ * - Generate surrogate keys for uniqueness.
  */
 
 with
 
 source_prices as (
     select
-          upper(product_code)                       as product_code
-        , upper(plan_code)                          as plan_code
-        , {{ to_21st_century_date('price_date') }}  as price_date
-        , unit_price                                as unit_price
-        , to_timestamp_ntz(load_ts)                 as load_ts_utc
-        , 'price_book'                              as record_source
+          upper(product_code)                            as product_code
+        , upper(plan_code)                               as plan_code
+        , {{ to_21st_century_date('price_date') }}::date as price_date
+
+        , try_to_number(unit_price)::number(18,6)        as unit_price
+
+        , to_timestamp_ntz(load_ts)                      as load_ts_utc
+        , 'SEED.atlas_price_book_daily'                  as record_source
     from {{ ref('atlas_price_book_daily') }}
 )
 
@@ -50,7 +51,7 @@ source_prices as (
              , 'plan_code'
              , 'price_date'
           ]) }} as price_book_hkey
-        
+
         , *
     from latest_prices
 )

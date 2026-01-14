@@ -1,44 +1,62 @@
 # Approach to Data Quality and Assurance
 
-Ledgerline focuses testing at the boundaries: the ingestion edge (staging) and the consumption layer (marts). Rather than scattering checks across the pipeline, the strongest assertions live where data enters the system and where downstream users rely on contract-ready tables.
+Ledgerline concentrates “hard assertions” at two boundaries: **staging** (ingestion edge) and **marts** (contract surface). The goal is to avoid redundant checks that can drift over time (e.g., types/precision enforced one way in staging and differently in marts).
 
-## Ingestion edge
+## Guiding principle: declare precision once
 
-Staging models normalise source feeds and generate surrogate keys. Here we enforce:
+All type coercion and numeric precision rules are enforced in **staging SQL** (and validated there). Downstream layers should not recast the same fields again unless there is a business transformation that truly changes meaning.
 
-- Correct grain (one record per natural key per day).
-- Uniqueness and `not_null` on surrogate keys, natural keys, and dates.
-- Accepted values and basic relational integrity (e.g. valid country and currency codes).
+This keeps the pipeline consistent: one definition of a number is *the* definition.
 
-If a source feed duplicates usage rows, drops a plan code or arrives incomplete, these tests fail immediately. Early, precise failures surface upstream drift quickly.
+## Ingestion edge (staging)
+
+Staging models normalize inputs and make the grain explicit. This is where we enforce:
+
+- **Declared grain** (e.g., one row per `customer_code × product_code × plan_code × report_date` for usage).
+- **Key validity** (`not_null` on required natural keys and dates).
+- **Domain/sanity checks** (e.g., nonnegative usage and prices, valid years).
+- **Relational integrity against reference data** (e.g., usage codes must exist in the catalog/CRM seeds, excluding the default `-1` member when applicable).
+- **Precision** via explicit casts in staging (e.g., `units_used::number(38,0)`, `unit_price::number(18,6)`), so downstream layers inherit stable types.
+
+If upstream data arrives malformed, duplicated, or incomplete, staging tests fail early and loudly, preventing “quiet corruption” from flowing downstream.
+
+## Seeds (portfolio mode)
+
+This repo is intentionally **seeds-first** for portability and reproducibility.
+
+- Seeds define the input shapes and types (`+column_types` in `dbt_project.yml`).
+- Staging tests validate those shapes at the ingestion edge, just like a real system would validate raw ingested tables.
+
+In a production deployment, the metering feed would typically be a **dbt source** with freshness + grain checks; in this portfolio repo, that source is represented as a seed to keep `dbt build` runnable for anyone.
 
 ## Refined layer
 
-Refined models are intentionally thin wrappers over staging. They:
+Refined models are intentionally thin, stable interfaces. They do **not** repeat ingestion logic (dedupe, normalization, precision) that belongs in staging.
 
-- Expose a stable, minimal set of attributes (code, name, etc.).
-- Publish consistent key naming (`*_key`) for predictable star-schema joins.
-- Hide ingestion details that marts should not depend on.
+Refined exists to publish:
 
-Because refined models are contract surfaces (not transformation playgrounds), they require only basic `not_null` and uniqueness tests on their keys.
+- Consistent naming (`*_key`) for downstream joins.
+- Small, stable “surface area” models that marts can depend on.
 
-## Consumption layer
+Testing in refined is minimal by design (lean interfaces, no re-validation of staging rules).
 
-Marts behave as data contracts. They enforce:
+## Consumption layer (marts)
 
-- Schema contracts (columns and types are fixed).
-- Grain contracts (unique combinations of dimension keys).
-- Business‑rule checks (e.g. no negative usage, inclusion of all price keys).
+Marts are the contract surface for downstream users. Here we enforce:
 
-Any incompatible change fails the build early. This provides strong guarantees to downstream consumers.
+- **Schema contracts** (columns + types fixed via dbt contracts).
+- **Grain contracts** (e.g., `unique_combination_of_columns` on the fact grain).
+- **Business-rule checks** that are specific to the mart output (e.g., pricing logic correctness, derived metrics within expected bounds) when those rules are not already guaranteed upstream.
+
+Importantly, marts do not re-check basic ingestion rules already guaranteed by staging (to avoid drift and duplication).
 
 ## External validation
 
 Ledgerline uses a QuerySurge smoke suite that tests:
 
-- **Fact ↔ dimension integrity:** every key in `fact_usage` appears in the corresponding dimension.
-- **Referential integrity:** no missing currency, country, plan, product or customer codes.
-- **Business rules:** e.g. no negative usage, no overage share greater than one.
+- **Fact ↔ dimension integrity:** every key in the fact appears in the corresponding dimension.
+- **Referential integrity:** no missing country, plan, product or customer codes.
+- **Business rules:** e.g., no negative usage; no overage share greater than one.
 
 These are run via dbt tests and an external harness via QuerySurge.
 
@@ -46,4 +64,10 @@ These are run via dbt tests and an external harness via QuerySurge.
 
 ## Continuous Integration
 
-A GitHub Actions workflow runs `dbt build` on each pull request. It connects to Snowflake with a service user and builds staging, refined and marts schemas in a dedicated CI database. This ensures schema contracts, grain checks and referential integrity tests are validated on every change.
+A GitHub Actions workflow runs `dbt build` on each pull request to validate:
+
+- Staging grain + domain checks (including precision)
+- Contract enforcement in marts
+- Fact grain uniqueness and other mart-level guarantees
+
+This keeps changes safe, reviewable, and reproducible.

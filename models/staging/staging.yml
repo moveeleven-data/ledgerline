@@ -65,12 +65,14 @@ models:
 
       - name: units_used
         tests:
+          - not_null
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
 
       - name: included_units
         tests:
+          - not_null
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
@@ -121,6 +123,7 @@ models:
 
       - name: unit_price
         tests:
+          - not_null
           - dbt_utils.accepted_range:
               arguments:
                 min_value: 0
@@ -185,6 +188,9 @@ models:
   - name: stg_atlas_catalog_plan_info
 
     columns:
+      - name: plan_name
+        tests: [not_null]
+
       - name: plan_code
         tests: [unique, not_null]
 

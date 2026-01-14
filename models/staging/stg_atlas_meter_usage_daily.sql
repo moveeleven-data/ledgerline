@@ -4,25 +4,26 @@
  *
  * Purpose:
  * - Normalize codes and dates.
- * - Remove ghost rows (fully empty records).
+ * - Enforce numeric precision for usage fields.
  * - Deduplicate at the natural grain (cust x prod x plan x date).
- * - Add a default row for safe joins.
- * - Generate surrogate keys for uniqueness and change tracking.
+ * - Generate surrogate keys for uniqueness.
  */
 
 with
 
 source_usage as (
     select
-          upper(customer_code)                       as customer_code
-        , upper(product_code)                        as product_code
-        , upper(plan_code)                           as plan_code
-        , {{ to_21st_century_date('report_date') }}  as report_date
-        , try_to_number(units_used)                  as units_used
-        , try_to_number(included_units)              as included_units
-        , to_timestamp_ntz(load_ts)                  as load_ts_utc
-        , 'atlas_meter'                              as record_source
-    from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
+          upper(customer_code)                            as customer_code
+        , upper(product_code)                             as product_code
+        , upper(plan_code)                                as plan_code
+        , {{ to_21st_century_date('report_date') }}::date as report_date
+
+        , try_to_number(units_used)::number(38,0)         as units_used
+        , try_to_number(included_units)::number(38,0)     as included_units
+
+        , to_timestamp_ntz(load_ts)                       as load_ts_utc
+        , 'SEED.atlas_meter_usage_daily' as record_source
+    from {{ ref('atlas_meter_usage_daily') }}
 )
 
 , deduplicated_usage as (
@@ -34,13 +35,13 @@ source_usage as (
         row_number() over (
             partition by
                 customer_code
-                , product_code
-                , plan_code
-                , report_date
+              , product_code
+              , plan_code
+              , report_date
             order by
                 load_ts_utc desc
-                , units_used desc
-    ) = 1
+              , units_used desc
+        ) = 1
 )
 
 , hashed_usage as (
