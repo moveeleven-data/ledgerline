@@ -75,7 +75,10 @@ source_prices as (
 
 , hashed_prices as (
     select
-          {{ dbt_utils.generate_surrogate_key([
+          {{ dbt_utils.generate_surrogate_key(['product_code']) }} as product_hkey
+        , {{ dbt_utils.generate_surrogate_key(['plan_code']) }}    as plan_hkey
+
+        , {{ dbt_utils.generate_surrogate_key([
                'product_code'
              , 'plan_code'
              , 'price_date'

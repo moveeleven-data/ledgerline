@@ -8,18 +8,22 @@ with
 
 price_book_source as (
     select
-          upper(product_code) as product_code
-        , upper(plan_code) as plan_code
+          product_hkey
+        , plan_hkey
+        , product_code
+        , plan_code
         , price_date
         , unit_price
         , record_source
         , load_ts_utc
-        , '{{ var("default_billing_currency", "USD") }}'::string as currency_code
+        , upper('{{ var("default_billing_currency", "USD") }}')::string as currency_code
     from {{ ref('stg_atlas_price_book_daily') }}
 )
 
 select
-      product_code
+      product_hkey as product_key
+    , plan_hkey    as plan_key
+    , product_code
     , plan_code
     , price_date
     , unit_price
