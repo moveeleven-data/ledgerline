@@ -29,7 +29,7 @@ Ledgerline transforms raw usage through three layers:
 
 Staging → Refined → Marts
 
-<img src="docs/assets/ledger_lineage_prod_v2.png" alt="Ledgerline lineage – prod" width="900">
+<img src="docs/assets/ledger_lineage_prod_v3.png" alt="Ledgerline lineage – prod" width="900">
 
 ### Flow Summary
 
