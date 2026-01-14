@@ -1,110 +1,44 @@
 # source_atlas.yml
 # ---------------------------------------------------------------------------
-# Schema definition for the Atlas metering feed (atlas_meter_usage_daily).
+# Portfolio note: Sources in a real dbt project
 #
-# In dev and CI it resolves to seeded tables. In prod it resolves to the
-# raw ingestion schema. This file pins the contract for location,
-# freshness, grain, and columns.
+# Ledgerline is a toy/portfolio project. For reproducibility and portability,
+# all inputs are modeled as dbt seeds (CSV files) so anyone can run dbt build.
+#
+# In a production system, the metering feed would be a dbt source pointing at
+# a raw ingestion table (e.g., <raw_schema>.atlas_meter_usage_daily), and we
+# would enforce:
+# - freshness SLAs (warn/error windows based on load_ts)
+# - grain contracts (unique_combination_of_columns)
+# - basic validity checks before staging consumes the feed
+#
+# This file is intentionally disabled so the project remains seeds-only.
 # ---------------------------------------------------------------------------
 
 version: 2
 
 sources:
   - name: atlas_meter
-
-    database: "{{ target.database }}"   # Portable across dev, CI, prod
-
-    # -------------------------------------------------------------------------
-    # Schema Resolution
-    # --------------------------------------------------------------------------
-    # Dev and CI:
-    #   schema = <target.schema>_seeds
-    #   Reads from seeded tables for reproducible runs.
-    #
-    # Prod:
-    #   schema = source_data
-    #   Points to raw ingestion with live usage data.
-    # --------------------------------------------------------------------------
-
-    schema: "{% if var('source_environment') == 'staging'%}staging{% else %}production{% endif%}"
-    
-    tables:
-      - name: atlas_meter_usage_daily
-
-        description: >
-          Daily metered usage feed at grain customer + product + plan + day.
-          In bootstrap mode this is a seeded table. In production it points to
-          the raw landed usage feed.
-
-        # ----------------------------------------------------------------------
-        # Freshness
-        # ----------------------------------------------------------------------
-        # Uses load_ts as the freshness indicator.
-        # Warn if data is more than 36 hours old.
-        # Error if more than 72 hours old.
-        # ----------------------------------------------------------------------
-
-        # ---------------------------------------------------------------------------
-        # Tests
-        # ---------------------------------------------------------------------------
-        # Enforce the declared daily grain and basic row validity.
-        # ---------------------------------------------------------------------------
-
-        tests:
-
-          - dbt_utils.unique_combination_of_columns:
-              arguments:
-                combination_of_columns: [customer_code, product_code, plan_code, report_date]
-
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "load_ts <= current_timestamp"
-
-        columns:
-
-          - name: customer_code  # External identity of a customer.
-            description: Customer code from CRM, joins to dim_customer.
-            tests:
-              - not_null
-              - relationships:
-                  arguments:
-                    to: ref('atlas_crm_customer_info')
-                    field: customer_code
-
-          - name: product_code   # Identifier for which product the customer actually used.
-            description: Product or feature code, joins to dim_product.
-            tests:
-              - not_null
-              - relationships:
-                  arguments:
-                    to: ref('atlas_catalog_product_info')
-                    field: product_code
-
-          - name: plan_code      # Decides how a customer is billed.
-            description: Subscription plan code, joins to dim_plan.
-            tests:
-              - not_null
-              - relationships:
-                  arguments:
-                    to: ref('atlas_catalog_plan_info')
-                    field: plan_code
-
-          - name: report_date    # True business date the usage happened on, not ingestion timestamp.
-            description: Usage as of date, daily UTC calendar grain.
-            tests:
-              - not_null
-
-          - name: load_ts        # Ingestion timestamp of the source row.
-            description: Timestamp when the row landed in the warehouse.
-            tests:
-              - not_null
-
-        config:
-          loaded_at_field: load_ts
-          freshness:
-            warn_after: {count: 36, period: hour}
-            error_after: {count: 72, period: hour}
+    description: >
+      Production-only placeholder: Atlas metering feed would be declared here as a dbt source.
+      Disabled in this repo to keep all inputs seed-based and reproducible.
 
     config:
-      meta:
-        owner: 'Matthew Tripodi'
+      enabled: false
+
+    database: "{{ target.database }}"
+    schema: "raw"
+
+    tables:
+      - name: atlas_meter_usage_daily
+        description: >
+          Daily metered usage feed at grain customer + product + plan + day.
+          In production, this table would be loaded by ingestion tooling.
+        columns:
+          - name: customer_code
+          - name: product_code
+          - name: plan_code
+          - name: report_date
+          - name: units_used
+          - name: included_units
+          - name: load_ts

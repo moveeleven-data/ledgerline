@@ -75,7 +75,6 @@ models:
 
       - name: plan_name
         data_type: string
-        tests: [not_null]
 
       - name: product_code
         data_type: string

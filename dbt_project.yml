@@ -13,9 +13,6 @@ name: 'ledgerline'
 version: '1.0.0'
 config-version: 2
 
-vars:
-  source_environment: staging
-
 profile: 'ledgerline'
 
 model-paths: ['models']

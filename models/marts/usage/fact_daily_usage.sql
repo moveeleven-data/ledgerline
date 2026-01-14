@@ -4,20 +4,19 @@
  * fact_daily_usage.sql
  * ---------------
  * Compute daily usage metrics with pricing at the customer × product × plan × date grain.
- * Joins refined usage with the daily price book to produce billed, included and overage values.
  */
 
 with
 
-normalized_usage as (
+usage as (
     select
-          report_date::date                        as report_date
-        , cast(units_used as number(38, 0))        as units_used
-        , cast(included_units as number(38, 0))    as included_units
-        , greatest(units_used - included_units, 0) as overage_units
-        , customer_key                             as customer_key
-        , product_key                              as product_key
-        , plan_key                                 as plan_key
+          report_date
+        , units_used
+        , included_units
+        , overage_units
+        , customer_key
+        , product_key
+        , plan_key
         , usage_key
     from {{ ref('ref_usage_atlas') }}
 )
@@ -33,7 +32,7 @@ normalized_usage as (
         , usage.overage_units
         , coalesce(price.unit_price, 0) as unit_price
 
-    from normalized_usage as usage
+    from usage
     left join {{ ref('ref_price_book_daily') }} as price
         on price.product_key  = usage.product_key
         and price.plan_key    = usage.plan_key
