@@ -1,12 +1,12 @@
 /**
  * dim_country.sql
  * ---------------
- * Pass-through of the refined country dimension.
+ * Pass-through of the staging country reference.
  * Grain: one row per country_key.
  */
 
 select
-      country_key
-    , country_name
+      country_hkey as country_key
     , country_code
-from {{ ref('ref_country_atlas') }}
+    , country_name
+from {{ ref('stg_atlas_country_info') }}

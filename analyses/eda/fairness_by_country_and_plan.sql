@@ -21,8 +21,8 @@ with
 
 usage_by_country_plan as (
     select
-          country_name
-        , plan_name
+          country_key
+        , plan_key
         , count(distinct customer_key) as customers_active
         , round(
               sum(units_used) 
@@ -41,7 +41,7 @@ usage_by_country_plan as (
     from (
         select
             *
-        from {{ ref('fact_usage') }}
+        from {{ ref('fact_daily_usage') }}
         where
             report_date >= dateadd(day, -90, current_date)
     )
@@ -50,14 +50,14 @@ usage_by_country_plan as (
     join {{ ref('dim_country') }}
         using (country_code)
     group by
-          country_name
-        , plan_name
+          country_key
+        , plan_key
 )
 
 , daily_overages as (
     select
-          country_name
-        , plan_name
+          country_key
+        , plan_key
         , report_date
         , case 
               when sum(overage_units) > 0 then 1 
@@ -66,7 +66,7 @@ usage_by_country_plan as (
     from (
         select
             *
-        from {{ ref('fact_usage') }}
+        from {{ ref('fact_daily_usage') }}
         where
             report_date >= dateadd(day, -90, current_date)
     )
@@ -75,39 +75,39 @@ usage_by_country_plan as (
     join {{ ref('dim_country') }}
         using (country_code)
     group by
-          country_name
-        , plan_name
+          country_key
+        , plan_key
         , report_date
 )
 
 , over_limit_rate as (
     select
-          country_name
-        , plan_name
+          country_key
+        , plan_key
         , round(
              avg(has_overage)
            , 2
           ) as days_over_limit_rate
     from daily_overages
-    group by country_name, plan_name
+    group by country_key, plan_key
 )
 
 , country_plan as (
     select
-          usage_by_country_plan.country_name
-        , usage_by_country_plan.plan_name
+          usage_by_country_plan.country_key
+        , usage_by_country_plan.plan_key
         , usage_by_country_plan.customers_active
         , usage_by_country_plan.utilization_avg
         , usage_by_country_plan.effective_unit_price_avg
         , over_limit_rate.days_over_limit_rate
     from usage_by_country_plan
     join over_limit_rate
-        using (country_name, plan_name)
+        using (country_key, plan_key)
 )
 
 , plan_benchmark as (
     select
-          plan_name
+          plan_key
         , sum(customers_active) as plan_customers_active
         , round(
               sum(days_over_limit_rate * customers_active) 
@@ -115,13 +115,13 @@ usage_by_country_plan as (
             , 2
           ) as plan_days_over_limit_rate
     from country_plan
-    group by plan_name
+    group by plan_key
 )
 
 , fairness_by_country_and_plan as (
     select
-        country_name
-        , plan_name
+          country_key
+        , plan_key
         , customers_active
         , utilization_avg
         , effective_unit_price_avg
@@ -142,7 +142,7 @@ usage_by_country_plan as (
         end as severity
     from country_plan
     inner join plan_benchmark
-        using (plan_name)
+        using (plan_key)
 )
 
 select

@@ -57,7 +57,7 @@ source_usage as (
           ]) }} as usage_hkey
 
         , *
-    from combined_usage
+    from deduplicated_usage
 )
 
 select

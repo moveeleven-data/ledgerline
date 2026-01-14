@@ -1,7 +1,7 @@
 /**
  * qa__default_hits_by_day.sql
  * ---------------------------
- * Check FACT_USAGE rows against dimension tables.
+ * Check fact rows against dimension tables.
  *
  * Purpose:
  * - Count usage rows that fail to join to dim_customer, dim_product, or dim_plan.
@@ -22,14 +22,14 @@ select
 
   , count_if(dim_customer.customer_key is null) as missing_customer_dim
   , count_if(dim_product.product_key is null)   as missing_product_dim
-  , count_if(dim_plan.plan_keyis null)          as missing_plan_dim
+  , count_if(dim_plan.plan_key is null)          as missing_plan_dim
 
   , count_if(
             dim_product.product_key is not null
         and dim_product.product_code = '-1'
     ) as hits_product_default
 
-from {{ ref('fact_usage') }} as fact_usage
+from {{ ref('fact_daily_usage') }} as fact_usage
 
 left join {{ ref('dim_customer') }} as dim_customer
        on dim_customer.customer_key = fact_usage.customer_key

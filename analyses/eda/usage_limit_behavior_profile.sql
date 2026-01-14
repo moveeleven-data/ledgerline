@@ -21,7 +21,7 @@ subscriptions_daily as (
         , max(units_used)     as units_used
         , max(included_units) as included_units
         , max(overage_units)  as overage_units
-    from {{ ref('fact_usage') }}
+    from {{ ref('fact_daily_usage') }}
     where
         report_date >= dateadd(day, -90, current_date)
     group by

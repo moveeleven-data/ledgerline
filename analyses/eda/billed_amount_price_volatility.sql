@@ -25,7 +25,7 @@ window_price_stats as (
             sum(billed_value)
           , 2
         ) as total_billed_value
-    from {{ ref('fact_usage') }}
+    from {{ ref('fact_daily_usage') }}
     where
         report_date >= dateadd(day, -90, current_date)
     group by
@@ -35,8 +35,8 @@ window_price_stats as (
 
 , price_volatility_stats as (
     select
-        product_name
-      , plan_name
+        product_key
+      , plan_key
       , distinct_unit_prices
       , volatility_level
       , total_billed_value
@@ -48,8 +48,8 @@ window_price_stats as (
 )
 
 select
-    product_name
-  , plan_name
+    product_key
+  , plan_key
   , distinct_unit_prices
   , volatility_level
   , total_billed_value

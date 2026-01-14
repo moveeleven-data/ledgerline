@@ -46,7 +46,7 @@ Atlas is modeled as a star schema.
 **One fact table** captures daily subscription usage and billing.  
 **Five conformed dimensions** provide business context (customer, product, plan, country).
 
-![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
+![Ledgerline Architecture](docs/assets/erd_physical_model_3.png)
 
 ---
 
@@ -56,7 +56,7 @@ Atlas is modeled as a star schema.
 |---|---|---|
 | `stg_atlas_meter_usage_daily` | Ingest daily metered usage | one row per customer × product × plan × date (latest record) |
 | `ref_usage_atlas` | Thin wrapper for usage staging | same grain; adds `overage_units` and stable `*_key` columns |
-| `fact_usage` | Business fact table with pricing | one row per `customer_key` × `product_key` × `plan_key` × `report_date` |
+| `fact_daily_usage` | Business fact table with pricing | one row per `customer_key` × `product_key` × `plan_key` × `report_date` |
 
 ---
 
