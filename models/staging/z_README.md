@@ -38,7 +38,7 @@ Staging exists to make the raw feeds safe and consistent. Its responsibilities i
 
 ## Inputs
 
-**Seeds**: CRM customers, product catalog, plan catalog, currencies, countries, and price book. In dev/CI these simulate external systems.
+**Seeds**: CRM customers, product catalog, plan catalog, countries, and price book. In dev/CI these simulate external systems.
 
 **Source**: `atlas_meter_usage_daily`, declared in `sources.yml`. In dev/CI it points at `_seeds`, in prod it points at raw ingestion tables.
 

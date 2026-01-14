@@ -4,7 +4,7 @@
  * fact_usage.sql
  * ---------------
  * Compute daily usage metrics with pricing at the customer × product × plan × date grain.
- * Joins refined usage with the daily price book and currency to produce billed, included and overage values.
+ * Joins refined usage with the daily price book to produce billed, included and overage values.
  */
 
 with
@@ -31,7 +31,6 @@ normalized_usage as (
         , usage.included_units
         , usage.overage_units
         , coalesce(price.unit_price, 0) as unit_price
-        , price.currency_key as currency_key
 
     from normalized_usage as usage
     left join {{ ref('ref_price_book_daily') }} as price
@@ -69,7 +68,6 @@ select
     , customer_key
     , product_key
     , plan_key
-    , currency_key
     , units_used
     , included_units
     , overage_units

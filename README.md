@@ -44,7 +44,7 @@ Staging normalizes and deduplicates raw feeds; refined exposes clean dimensions/
 Atlas is modeled as a star schema.
 
 **One fact table** captures daily subscription usage and billing.  
-**Five conformed dimensions** provide business context (customer, product, plan, country, currency).
+**Five conformed dimensions** provide business context (customer, product, plan, country).
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_2.png)
 

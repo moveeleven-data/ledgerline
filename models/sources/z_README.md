@@ -6,7 +6,7 @@ In Ledgerline, the only true source is the Atlas metering feed. This feed record
 
 We track freshness, enforce uniqueness at the daily grain, and then rely on staging to normalize and deduplicate the feed.
 
-The other inputs (customer, product, plan, currency, country) are modeled as seeds since they are relatively static.
+The other inputs (customer, product, plan, country) are modeled as seeds since they are relatively static.
 
 *(The daily price book is seeded as well for portability. In a production system, it would typically be treated as a source with freshness tests, since rates change over time.)*
 
