@@ -172,9 +172,6 @@ dbt’s built-in tests guard the ingestion edges and marts, QuerySurge provides 
 
   **[macros/](macros/)** - reusable utilities.  
   - **core/** - pure helpers (date normalization, string cleanup).
-  - **dev_utils/** - local iteration helpers (insert/delete test rows).
-  - **migrations/** - versioned DDL.  
-  - **tests/** - generic test definitions.
 
   **[seeds/](seeds/)** - versioned reference CSVs.
 
