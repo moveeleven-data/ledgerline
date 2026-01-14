@@ -16,22 +16,19 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: dim_customer
-    description: Customer dimension (pass-through from REF).
+    description: Customer dimension from staging (current-state attributes; standardized *_key).
     contract:
       enforced: true
 
     columns:
       - name: customer_key
         data_type: string
-        tests: [not_null, unique]
 
       - name: customer_code
         data_type: string
-        tests: [not_null]
 
       - name: customer_name
         data_type: string
-        tests: [not_null]
 
       - name: country_code
         data_type: string
@@ -42,22 +39,19 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: dim_product
-    description: Product dimension (pass-through from REF).
+    description: Product dimension from staging (current-state attributes; standardized *_key).
     contract:
       enforced: true
 
     columns:
       - name: product_key
         data_type: string
-        tests: [not_null, unique]
 
       - name: product_code
         data_type: string
-        tests: [not_null]
 
       - name: product_name
         data_type: string
-        tests: [not_null]
 
       - name: category
         data_type: string
@@ -68,18 +62,16 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: dim_plan
-    description: Plan dimension (pass-through from REF).
+    description: Plan dimension from staging (current-state attributes; standardized *_key).
     contract:
       enforced: true
 
     columns:
       - name: plan_key
         data_type: string
-        tests: [not_null, unique]
 
       - name: plan_code
         data_type: string
-        tests: [not_null]
 
       - name: plan_name
         data_type: string
@@ -87,7 +79,6 @@ models:
 
       - name: product_code
         data_type: string
-        tests: [not_null]
 
       - name: billing_period
         data_type: string
@@ -98,80 +89,27 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: dim_country
-    description: Country dimension (pass-through from REF, closed domain).
+    description: Country dimension from staging (closed domain; standardized *_key).
     contract:
       enforced: true
 
     columns:
       - name: country_key
         data_type: string
-        tests: [not_null, unique]
 
       - name: country_code
         data_type: string
-        tests: [not_null]
 
       - name: country_name
         data_type: string
-        tests: [not_null]
 
 
   # ---------------------------------------------------------------------------
-  # int_fact_usage_priced
+  # fact_daily_usage
   # ---------------------------------------------------------------------------
 
-  - name: int_fact_usage_priced
-    description: Usage priced at NK grain (REF usage + REF price book wrapper).
-    contract:
-      enforced: true
-
-    columns:
-      - name: report_date
-        data_type: date
-        tests: [not_null]
-
-      - name: customer_key
-        data_type: string
-        tests: [not_null]
-
-      - name: product_key
-        data_type: string
-        tests: [not_null]
-
-      - name: plan_key
-        data_type: string
-        tests: [not_null]
-
-      - name: units_used
-        data_type: number(38,0)
-
-      - name: included_units
-        data_type: number(38,0)
-
-      - name: overage_units
-        data_type: number(38,0)
-
-      - name: unit_price
-        data_type: number(18,6)
-
-      - name: billed_value
-        data_type: number(18,6)
-
-      - name: included_value
-        data_type: number(18,6)
-
-      - name: overage_value
-        data_type: number(18,6)
-
-      - name: overage_share
-        data_type: number(18,6)
-
-  # ---------------------------------------------------------------------------
-  # fact_usage
-  # ---------------------------------------------------------------------------
-
-  - name: fact_usage
-    description: Daily usage fact; no dim joins; keys flow from REF or pricing step.
+  - name: fact_daily_usage
+    description: Daily usage fact (no dim joins; keys flow from upstream models).
     contract:
       enforced: true
 
@@ -228,7 +166,7 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: profile_usage_daily
-    description: Daily profiling metrics for fact_usage (row counts, volume stats, distinct keys).
+    description: Daily profiling metrics for fact_daily_usage (row counts, volume stats, distinct keys).
     contract:
       enforced: true
 

@@ -20,6 +20,6 @@ select
     , count(distinct customer_key)                  as distinct_customers
     , count(distinct product_key)                   as distinct_products
     , count(distinct plan_key)                      as distinct_plans
-from {{ ref('fact_usage') }}
+from {{ ref('fact_daily_usage') }}
 group by 1
 order by 1

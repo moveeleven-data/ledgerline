@@ -10,17 +10,5 @@ models:
   - name: ref_usage_atlas
     description: Daily metered usage at the feed grain (customer/product/plan/date).
 
-  - name: ref_customer_atlas
-    description: Current customer record per surrogate key.
-
-  - name: ref_product_atlas
-    description: Current product record per surrogate key.
-
-  - name: ref_plan_atlas
-    description: Current plan record per surrogate key.
-
-  - name: ref_country_atlas
-    description: Current country record per surrogate key.
-
   - name: ref_price_book_daily
     description: Price book interface for marts (stable column names), selecting from staging.

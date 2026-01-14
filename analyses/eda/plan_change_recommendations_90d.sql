@@ -16,9 +16,9 @@ with
 
 rollup_90d as (
     select
-          dim_customer.customer_name  as customer_name
-        , fact.product_name           as product_name
-        , fact.plan_name              as plan_name
+          dim_customer.customer_key  as customer_key
+        , fact.product_key           as product_key
+        , fact.plan_key              as plan_key
 
         , count(*) as days_observed
         , sum(
@@ -36,23 +36,23 @@ rollup_90d as (
     from (
         select
             *
-        from {{ ref('fact_usage') }}
+        from {{ ref('fact_daily_usage') }}
         where
             report_date >= dateadd(day, -90, current_date)
     ) as fact
     join {{ ref('dim_customer') }} as dim_customer
         using (customer_key)
     group by
-          dim_customer.customer_name
-        , fact.product_name
-        , fact.plan_name
+          dim_customer.customer_key
+        , fact.product_key
+        , fact.plan_key
 )
 
 , metrics as (
     select
-          customer_name
-        , product_name
-        , plan_name
+          customer_key
+        , product_key
+        , plan_key
         , days_observed
 
         , round(
@@ -81,9 +81,9 @@ rollup_90d as (
 
 , recommendations as (
     select
-          customer_name
-        , product_name
-        , plan_name
+          customer_key
+        , product_key
+        , plan_key
         , days_observed
         , overage_rate
         , overage_share
@@ -107,9 +107,9 @@ rollup_90d as (
 
 , prioritized as (
     select
-          customer_name
-        , product_name
-        , plan_name
+          customer_key
+        , product_key
+        , plan_key
         , days_observed
         , overage_rate
         , overage_share
@@ -125,9 +125,9 @@ rollup_90d as (
 )
 
 select
-      customer_name
-    , product_name
-    , plan_name
+      customer_key
+    , product_key
+    , plan_key
     , days_observed
     , overage_rate
     , overage_share
@@ -136,6 +136,6 @@ select
 from prioritized
 order by
       recommendation_priority
-    , customer_name
-    , product_name
-    , plan_name
+    , customer_key
+    , product_key
+    , plan_key

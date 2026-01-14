@@ -17,7 +17,7 @@ with
 fact_usage_filtered as (
     select
         *
-    from {{ ref('fact_usage') }}
+    from {{ ref('fact_daily_usage') }}
 
     {% if as_of_date %}
     where
