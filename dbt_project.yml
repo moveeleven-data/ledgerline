@@ -13,9 +13,6 @@ name: 'ledgerline'
 version: '1.0.0'
 config-version: 2
 
-vars:
-  default_billing_currency: 'USD'
-
 profile: 'ledgerline'
 
 model-paths: ['models']
@@ -145,23 +142,6 @@ seeds:
         plan_name: varchar
         product_code: varchar
         billing_period: varchar
-        load_ts: timestamp_ntz
-
-      +post-hook:
-        - "update {{ this }} set load_ts = to_timestamp_ntz('{{ run_started_at }}') where load_ts is null"
-
-      +tags: ['catalog']
-
-
-    # --------------------------------------------------------------------------
-    # atlas_currency_info
-    # --------------------------------------------------------------------------
-
-    atlas_currency_info:
-      +column_types:
-        currency_code: varchar
-        currency_name: varchar
-        decimal_digits: number
         load_ts: timestamp_ntz
 
       +post-hook:

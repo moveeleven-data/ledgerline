@@ -207,34 +207,6 @@ models:
         tests: [not_null]
 
   # ----------------------------------------------------------------------
-  # stg_atlas_currency_info
-  # ----------------------------------------------------------------------
-  # Staging table for supported currencies.
-  # - currency_code must be unique and not null
-  # ----------------------------------------------------------------------
-
-  - name: stg_atlas_currency_info
-
-    columns:
-      - name: currency_code
-        tests: [unique, not_null]
-
-      - name: currency_name
-        tests: [not_null]
-
-      - name: decimal_digits
-        tests:
-          - dbt_utils.accepted_range:
-              arguments:
-                min_value: 0
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "= floor(decimal_digits)"
-
-      - name: load_ts_utc
-        tests: [not_null]
-
-  # ----------------------------------------------------------------------
   # stg_atlas_country_info
   # ----------------------------------------------------------------------
   # Staging table for country reference data.

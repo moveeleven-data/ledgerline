@@ -19,11 +19,8 @@ models:
   - name: ref_plan_atlas
     description: Current plan record per surrogate key.
 
-  - name: ref_currency_atlas
-    description: Current currency record per surrogate key.
-
   - name: ref_country_atlas
     description: Current country record per surrogate key.
 
   - name: ref_price_book_daily
-    description: Price book interface for marts (stable column names plus currency_key), selecting from staging.
+    description: Price book interface for marts (stable column names), selecting from staging.

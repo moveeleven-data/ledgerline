@@ -32,7 +32,6 @@ Ledgerline ships seven seed datasets.
 
 **Reference Lists**
 - `atlas_country_info`
-- `atlas_currency_info`
 
 **Pricing**
 - `atlas_price_book_daily`
@@ -60,7 +59,6 @@ Seeds are the first contract layer. Tests fail by default (no warning severities
 - `atlas_crm_customer_info`: `customer_code` unique and not null. `country_code` not null and must exist in `atlas_country_info`.
 - `atlas_catalog_product_info`: `product_code` unique and not null.
 - `atlas_catalog_plan_info`: `plan_code` unique and not null. `product_code` must exist in `atlas_catalog_product_info`. `billing_period` must be `monthly` or `annual`.
-- `atlas_currency_info`: `currency_code` unique and not null. `decimal_digits` must be a nonnegative integer.
 - `atlas_country_info`: `country_code` unique and not null.
 - `atlas_price_book_daily`: unique combination `(product_code, plan_code, price_date)`. `unit_price` nonnegative. `product_code` and `plan_code` must exist in their catalog seeds.
 - **Source, not seed** `atlas_meter_usage_daily`: unique combination `(customer_code, product_code, plan_code, report_date)` and freshness on `load_ts`.
