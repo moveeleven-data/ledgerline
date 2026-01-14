@@ -23,7 +23,7 @@ select
     , report_date
     , units_used
     , included_units
-    , units_used - included_units as overage_units
+    , greatest(units_used - included_units, 0) as overage_units
     , record_source
     , load_ts_utc
 from {{ ref('stg_atlas_meter_usage_daily') }}

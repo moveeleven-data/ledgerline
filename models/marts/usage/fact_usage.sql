@@ -18,8 +18,6 @@ normalized_usage as (
         , customer_key                             as customer_key
         , product_key                              as product_key
         , plan_key                                 as plan_key
-        , product_code                             as product_code_nk
-        , plan_code                                as plan_code_nk
     from {{ ref('ref_usage_atlas') }}
 )
 
@@ -37,15 +35,16 @@ normalized_usage as (
 
     from normalized_usage as usage
     left join {{ ref('ref_price_book_daily') }} as price
-           on price.product_code = usage.product_code_nk
-          and price.plan_code    = usage.plan_code_nk
-          and price.price_date  <= usage.report_date
+        on price.product_key  = usage.product_key
+        and price.plan_key    = usage.plan_key
+        and price.price_date <= usage.report_date
 
     qualify row_number() over (
         partition by
             usage.report_date
-          , usage.product_code_nk
-          , usage.plan_code_nk
+          , usage.customer_key
+          , usage.product_key
+          , usage.plan_key
         order by
             price.price_date desc nulls last
     ) = 1
