@@ -44,7 +44,7 @@ Staging normalizes and deduplicates raw feeds; refined exposes clean dimensions/
 Atlas is modeled as a star schema.
 
 **One fact table** captures daily subscription usage and billing.  
-**Five conformed dimensions** provide business context (customer, product, plan, country).
+**Four conformed dimensions** provide business context (customer, product, plan, country).
 
 ![Ledgerline Architecture](docs/assets/erd_physical_model_3.png)
 
@@ -165,7 +165,7 @@ dbt’s built-in tests guard the ingestion edges and marts, QuerySurge provides 
 ## Codebase Overview
 
   **[models/](models/)** - core transformation layers.  
-  - **sources/** - declares runtime sources (Atlas metering feed).  
+  - **sources/** - production-only placeholder (disabled here; this repo runs seeds-only).
   - **staging/** - normalizes seeds/sources, deduplicates, adds surrogate keys.
   - **refined/** - exposes clean dimensions/facts with consistent naming.  
   - **marts/usage/** - publishes the Usage Mart.

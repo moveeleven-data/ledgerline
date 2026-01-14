@@ -1,7 +1,7 @@
 /**
  * pricing_missing_rows.sql
  * ------------------------
- * Companion test to pricing_coverage_threshold.sql.sql.
+ * Companion test to pricing_coverage_threshold.sql.
  *
  * Together they validate pricing coverage:
  * - pricing_coverage_threshold.sql.sql (ERROR) fails if coverage <95%.
