@@ -22,31 +22,10 @@ product_source as (
     from {{ ref('atlas_catalog_product_info') }}
 )
 
-, product_default_row as (
-    select
-          '-1'                           as product_code
-        , 'Missing'                      as product_name
-        , 'Missing'                      as category
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, product_combined as (
-    select
-        *
-    from product_source
-
-    union all
-
-    select
-        *
-    from product_default_row
-)
-
 , product_latest as (
     select
         *
-    from product_combined
+    from product_source
 
     qualify row_number() over (
         partition by
@@ -59,13 +38,6 @@ product_source as (
 , product_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['product_code']) }} as product_hkey
-          
-        , {{ dbt_utils.generate_surrogate_key([
-               'product_code'
-             , 'product_name'
-             , 'category'
-           ]) }} as product_hdiff
-
         , *
     from product_latest
 )

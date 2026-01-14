@@ -117,60 +117,10 @@ models:
 
 
   # ---------------------------------------------------------------------------
-  # int_fact_usage_priced
+  # fact_daily_usage
   # ---------------------------------------------------------------------------
 
-  - name: int_fact_usage_priced
-    description: Usage priced at NK grain (REF usage + REF price book wrapper).
-    contract:
-      enforced: true
-
-    columns:
-      - name: report_date
-        data_type: date
-        tests: [not_null]
-
-      - name: customer_key
-        data_type: string
-        tests: [not_null]
-
-      - name: product_key
-        data_type: string
-        tests: [not_null]
-
-      - name: plan_key
-        data_type: string
-        tests: [not_null]
-
-      - name: units_used
-        data_type: number(38,0)
-
-      - name: included_units
-        data_type: number(38,0)
-
-      - name: overage_units
-        data_type: number(38,0)
-
-      - name: unit_price
-        data_type: number(18,6)
-
-      - name: billed_value
-        data_type: number(18,6)
-
-      - name: included_value
-        data_type: number(18,6)
-
-      - name: overage_value
-        data_type: number(18,6)
-
-      - name: overage_share
-        data_type: number(18,6)
-
-  # ---------------------------------------------------------------------------
-  # fact_usage
-  # ---------------------------------------------------------------------------
-
-  - name: fact_usage
+  - name: fact_daily_usage
     description: Daily usage fact; no dim joins; keys flow from REF or pricing step.
     contract:
       enforced: true
@@ -228,7 +178,7 @@ models:
   # ---------------------------------------------------------------------------
 
   - name: profile_usage_daily
-    description: Daily profiling metrics for fact_usage (row counts, volume stats, distinct keys).
+    description: Daily profiling metrics for fact_daily_usage (row counts, volume stats, distinct keys).
     contract:
       enforced: true
 

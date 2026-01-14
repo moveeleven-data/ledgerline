@@ -22,31 +22,10 @@ customer_source as (
     from {{ ref('atlas_crm_customer_info') }}
 )
 
-, customer_default_row as (
-    select
-          '-1'                           as customer_code
-        , 'Missing'                      as customer_name
-        , '-1'                           as country_code
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, customer_combined as (
-    select
-        *
-    from customer_source
-
-    union all
-
-    select
-        *
-    from customer_default_row
-)
-
 , customer_latest as (
     select
         *
-    from customer_combined
+    from customer_source
 
     qualify row_number() over (
         partition by
@@ -58,14 +37,7 @@ customer_source as (
 
 , customer_hashed as (
     select
-          {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
-          
-        , {{ dbt_utils.generate_surrogate_key([
-                'customer_code'
-              , 'customer_name'
-              , 'country_code'
-            ]) }} as customer_hdiff
-        
+          {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey        
         , *
     from customer_latest
 )

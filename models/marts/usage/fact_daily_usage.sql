@@ -1,7 +1,7 @@
 {{ config(materialized='table') }}
 
 /**
- * fact_usage.sql
+ * fact_daily_usage.sql
  * ---------------
  * Compute daily usage metrics with pricing at the customer × product × plan × date grain.
  * Joins refined usage with the daily price book to produce billed, included and overage values.
@@ -18,6 +18,7 @@ normalized_usage as (
         , customer_key                             as customer_key
         , product_key                              as product_key
         , plan_key                                 as plan_key
+        , usage_key
     from {{ ref('ref_usage_atlas') }}
 )
 
@@ -65,6 +66,7 @@ normalized_usage as (
 
 select
       report_date
+    , usage_key
     , customer_key
     , product_key
     , plan_key

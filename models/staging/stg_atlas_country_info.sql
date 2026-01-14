@@ -21,30 +21,10 @@ country_source as (
     from {{ ref('atlas_country_info') }}
 )
 
-, country_default_row as (
-    select
-          '-1'                           as country_code
-        , 'Missing'                      as country_name
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, country_combined as (
-    select
-        *
-    from country_source
-
-    union all
-
-    select
-        *
-    from country_default_row
-)
-
 , country_latest as (
     select
         *
-    from country_combined
+    from country_source
 
     qualify row_number() over (
         partition by
@@ -57,12 +37,6 @@ country_source as (
 , country_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['country_code']) }} as country_hkey
-          
-        , {{ dbt_utils.generate_surrogate_key([
-                'country_code'
-              , 'country_name'
-          ]) }} as country_hdiff
-
         , *
     from country_latest
 )

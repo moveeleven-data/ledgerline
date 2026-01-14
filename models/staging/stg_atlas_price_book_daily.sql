@@ -25,43 +25,10 @@ source_prices as (
     from {{ ref('atlas_price_book_daily') }}
 )
 
-, ghost_rows_removed as (
-    select *
-    from source_prices
-    where (
-          nullif(trim(product_code), '') is not null
-      and nullif(trim(plan_code),   '')  is not null
-      and price_date                     is not null
-      and unit_price                     is not null
-    )
-)
-
-, default_row as (
-    select
-          '-1'                           as product_code
-        , '-1'                           as plan_code
-        , to_date('2020-01-01')          as price_date
-        , 0::number                      as unit_price
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, combined_prices as (
-    select
-        *
-    from ghost_rows_removed
-
-    union all
-
-    select
-        *
-    from default_row
-)
-
 , latest_prices as (
     select
         *
-    from combined_prices
+    from source_prices
 
     qualify row_number() over (
         partition by
@@ -83,13 +50,6 @@ source_prices as (
              , 'plan_code'
              , 'price_date'
           ]) }} as price_book_hkey
-
-        , {{ dbt_utils.generate_surrogate_key([
-               'product_code'
-             , 'plan_code'
-             , 'price_date'
-             , 'unit_price'
-          ]) }} as price_book_hdiff
         
         , *
     from latest_prices

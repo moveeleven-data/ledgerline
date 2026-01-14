@@ -25,23 +25,10 @@ source_usage as (
     from {{ source('atlas_meter', 'atlas_meter_usage_daily') }}
 )
 
-, ghost_rows_removed as (
-    select
-        *
-    from source_usage
-    where
-          customer_code   is not null
-      and product_code    is not null
-      and plan_code       is not null
-      and report_date     is not null
-      and units_used      is not null
-      and included_units  is not null
-)
-
 , deduplicated_usage as (
     select
         *
-    from ghost_rows_removed
+    from source_usage
 
     qualify
         row_number() over (
@@ -56,30 +43,6 @@ source_usage as (
     ) = 1
 )
 
-, default_row as (
-    select
-          '-1'                           as customer_code
-        , '-1'                           as product_code
-        , '-1'                           as plan_code
-        , to_date('2020-01-01')          as report_date
-        , 0::number                      as units_used
-        , 0::number                      as included_units
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, combined_usage as (
-    select
-        *
-    from deduplicated_usage
-
-    union all
-
-    select
-        *
-    from default_row
-)
-
 , hashed_usage as (
     select
           {{ dbt_utils.generate_surrogate_key(['customer_code']) }} as customer_hkey
@@ -92,15 +55,6 @@ source_usage as (
              , 'plan_code'
              , 'report_date'
           ]) }} as usage_hkey
-
-        , {{ dbt_utils.generate_surrogate_key([
-               'customer_code'
-             , 'product_code'
-             , 'plan_code'
-             , "to_varchar(report_date,'YYYY-MM-DD')"
-             , 'units_used'
-             , 'included_units'
-          ]) }} as usage_hdiff
 
         , *
     from combined_usage

@@ -23,32 +23,10 @@ plan_source as (
     from {{ ref('atlas_catalog_plan_info') }}
 )
 
-, plan_default_row as (
-    select
-          '-1'                           as plan_code
-        , 'Missing'                      as plan_name
-        , '-1'                           as product_code
-        , 'unknown'                      as billing_period
-        , to_timestamp_ntz('2020-01-01') as load_ts_utc
-        , 'System.DefaultKey'            as record_source
-)
-
-, plan_combined as (
-    select
-        *
-    from plan_source
-
-    union all
-
-    select
-        *
-    from plan_default_row
-)
-
 , plan_latest as (
     select
         *
-    from plan_combined
+    from plan_source
 
     qualify row_number() over (
         partition by
@@ -61,13 +39,6 @@ plan_source as (
 , plan_hashed as (
     select
           {{ dbt_utils.generate_surrogate_key(['plan_code']) }} as plan_hkey
-          
-        , {{ dbt_utils.generate_surrogate_key([
-                 'plan_code'
-               , 'plan_name'
-               , 'product_code'
-               , 'lower(billing_period)'
-           ]) }} as plan_hdiff
 
         , plan_code
         , plan_name
